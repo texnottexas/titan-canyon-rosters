@@ -25,6 +25,7 @@
       --row-hover: #21262d;
       --move-bg: rgba(210,153,34,.07);
       --move-border: #d29922;
+      --tooltip-bg: #1c2128;
       --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     }
     :root[data-theme="light"] {
@@ -46,6 +47,7 @@
       --row-hover: #f3f4f6;
       --move-bg: rgba(154,103,0,.06);
       --move-border: #9a6700;
+      --tooltip-bg: #ffffff;
       --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23656d76' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     }
 
@@ -103,8 +105,12 @@
       border-radius: 10px;
       padding: .9rem 1rem;
       text-align: center;
+      transition: border-color .2s;
     }
-    .stat-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); line-height: 1; }
+    .stat-num {
+      font-size: 1.75rem; font-weight: 700; color: var(--accent); line-height: 1;
+      transition: color .15s;
+    }
     .stat-lbl { font-size: .72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
 
     /* ── SQUAD QUICK FILTERS ── */
@@ -120,13 +126,8 @@
       align-items: center;
     }
     .squad-filters-label {
-      font-size: .72rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-right: .25rem;
-      white-space: nowrap;
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-right: .25rem; white-space: nowrap;
     }
     .sqbtn {
       padding: .42rem 1rem;
@@ -141,12 +142,7 @@
       white-space: nowrap;
     }
     .sqbtn:hover { border-color: var(--accent); color: var(--accent); }
-    .sqbtn.active {
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-      font-weight: 600;
-    }
+    .sqbtn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
     .sqbtn[data-squad="Dog Squad A"].active  { background: #2ea043; border-color: #2ea043; }
     .sqbtn[data-squad="Dog Squad B"].active  { background: #388bfd; border-color: #388bfd; }
     .sqbtn[data-squad="MSS Squad A"].active  { background: #8957e5; border-color: #8957e5; }
@@ -162,68 +158,33 @@
       margin-bottom: 1.5rem;
     }
     .search-card-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: .85rem;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: .85rem;
     }
-    .search-card-header h2 {
-      font-size: .72rem; font-weight: 600; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .06em;
-    }
+    .search-card-header h2 { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
     .result-count { font-size: .78rem; color: var(--muted); }
     .search-row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
     .search-group { flex: 1; min-width: 170px; }
-    .search-group label {
-      display: block; font-size: .73rem; color: var(--muted);
-      margin-bottom: .3rem; font-weight: 500;
-    }
-
-    /* text input */
+    .search-group label { display: block; font-size: .73rem; color: var(--muted); margin-bottom: .3rem; font-weight: 500; }
     .s-input {
-      width: 100%;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: .5rem .8rem;
-      color: var(--text);
-      font-size: .855rem;
-      outline: none;
-      transition: border-color .15s, box-shadow .15s;
+      width: 100%; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 7px; padding: .5rem .8rem; color: var(--text);
+      font-size: .855rem; outline: none; transition: border-color .15s, box-shadow .15s;
     }
     .s-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.12); }
-
-    /* modern select */
     .s-select-wrap { position: relative; }
     .s-select {
-      width: 100%;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: .5rem 2.2rem .5rem .8rem;
-      color: var(--text);
-      font-size: .855rem;
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-      cursor: pointer;
-      transition: border-color .15s, box-shadow .15s;
-      background-image: var(--chevron);
-      background-repeat: no-repeat;
-      background-position: right .75rem center;
+      width: 100%; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 7px; padding: .5rem 2.2rem .5rem .8rem; color: var(--text);
+      font-size: .855rem; outline: none; appearance: none; -webkit-appearance: none;
+      cursor: pointer; transition: border-color .15s, box-shadow .15s;
+      background-image: var(--chevron); background-repeat: no-repeat; background-position: right .75rem center;
     }
     .s-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.12); }
     .s-select option { background: var(--bg2); color: var(--text); }
-
     .clear-btn {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 7px;
-      padding: .5rem .9rem;
-      cursor: pointer;
-      font-size: .8rem;
-      white-space: nowrap;
-      transition: all .15s;
-      align-self: flex-end;
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 7px; padding: .5rem .9rem; cursor: pointer; font-size: .8rem;
+      white-space: nowrap; transition: all .15s; align-self: flex-end;
     }
     .clear-btn:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -238,18 +199,11 @@
     }
 
     /* ── TABLE ── */
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      margin-bottom: 2.5rem;
-    }
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 2.5rem; }
     table { width: 100%; border-collapse: collapse; background: var(--card); font-size: .855rem; }
     thead th {
-      background: var(--bg2);
-      border-bottom: 1px solid var(--border);
-      padding: .6rem 1rem;
-      text-align: left;
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: .6rem 1rem; text-align: left;
       font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .055em;
       color: var(--muted); white-space: nowrap;
     }
@@ -263,11 +217,8 @@
     tbody tr.hidden { display: none; }
 
     /* move highlight */
-    tbody tr.has-move {
-      background: var(--move-bg);
-      border-left: 2px solid var(--move-border);
-    }
-    tbody tr.has-move:hover { filter: brightness(1.08); }
+    tbody tr.has-move { background: var(--move-bg); border-left: 2px solid var(--move-border); }
+    tbody tr.has-move:hover { filter: brightness(1.07); }
 
     .pname { font-weight: 600; }
     .badge {
@@ -286,8 +237,8 @@
 
     .move-tag {
       display: inline-block; padding: 1px 6px; border-radius: 4px;
-      font-size: .67rem; background: rgba(210,153,34,.18); color: var(--air); margin-left: 5px;
-      font-weight: 600;
+      font-size: .67rem; background: rgba(210,153,34,.18); color: var(--air);
+      margin-left: 5px; font-weight: 600;
     }
 
     .avail { display: flex; gap: 4px; align-items: center; }
@@ -295,7 +246,33 @@
     .dot.y { background: var(--army); }
     .dot.n { background: var(--border); }
 
-    .note-tip { font-size: .8rem; cursor: help; }
+    /* name tooltip for move-highlighted rows */
+    .name-tip {
+      position: relative;
+      cursor: default;
+    }
+    .name-tip::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 7px);
+      left: 0;
+      background: var(--tooltip-bg);
+      border: 1px solid var(--move-border);
+      color: var(--text);
+      padding: .45rem .65rem;
+      border-radius: 7px;
+      font-size: .75rem;
+      font-weight: 400;
+      white-space: nowrap;
+      max-width: 300px;
+      white-space: pre-wrap;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .15s;
+      box-shadow: 0 4px 14px var(--shadow);
+    }
+    .name-tip:hover::after { opacity: 1; }
 
     .no-results { text-align: center; padding: 3rem; color: var(--muted); font-size: .875rem; }
 
@@ -307,10 +284,7 @@
       margin-bottom: 2rem;
     }
     .chart-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.1rem;
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem;
     }
     .chart-card h3 {
       font-size: .7rem; font-weight: 600; color: var(--muted);
@@ -348,8 +322,8 @@
 
   <!-- Stats -->
   <div class="stats-grid">
-    <div class="stat-card"><div class="stat-num" id="sTot">0</div><div class="stat-lbl">Total Players</div></div>
-    <div class="stat-card"><div class="stat-num">5</div><div class="stat-lbl">Active Squads</div></div>
+    <div class="stat-card"><div class="stat-num" id="sTot">0</div><div class="stat-lbl">Players</div></div>
+    <div class="stat-card"><div class="stat-num" id="sSquadCount">5</div><div class="stat-lbl">Squads</div></div>
     <div class="stat-card"><div class="stat-num" id="sCE">0</div><div class="stat-lbl">Combat Elite</div></div>
     <div class="stat-card"><div class="stat-num" id="sMM">0</div><div class="stat-lbl">Mech Master</div></div>
     <div class="stat-card"><div class="stat-num" id="sAvgCP">0</div><div class="stat-lbl">Avg March CP</div></div>
@@ -396,7 +370,7 @@
         <div class="s-select-wrap">
           <select id="sUnit" class="s-select" onchange="applyFilters()">
             <option value="">All Units</option>
-            <option value="Army">Army &#129030;</option>
+            <option value="Army">Army</option>
             <option value="Navy">Navy &#9875;&#65039;</option>
             <option value="Air Force">Air Force &#9992;&#65039;</option>
           </select>
@@ -417,7 +391,7 @@
   </div>
 
   <!-- Roster -->
-  <div class="sec-title">Full Roster</div>
+  <div class="sec-title" id="rosterTitle">Full Roster</div>
   <div class="table-wrap">
     <table id="rTable">
       <thead>
@@ -431,7 +405,6 @@
           <th>UC Lvl</th>
           <th>Alliance</th>
           <th title="-6 / -2 / +2 / +10">Availability</th>
-          <th>Notes</th>
         </tr>
       </thead>
       <tbody id="rBody"></tbody>
@@ -481,14 +454,14 @@ const RAW = [
   ["BAL","","n","y","n","n","DOG","Army",41,"CE","","Dog Squad B"],
   ["Bane","","n","n","y","y","MSS","Army",65,"CE","","MSS Squad A"],
   ["Bchara","","n","y","n","n","DOG","Army",49,"CE","","Dog Squad B"],
-  ["Beyo","Beyo don't know shit","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
+  ["Beyo","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
   ["Bianco","","n","n","y","n","MSS","Army",13,"CE","","MSS Squad A"],
   ["Biggie","","n","n","n","y","DOG","Army",102,"CE","","Dog Squad A"],
-  ["BlindGuy","Can move to MSS if needed","n","n","y","y","DOG","Army",40,"MM","4","Dog Squad A"],
+  ["BlindGuy","","n","n","y","y","DOG","Army",40,"MM","4","Dog Squad A"],
   ["BMW5","","n","n","y","n","MSS","Army",65,"CE","","MSS Squad A"],
   ["brewdog","","n","n","n","y","DOG","Navy",66,"MM","3","Dog Squad A"],
   ["Calabro","","n","y","n","n","DOG","Air Force",47,"CE","","Dog Squad B"],
-  ["Caliboyx","Fk Planes. Blame Livv!","n","n","n","y","MSS","Navy",38,"CE","","MSS Squad B"],
+  ["Caliboyx","","n","n","n","y","MSS","Navy",38,"CE","","MSS Squad B"],
   ["cardsfan","","n","y","n","n","DOG","Army",67,"MM","5","Dog Squad B"],
   ["CHAUSUI","","n","y","n","n","DOG","Army",115,"CE","","Dog Squad B"],
   ["Darkspy","","n","n","n","y","DOG","Navy",70,"MM","3","Dog Squad A"],
@@ -496,20 +469,20 @@ const RAW = [
   ["Dingus","","n","n","y","n","MSS","Army",73,"CE","","MSS Squad A"],
   ["DNA","","n","n","y","n","MSS","Army",56,"MM","5","MSS Squad A"],
   ["DragonMC","","n","y","n","n","DOG","Army",50,"CE","","Dog Squad B"],
-  ["Drak","No feel good as long as people know how to park","n","y","n","n","DOG","Navy",68,"MM","5","Dog Squad B"],
+  ["Drak","","n","y","n","n","DOG","Navy",68,"MM","5","Dog Squad B"],
   ["Drewskii","","n","n","y","y","MSS","Air Force",73,"CE","","MSS Squad B"],
   ["DRuSE","","n","n","y","n","MSS","Navy",21,"MM","1","MSS Squad A"],
   ["Dtp20","","n","y","n","y","DOG","Air Force",110,"CE","","Dog Squad A"],
   ["Elb","Move to PRU by Thu +10","y","n","n","n","MSS","Navy",56,"MM","3","PRU Squad A"],
-  ["Eny","Please join Voice Chat","n","n","y","n","MSS","Navy",135,"CE","","MSS Squad A"],
-  ["Faxe","Move to PRU by Thu +10 - how much is the fish","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],
+  ["Eny","","n","n","y","n","MSS","Navy",135,"CE","","MSS Squad A"],
+  ["Faxe","Move to PRU by Thu +10","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],
   ["Fokker","","n","y","y","n","MSS","Navy",32,"MM","3","MSS Squad A"],
   ["GM","","n","y","n","n","DOG","Air Force",39,"CE","","Dog Squad B"],
   ["Gorilla","","n","n","n","y","DOG","Navy",50,"CE","","Dog Squad A"],
   ["Harley","","n","n","n","y","MSS","Army",90,"CE","","MSS Squad B"],
   ["Heidi","","n","n","y","n","MSS","Navy",60,"MM","5","MSS Squad A"],
   ["HELLFIRE","","n","y","n","n","DOG","Navy",62,"CE","","Dog Squad B"],
-  ["Helmo","Burn everything...","n","n","n","y","MSS","Navy",101,"CE","","MSS Squad B"],
+  ["Helmo","","n","n","n","y","MSS","Navy",101,"CE","","MSS Squad B"],
   ["Hm","","n","n","n","y","MSS","Navy",85,"CE","","MSS Squad B"],
   ["Hoadi","","y","y","y","n","MSS","Air Force",93,"CE","","MSS Squad A"],
   ["Hot-rods","","n","n","y","y","MSS","Army",28,"MM","2","MSS Squad B"],
@@ -534,10 +507,10 @@ const RAW = [
   ["Maximum (MSS)","","n","n","n","y","MSS","Army",30,"MM","4","MSS Squad B"],
   ["Maximum (DOG)","","n","y","n","n","DOG","Navy",80,"CE","","Dog Squad B"],
   ["MegaBo","","y","y","y","n","MSS","Air Force",80,"CE","","MSS Squad A"],
-  ["meliodas","Move to MSS by Thu +10 - late last week","n","y","y","n","DOG","Air Force",55,"MM","5","MSS Squad A"],
+  ["meliodas","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",55,"MM","5","MSS Squad A"],
   ["Melo84","","n","y","n","n","DOG","Army",22,"CE","","Dog Squad B"],
   ["Mephisto","","n","n","n","y","DOG","Air Force",119,"CE","","Dog Squad A"],
-  ["MF_Bluey","Goon squad","n","n","n","y","DOG","Army",100,"CE","","Dog Squad A"],
+  ["MF_Bluey","","n","n","n","y","DOG","Army",100,"CE","","Dog Squad A"],
   ["MFBluey2","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
   ["MicroBo","Move to PRU by Thu +10","y","y","y","n","Cat+","Army",25,"MM","4","PRU Squad A"],
   ["MONKEY","","n","y","n","n","DOG","Army",56,"CE","","Dog Squad B"],
@@ -559,18 +532,18 @@ const RAW = [
   ["Project","","n","n","n","y","DOG","Army",42,"CE","","Dog Squad A"],
   ["Quaggy","Move to MSS by Thu +10","n","n","y","n","DOG","Navy",73,"CE","","MSS Squad A"],
   ["Raqqas","","n","y","n","n","DOG","Army",39,"CE","","Dog Squad B"],
-  ["Ray","When Sting dies will he be called Stung?","n","n","y","n","MSS","Army",21,"MM","5","MSS Squad A"],
+  ["Ray","","n","n","y","n","MSS","Army",21,"MM","5","MSS Squad A"],
   ["Repuff","","n","n","n","y","MSS","Navy",47,"MM","2","MSS Squad B"],
   ["Rex","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",80,"CE","","MSS Squad A"],
   ["ROM","","n","n","y","n","MSS","Army",30,"CE","","MSS Squad A"],
   ["Roma","Move to PRU by Thu +10","y","n","y","n","MSS","Navy",28,"CE","","PRU Squad A"],
-  ["Samson","Why don't we have more MMs","n","y","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
+  ["Samson","","n","y","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
   ["Shaz","Move to PRU by Thu +10","y","n","n","n","MSS","Air Force",94,"CE","","PRU Squad A"],
   ["Shorty","","n","y","n","n","DOG","Army",56,"MM","2","Dog Squad B"],
   ["Smalls","Move to MSS by Thu +10","n","y","y","y","DOG","Army",37,"MM","2","MSS Squad A"],
   ["Smoke","","n","n","n","y","MSS","Army",62,"CE","","MSS Squad B"],
   ["Smurfx","","n","n","n","y","DOG","Navy",80,"CE","","Dog Squad A"],
-  ["Sparta","Why couldn't the skeleton cross the road? It didn't have the guts","n","n","y","y","DOG","Navy",175,"CE","","Dog Squad A"],
+  ["Sparta","","n","n","y","y","DOG","Navy",175,"CE","","Dog Squad A"],
   ["Steve","","n","n","n","y","MSS","Air Force",40,"CE","","MSS Squad B"],
   ["STiCK","","n","n","n","y","DOG","Air Force",50,"MM","5","Dog Squad A"],
   ["STINGER","","n","n","n","y","MSS","Navy",33,"MM","4","MSS Squad B"],
@@ -601,6 +574,13 @@ const players = RAW.map(r => ({
 
 const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
 const SQUAD_SHORT = ["Dog A","Dog B","MSS A","MSS B","PRU A"];
+const SQUAD_LABELS = {
+  "Dog Squad A": "Dog Squad A \u2014 Saturday +10",
+  "Dog Squad B": "Dog Squad B \u2014 Saturday \u22122",
+  "MSS Squad A": "MSS Squad A \u2014 Saturday +2",
+  "MSS Squad B": "MSS Squad B \u2014 Saturday +10",
+  "PRU Squad A": "PRU Squad A \u2014 Saturday \u22126",
+};
 const MAX_CP = Math.max(...players.map(p=>p.cp));
 
 // ── THEME ─────────────────────────────────────────────────────────────────────
@@ -613,21 +593,29 @@ function toggleTheme() {
   updateChartTheme();
 }
 
-// ── STATS ─────────────────────────────────────────────────────────────────────
-function initStats() {
-  document.getElementById("sTot").textContent = players.length;
-  document.getElementById("sCE").textContent = players.filter(p=>p.prof==="CE").length;
-  document.getElementById("sMM").textContent = players.filter(p=>p.prof==="MM").length;
-  document.getElementById("sAvgCP").textContent = Math.round(players.reduce((s,p)=>s+p.cp,0)/players.length);
-  document.getElementById("sTopCP").textContent = MAX_CP;
+// ── STATS (dynamic) ───────────────────────────────────────────────────────────
+function updateStats(list) {
+  const isAll = (list.length === players.length);
+  document.getElementById("sTot").textContent = list.length;
+  document.getElementById("sSquadCount").textContent = isAll ? 5 : new Set(list.map(p=>p.squad)).size;
+  document.getElementById("sCE").textContent = list.filter(p=>p.prof==="CE").length;
+  document.getElementById("sMM").textContent = list.filter(p=>p.prof==="MM").length;
+  document.getElementById("sAvgCP").textContent = list.length
+    ? Math.round(list.reduce((s,p)=>s+p.cp,0)/list.length) : 0;
+  document.getElementById("sTopCP").textContent = list.length
+    ? Math.max(...list.map(p=>p.cp)) : 0;
 }
+
+// ── ARMY TANK SVG ─────────────────────────────────────────────────────────────
+const TANK_SVG = `<svg width="14" height="11" viewBox="0 0 14 11" fill="currentColor" style="vertical-align:middle;margin-right:1px"><rect x="1" y="5" width="12" height="5" rx="1.2"/><rect x="3.5" y="2" width="5" height="3" rx="1"/><rect x="8" y="3" width="4" height="1.2" rx=".6"/><circle cx="2.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="5" cy="10" r=".9" fill="var(--bg)"/><circle cx="7.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="10" cy="10" r=".9" fill="var(--bg)"/><circle cx="12.5" cy="10" r=".9" fill="var(--bg)"/></svg>`;
 
 // ── TABLE ─────────────────────────────────────────────────────────────────────
 let sortCol = null, sortAsc = true, tabSquad = "";
 
 function unitBadge(u) {
-  const cls = u==="Army"?"b-army":u==="Navy"?"b-navy":"b-air";
-  const icon = u==="Army"?"&#129030;":u==="Navy"?"&#9875;&#65039;":"&#9992;&#65039;";
+  if (u === "Army") return `<span class="badge b-army">${TANK_SVG} Army</span>`;
+  const cls = u==="Navy" ? "b-navy" : "b-air";
+  const icon = u==="Navy" ? "&#9875;&#65039;" : "&#9992;&#65039;";
   return `<span class="badge ${cls}">${icon} ${u}</span>`;
 }
 function profBadge(p) {
@@ -653,13 +641,17 @@ function moveTag(notes) {
 function buildTable(list) {
   const tbody = document.getElementById("rBody");
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="10" class="no-results">No players match your filters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" class="no-results">No players match your filters.</td></tr>`;
     return;
   }
-  tbody.innerHTML = list.map((p,i)=>`
+  tbody.innerHTML = list.map((p,i) => {
+    const nameCell = p.isMove
+      ? `<span class="name-tip" data-tip="${p.notes.replace(/"/g,'&quot;')}">${p.name}${moveTag(p.notes)}</span>`
+      : `${p.name}`;
+    return `
     <tr data-squad="${p.squad}"${p.isMove?' class="has-move"':''}>
       <td style="color:var(--muted);font-size:.75rem">${i+1}</td>
-      <td class="pname">${p.name}${moveTag(p.notes)}</td>
+      <td class="pname">${nameCell}</td>
       <td style="font-size:.8rem;color:var(--muted)">${p.squad}</td>
       <td>${unitBadge(p.unit)}</td>
       <td>${profBadge(p.prof)}</td>
@@ -667,8 +659,8 @@ function buildTable(list) {
       <td style="color:var(--muted);text-align:center;font-size:.8rem">${p.ucLvl||"—"}</td>
       <td><span style="font-size:.76rem;color:var(--muted)">${p.alliance}</span></td>
       <td>${availDots(p)}</td>
-      <td>${p.notes?`<span class="note-tip" title="${p.notes.replace(/"/g,'&quot;')}">&#8505;&#65039;</span>`:`<span style="color:var(--border)">—</span>`}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 function getSortedFiltered() {
@@ -697,7 +689,13 @@ function getSortedFiltered() {
 function applyFilters() {
   const list = getSortedFiltered();
   buildTable(list);
+  updateStats(list);
   document.getElementById("rCount").textContent = `${list.length} of ${players.length} players`;
+
+  // update roster title
+  const activeSquad = document.getElementById("sSquad").value || tabSquad;
+  document.getElementById("rosterTitle").textContent =
+    activeSquad ? SQUAD_LABELS[activeSquad] || activeSquad : "Full Roster";
 }
 
 function clearFilters() {
@@ -723,8 +721,8 @@ function sortBy(th) {
 
 // ── CHARTS ───────────────────────────────────────────────────────────────────
 const UC = {
-  Army:      { bg:"rgba(63,185,80,.7)",  b:"#3fb950" },
-  Navy:      { bg:"rgba(56,139,253,.7)", b:"#388bfd" },
+  Army:       { bg:"rgba(63,185,80,.7)",  b:"#3fb950" },
+  Navy:       { bg:"rgba(56,139,253,.7)", b:"#388bfd" },
   "Air Force":{ bg:"rgba(210,153,34,.7)", b:"#d29922" }
 };
 const PC = {
@@ -761,8 +759,8 @@ function buildCharts() {
   charts.unit = new Chart(document.getElementById("cUnitSquad"), {
     type:"bar",
     data:{ labels:SQUAD_SHORT, datasets:[
-      { label:"Army",      data:sqUnit("Army"),       backgroundColor:UC.Army.bg,      borderColor:UC.Army.b,      borderWidth:1, borderRadius:3 },
-      { label:"Navy",      data:sqUnit("Navy"),       backgroundColor:UC.Navy.bg,      borderColor:UC.Navy.b,      borderWidth:1, borderRadius:3 },
+      { label:"Army",      data:sqUnit("Army"),       backgroundColor:UC.Army.bg,         borderColor:UC.Army.b,         borderWidth:1, borderRadius:3 },
+      { label:"Navy",      data:sqUnit("Navy"),       backgroundColor:UC.Navy.bg,         borderColor:UC.Navy.b,         borderWidth:1, borderRadius:3 },
       { label:"Air Force", data:sqUnit("Air Force"),  backgroundColor:UC["Air Force"].bg, borderColor:UC["Air Force"].b, borderWidth:1, borderRadius:3 }
     ]},
     options: baseOpts()
@@ -809,9 +807,8 @@ function buildCharts() {
 
 function updateChartTheme() {
   Object.values(charts).forEach(c=>{
-    const isDoughnut = c.config.type==="doughnut";
     c.options.plugins.legend.labels.color = cf();
-    if (!isDoughnut) {
+    if (c.config.type !== "doughnut") {
       c.options.scales.x.ticks.color = cf();
       c.options.scales.y.ticks.color = cf();
       c.options.scales.x.grid.color = cg();
@@ -823,7 +820,6 @@ function updateChartTheme() {
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  initStats();
   buildCharts();
   applyFilters();
 });
