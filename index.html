@@ -13,19 +13,19 @@
       --border: #30363d;
       --text: #e6edf3;
       --muted: #8b949e;
-      --accent: #58a6ff;
+      --accent: #79c0ff;
       --army: #3fb950;
       --navy: #388bfd;
       --air: #d29922;
       --ce: #e3b341;
       --mm: #bc8cff;
       --tag: #21262d;
-      --input: #0d1117;
-      --shadow: rgba(0,0,0,.4);
+      --shadow: rgba(0,0,0,.45);
       --row-hover: #21262d;
       --move-bg: rgba(210,153,34,.07);
       --move-border: #d29922;
       --tooltip-bg: #1c2128;
+      --modal-bg: rgba(0,0,0,.7);
       --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     }
     :root[data-theme="light"] {
@@ -35,131 +35,97 @@
       --border: #d0d7de;
       --text: #1f2328;
       --muted: #656d76;
-      --accent: #0969da;
+      --accent: #1f75d4;
       --army: #1a7f37;
       --navy: #0550ae;
       --air: #9a6700;
       --ce: #7d4e00;
       --mm: #6e40c9;
       --tag: #eaeef2;
-      --input: #ffffff;
       --shadow: rgba(140,149,159,.2);
       --row-hover: #f3f4f6;
       --move-bg: rgba(154,103,0,.06);
       --move-border: #9a6700;
       --tooltip-bg: #ffffff;
+      --modal-bg: rgba(0,0,0,.5);
       --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23656d76' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      transition: background .2s, color .2s;
+      background: var(--bg); color: var(--text); min-height: 100vh; transition: background .2s, color .2s;
     }
 
     /* ── HEADER ── */
     header {
-      background: var(--bg2);
-      border-bottom: 1px solid var(--border);
-      padding: .85rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 200;
-      box-shadow: 0 1px 0 var(--border);
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: .85rem 2rem; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 0 var(--border);
     }
     .header-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); letter-spacing: -.01em; }
     .header-sub { font-size: .75rem; color: var(--muted); margin-top: 3px; }
-    .theme-btn {
-      background: var(--tag);
-      border: 1px solid var(--border);
-      color: var(--muted);
-      border-radius: 8px;
-      padding: .38rem .9rem;
-      cursor: pointer;
-      font-size: .8rem;
-      display: flex; align-items: center; gap: .4rem;
-      transition: all .15s;
+    .header-actions { display: flex; gap: .6rem; align-items: center; }
+    .hdr-btn {
+      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: .38rem .9rem; cursor: pointer; font-size: .8rem;
+      display: flex; align-items: center; gap: .4rem; transition: all .15s; white-space: nowrap;
     }
-    .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .hdr-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .hdr-btn-charts { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
+    .hdr-btn-charts:hover { background: color-mix(in srgb, var(--accent) 10%, var(--tag)); }
 
     /* ── MAIN ── */
     main { max-width: 1440px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
 
     /* ── STATS ── */
     .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: .75rem;
-      margin-bottom: 1.25rem;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: .75rem; margin-bottom: 1.25rem;
     }
     .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: .9rem 1rem;
-      text-align: center;
-      transition: border-color .2s;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: .9rem 1rem; text-align: center;
     }
-    .stat-num {
-      font-size: 1.75rem; font-weight: 700; color: var(--accent); line-height: 1;
-      transition: color .15s;
-    }
+    .stat-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); line-height: 1; }
     .stat-lbl { font-size: .72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
 
-    /* ── SQUAD QUICK FILTERS ── */
+    /* ── SQUAD FILTERS ── */
     .squad-filters {
-      display: flex;
-      gap: .5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1.25rem;
-      padding: 1rem 1.25rem;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      align-items: center;
+      display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+      padding: .9rem 1.25rem; background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; align-items: center;
     }
     .squad-filters-label {
       font-size: .72rem; font-weight: 600; color: var(--muted);
       text-transform: uppercase; letter-spacing: .06em; margin-right: .25rem; white-space: nowrap;
     }
     .sqbtn {
-      padding: .42rem 1rem;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--tag);
-      color: var(--muted);
-      cursor: pointer;
-      font-size: .82rem;
-      font-weight: 500;
-      transition: all .15s;
-      white-space: nowrap;
+      padding: .4rem 1rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--tag); color: var(--muted); cursor: pointer;
+      font-size: .82rem; font-weight: 500; transition: all .15s;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
     }
+    .sqbtn-name { line-height: 1.2; }
+    .sqbtn-time { font-size: .67rem; color: var(--muted); opacity: .8; line-height: 1; }
     .sqbtn:hover { border-color: var(--accent); color: var(--accent); }
-    .sqbtn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
-    .sqbtn[data-squad="Dog Squad A"].active  { background: #2ea043; border-color: #2ea043; }
-    .sqbtn[data-squad="Dog Squad B"].active  { background: #388bfd; border-color: #388bfd; }
-    .sqbtn[data-squad="MSS Squad A"].active  { background: #8957e5; border-color: #8957e5; }
-    .sqbtn[data-squad="MSS Squad B"].active  { background: #bc4c00; border-color: #bc4c00; }
-    .sqbtn[data-squad="PRU Squad A"].active  { background: #d29922; border-color: #d29922; color: #0d1117; }
+    .sqbtn:hover .sqbtn-time { color: var(--accent); }
+    .sqbtn.active { font-weight: 600; }
+    .sqbtn.active .sqbtn-time { color: rgba(255,255,255,.7); }
+    .sqbtn[data-squad=""].active  { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .sqbtn[data-squad="Dog Squad A"].active { background: #2ea043; border-color: #2ea043; color: #fff; }
+    .sqbtn[data-squad="Dog Squad B"].active { background: #388bfd; border-color: #388bfd; color: #fff; }
+    .sqbtn[data-squad="MSS Squad A"].active { background: #8957e5; border-color: #8957e5; color: #fff; }
+    .sqbtn[data-squad="MSS Squad B"].active { background: #bc4c00; border-color: #bc4c00; color: #fff; }
+    .sqbtn[data-squad="PRU Squad A"].active { background: #d29922; border-color: #d29922; color: #0d1117; }
+    .sqbtn[data-squad="PRU Squad A"].active .sqbtn-time { color: rgba(0,0,0,.6); }
 
     /* ── SEARCH CARD ── */
     .search-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1rem 1.25rem;
-      margin-bottom: 1.5rem;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;
     }
-    .search-card-header {
-      display: flex; align-items: center; justify-content: space-between; margin-bottom: .85rem;
-    }
+    .search-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .85rem; }
     .search-card-header h2 { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
     .result-count { font-size: .78rem; color: var(--muted); }
     .search-row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
@@ -170,16 +136,16 @@
       border-radius: 7px; padding: .5rem .8rem; color: var(--text);
       font-size: .855rem; outline: none; transition: border-color .15s, box-shadow .15s;
     }
-    .s-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.12); }
+    .s-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
     .s-select-wrap { position: relative; }
     .s-select {
       width: 100%; background: var(--bg2); border: 1px solid var(--border);
       border-radius: 7px; padding: .5rem 2.2rem .5rem .8rem; color: var(--text);
-      font-size: .855rem; outline: none; appearance: none; -webkit-appearance: none;
-      cursor: pointer; transition: border-color .15s, box-shadow .15s;
+      font-size: .855rem; outline: none; appearance: none; -webkit-appearance: none; cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
       background-image: var(--chevron); background-repeat: no-repeat; background-position: right .75rem center;
     }
-    .s-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.12); }
+    .s-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
     .s-select option { background: var(--bg2); color: var(--text); }
     .clear-btn {
       background: transparent; border: 1px solid var(--border); color: var(--muted);
@@ -202,10 +168,9 @@
     .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); margin-bottom: 2.5rem; }
     table { width: 100%; border-collapse: collapse; background: var(--card); font-size: .855rem; }
     thead th {
-      background: var(--bg2); border-bottom: 1px solid var(--border);
-      padding: .6rem 1rem; text-align: left;
-      font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .055em;
-      color: var(--muted); white-space: nowrap;
+      background: var(--bg2); border-bottom: 1px solid var(--border); padding: .6rem 1rem;
+      text-align: left; font-size: .7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .055em; color: var(--muted); white-space: nowrap;
     }
     th.sortable { cursor: pointer; user-select: none; }
     th.sortable:hover { color: var(--accent); }
@@ -215,16 +180,11 @@
     tbody tr:hover { background: var(--row-hover); }
     tbody td { padding: .58rem 1rem; white-space: nowrap; }
     tbody tr.hidden { display: none; }
-
-    /* move highlight */
     tbody tr.has-move { background: var(--move-bg); border-left: 2px solid var(--move-border); }
     tbody tr.has-move:hover { filter: brightness(1.07); }
 
     .pname { font-weight: 600; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 3px;
-      padding: 2px 8px; border-radius: 12px; font-size: .72rem; font-weight: 500;
-    }
+    .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 12px; font-size: .72rem; font-weight: 500; }
     .b-army { background: rgba(63,185,80,.13); color: var(--army); }
     .b-navy { background: rgba(56,139,253,.13); color: var(--navy); }
     .b-air  { background: rgba(210,153,34,.13); color: var(--air); }
@@ -237,60 +197,75 @@
 
     .move-tag {
       display: inline-block; padding: 1px 6px; border-radius: 4px;
-      font-size: .67rem; background: rgba(210,153,34,.18); color: var(--air);
-      margin-left: 5px; font-weight: 600;
+      font-size: .67rem; background: rgba(210,153,34,.18); color: var(--air); margin-left: 5px; font-weight: 600;
     }
-
     .avail { display: flex; gap: 4px; align-items: center; }
     .dot { width: 7px; height: 7px; border-radius: 50%; }
     .dot.y { background: var(--army); }
     .dot.n { background: var(--border); }
 
-    /* name tooltip for move-highlighted rows */
-    .name-tip {
-      position: relative;
-      cursor: default;
-    }
+    /* name tooltip for move rows */
+    .name-tip { position: relative; cursor: default; }
     .name-tip::after {
-      content: attr(data-tip);
-      position: absolute;
-      bottom: calc(100% + 7px);
-      left: 0;
-      background: var(--tooltip-bg);
-      border: 1px solid var(--move-border);
-      color: var(--text);
-      padding: .45rem .65rem;
-      border-radius: 7px;
-      font-size: .75rem;
-      font-weight: 400;
-      white-space: nowrap;
-      max-width: 300px;
-      white-space: pre-wrap;
-      z-index: 100;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .15s;
+      content: attr(data-tip); position: absolute; bottom: calc(100% + 7px); left: 0;
+      background: var(--tooltip-bg); border: 1px solid var(--move-border); color: var(--text);
+      padding: .45rem .65rem; border-radius: 7px; font-size: .75rem; font-weight: 400;
+      white-space: nowrap; z-index: 100; opacity: 0; pointer-events: none; transition: opacity .15s;
       box-shadow: 0 4px 14px var(--shadow);
     }
     .name-tip:hover::after { opacity: 1; }
 
     .no-results { text-align: center; padding: 3rem; color: var(--muted); font-size: .875rem; }
 
-    /* ── CHARTS ── */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: var(--modal-bg);
+      z-index: 500; display: flex; align-items: center; justify-content: center;
+      padding: 1.5rem; opacity: 0; pointer-events: none;
+      transition: opacity .2s; backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; width: 100%; max-width: 1000px; max-height: 88vh;
+      overflow-y: auto; box-shadow: 0 24px 64px var(--shadow);
+      transform: translateY(14px) scale(.98); transition: transform .2s;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0) scale(1); }
+    .modal-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.1rem 1.4rem .9rem; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--card); z-index: 10;
+    }
+    .modal-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .modal-subtitle { font-size: .75rem; color: var(--muted); margin-top: 2px; }
+    .modal-close {
+      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; width: 2rem; height: 2rem; cursor: pointer; font-size: 1.1rem;
+      display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0;
+    }
+    .modal-close:hover { background: var(--border); color: var(--text); }
+    .modal-body { padding: 1.1rem 1.4rem 1.4rem; }
+    .modal-squad-row {
+      display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+      padding-bottom: 1.1rem; border-bottom: 1px solid var(--border); align-items: center;
+    }
+    .modal-squad-lbl {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-right: .25rem;
+    }
+    .modal-charts-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 1.1rem;
-      margin-bottom: 2rem;
     }
     .chart-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem;
     }
     .chart-card h3 {
       font-size: .7rem; font-weight: 600; color: var(--muted);
       text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem;
     }
-    .chart-wrap { position: relative; height: 220px; }
+    .chart-wrap { position: relative; height: 210px; }
 
     /* ── SCROLLBAR ── */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -302,6 +277,8 @@
       main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; }
       .header-title { font-size: .95rem; }
+      .modal-overlay { padding: .5rem; }
+      .modal-box { max-height: 95vh; border-radius: 10px; }
     }
   </style>
 </head>
@@ -312,10 +289,16 @@
     <div class="header-title">&#9876; Server 2864 &ndash; Titan Canyon Rosters</div>
     <div class="header-sub">Event: Saturday, March 07 &nbsp;&bull;&nbsp; 5 Squads</div>
   </div>
-  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
-    <span id="themeIcon">&#9728;&#65039;</span>
-    <span id="themeLabel">Light Mode</span>
-  </button>
+  <div class="header-actions">
+    <button class="hdr-btn hdr-btn-charts" onclick="openChartsModal()">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="8" width="3" height="7" rx="1"/><rect x="6" y="4" width="3" height="11" rx="1"/><rect x="11" y="1" width="3" height="14" rx="1"/></svg>
+      Charts
+    </button>
+    <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()">
+      <span id="themeIcon">&#9728;&#65039;</span>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
 </header>
 
 <main>
@@ -333,12 +316,29 @@
   <!-- Squad Quick Filters -->
   <div class="squad-filters">
     <span class="squad-filters-label">Squad</span>
-    <button class="sqbtn active" data-squad="" onclick="tabFilter(this)">All Players</button>
-    <button class="sqbtn" data-squad="Dog Squad A" onclick="tabFilter(this)">&#128021; Dog A &nbsp;+10</button>
-    <button class="sqbtn" data-squad="Dog Squad B" onclick="tabFilter(this)">&#128021; Dog B &nbsp;&minus;2</button>
-    <button class="sqbtn" data-squad="MSS Squad A" onclick="tabFilter(this)">&#128737;&#65039; MSS A &nbsp;+2</button>
-    <button class="sqbtn" data-squad="MSS Squad B" onclick="tabFilter(this)">&#128737;&#65039; MSS B &nbsp;+10</button>
-    <button class="sqbtn" data-squad="PRU Squad A" onclick="tabFilter(this)">&#9876; PRU A &nbsp;&minus;6</button>
+    <button class="sqbtn active" data-squad="" onclick="tabFilter(this)">
+      <span class="sqbtn-name">All Players</span>
+    </button>
+    <button class="sqbtn" data-squad="Dog Squad A" onclick="tabFilter(this)">
+      <span class="sqbtn-name">&#128021; Dog A &nbsp;+10</span>
+      <span class="sqbtn-time" data-epoch="1772935200"></span>
+    </button>
+    <button class="sqbtn" data-squad="Dog Squad B" onclick="tabFilter(this)">
+      <span class="sqbtn-name">&#128021; Dog B &nbsp;&minus;2</span>
+      <span class="sqbtn-time" data-epoch="1772892000"></span>
+    </button>
+    <button class="sqbtn" data-squad="MSS Squad A" onclick="tabFilter(this)">
+      <span class="sqbtn-name">&#127776; MSS A &nbsp;+2</span>
+      <span class="sqbtn-time" data-epoch="1772906400"></span>
+    </button>
+    <button class="sqbtn" data-squad="MSS Squad B" onclick="tabFilter(this)">
+      <span class="sqbtn-name">&#127776; MSS B &nbsp;+10</span>
+      <span class="sqbtn-time" data-epoch="1772935200"></span>
+    </button>
+    <button class="sqbtn" data-squad="PRU Squad A" onclick="tabFilter(this)">
+      <span class="sqbtn-name">&#9876; PRU A &nbsp;&minus;6</span>
+      <span class="sqbtn-time" data-epoch="1772877600"></span>
+    </button>
   </div>
 
   <!-- Search & Filter -->
@@ -411,28 +411,56 @@
     </table>
   </div>
 
-  <!-- Charts -->
-  <div class="sec-title">Squad Distribution Charts</div>
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Unit Type by Squad</h3>
-      <div class="chart-wrap"><canvas id="cUnitSquad"></canvas></div>
+</main>
+
+<!-- Charts Modal -->
+<div id="chartsModal" class="modal-overlay" onclick="handleModalClick(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modalTitle">Squad Distribution Charts</div>
+        <div class="modal-subtitle" id="modalSubtitle">All squads &mdash; 126 players</div>
+      </div>
+      <button class="modal-close" onclick="closeChartsModal()">&#10005;</button>
     </div>
-    <div class="chart-card">
-      <h3>Profession by Squad</h3>
-      <div class="chart-wrap"><canvas id="cProfSquad"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Overall Unit Distribution</h3>
-      <div class="chart-wrap"><canvas id="cUnitPie"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Average March CP by Squad</h3>
-      <div class="chart-wrap"><canvas id="cAvgCP"></canvas></div>
+    <div class="modal-body">
+      <!-- Modal Squad Filter -->
+      <div class="modal-squad-row">
+        <span class="modal-squad-lbl">Filter</span>
+        <button class="sqbtn active" data-squad="" onclick="modalSquadFilter(this)">
+          <span class="sqbtn-name">All Squads</span>
+        </button>
+        <button class="sqbtn" data-squad="Dog Squad A" onclick="modalSquadFilter(this)">
+          <span class="sqbtn-name">&#128021; Dog A &nbsp;+10</span>
+          <span class="sqbtn-time" data-epoch="1772935200"></span>
+        </button>
+        <button class="sqbtn" data-squad="Dog Squad B" onclick="modalSquadFilter(this)">
+          <span class="sqbtn-name">&#128021; Dog B &nbsp;&minus;2</span>
+          <span class="sqbtn-time" data-epoch="1772892000"></span>
+        </button>
+        <button class="sqbtn" data-squad="MSS Squad A" onclick="modalSquadFilter(this)">
+          <span class="sqbtn-name">&#127776; MSS A &nbsp;+2</span>
+          <span class="sqbtn-time" data-epoch="1772906400"></span>
+        </button>
+        <button class="sqbtn" data-squad="MSS Squad B" onclick="modalSquadFilter(this)">
+          <span class="sqbtn-name">&#127776; MSS B &nbsp;+10</span>
+          <span class="sqbtn-time" data-epoch="1772935200"></span>
+        </button>
+        <button class="sqbtn" data-squad="PRU Squad A" onclick="modalSquadFilter(this)">
+          <span class="sqbtn-name">&#9876; PRU A &nbsp;&minus;6</span>
+          <span class="sqbtn-time" data-epoch="1772877600"></span>
+        </button>
+      </div>
+      <!-- Charts -->
+      <div class="modal-charts-grid">
+        <div class="chart-card"><h3 id="mCh1Title">Unit Type by Squad</h3><div class="chart-wrap"><canvas id="mCUnit"></canvas></div></div>
+        <div class="chart-card"><h3 id="mCh2Title">Profession by Squad</h3><div class="chart-wrap"><canvas id="mCProf"></canvas></div></div>
+        <div class="chart-card"><h3>Overall Unit Distribution</h3><div class="chart-wrap"><canvas id="mCPie"></canvas></div></div>
+        <div class="chart-card"><h3 id="mCh4Title">Average March CP by Squad</h3><div class="chart-wrap"><canvas id="mCCP"></canvas></div></div>
+      </div>
     </div>
   </div>
-
-</main>
+</div>
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
@@ -583,75 +611,88 @@ const SQUAD_LABELS = {
 };
 const MAX_CP = Math.max(...players.map(p=>p.cp));
 
+const UC = {
+  Army:       { bg:"rgba(63,185,80,.7)",  b:"#3fb950" },
+  Navy:       { bg:"rgba(56,139,253,.7)", b:"#388bfd" },
+  "Air Force":{ bg:"rgba(210,153,34,.7)", b:"#d29922" }
+};
+const PC = {
+  CE: { bg:"rgba(227,179,65,.75)", b:"#e3b341" },
+  MM: { bg:"rgba(188,140,255,.75)", b:"#bc8cff" }
+};
+
+// ── TIMESTAMPS ───────────────────────────────────────────────────────────────
+function fmtTime(epoch) {
+  return new Date(epoch * 1000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+function fmtFull(epoch) {
+  return new Date(epoch * 1000).toLocaleString([], {
+    weekday: 'short', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', timeZoneName: 'short'
+  });
+}
+function initTimestamps() {
+  document.querySelectorAll(".sqbtn-time[data-epoch]").forEach(el => {
+    const epoch = parseInt(el.dataset.epoch);
+    el.textContent = fmtTime(epoch);
+    el.parentElement.title = fmtFull(epoch);
+  });
+}
+
 // ── THEME ─────────────────────────────────────────────────────────────────────
 function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute("data-theme") === "dark";
-  html.setAttribute("data-theme", isDark ? "light" : "dark");
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
   document.getElementById("themeIcon").textContent = isDark ? "\uD83C\uDF19" : "☀️";
   document.getElementById("themeLabel").textContent = isDark ? "Dark Mode" : "Light Mode";
-  updateChartTheme();
+  if (modalChartsBuilt) rebuildModalCharts();
 }
 
-// ── STATS (dynamic) ───────────────────────────────────────────────────────────
+// ── STATS ─────────────────────────────────────────────────────────────────────
 function updateStats(list) {
-  const isAll = (list.length === players.length);
   document.getElementById("sTot").textContent = list.length;
-  document.getElementById("sSquadCount").textContent = isAll ? 5 : new Set(list.map(p=>p.squad)).size;
+  document.getElementById("sSquadCount").textContent = (list.length === players.length) ? 5 : new Set(list.map(p=>p.squad)).size;
   document.getElementById("sCE").textContent = list.filter(p=>p.prof==="CE").length;
   document.getElementById("sMM").textContent = list.filter(p=>p.prof==="MM").length;
-  document.getElementById("sAvgCP").textContent = list.length
-    ? Math.round(list.reduce((s,p)=>s+p.cp,0)/list.length) : 0;
-  document.getElementById("sTopCP").textContent = list.length
-    ? Math.max(...list.map(p=>p.cp)) : 0;
+  document.getElementById("sAvgCP").textContent = list.length ? Math.round(list.reduce((s,p)=>s+p.cp,0)/list.length) : 0;
+  document.getElementById("sTopCP").textContent = list.length ? Math.max(...list.map(p=>p.cp)) : 0;
 }
-
-// ── ARMY TANK SVG ─────────────────────────────────────────────────────────────
-const TANK_SVG = `<svg width="14" height="11" viewBox="0 0 14 11" fill="currentColor" style="vertical-align:middle;margin-right:1px"><rect x="1" y="5" width="12" height="5" rx="1.2"/><rect x="3.5" y="2" width="5" height="3" rx="1"/><rect x="8" y="3" width="4" height="1.2" rx=".6"/><circle cx="2.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="5" cy="10" r=".9" fill="var(--bg)"/><circle cx="7.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="10" cy="10" r=".9" fill="var(--bg)"/><circle cx="12.5" cy="10" r=".9" fill="var(--bg)"/></svg>`;
 
 // ── TABLE ─────────────────────────────────────────────────────────────────────
 let sortCol = null, sortAsc = true, tabSquad = "";
 
+const TANK = `<svg width="14" height="11" viewBox="0 0 14 11" fill="currentColor" style="vertical-align:middle;margin-right:1px"><rect x="1" y="5" width="12" height="5" rx="1.2"/><rect x="3.5" y="2" width="5" height="3" rx="1"/><rect x="8" y="3" width="4" height="1.2" rx=".6"/><circle cx="2.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="5" cy="10" r=".9" fill="var(--bg)"/><circle cx="7.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="10" cy="10" r=".9" fill="var(--bg)"/><circle cx="12.5" cy="10" r=".9" fill="var(--bg)"/></svg>`;
+
 function unitBadge(u) {
-  if (u === "Army") return `<span class="badge b-army">${TANK_SVG} Army</span>`;
-  const cls = u==="Navy" ? "b-navy" : "b-air";
-  const icon = u==="Navy" ? "&#9875;&#65039;" : "&#9992;&#65039;";
-  return `<span class="badge ${cls}">${icon} ${u}</span>`;
+  if (u==="Army") return `<span class="badge b-army">${TANK} Army</span>`;
+  return u==="Navy"
+    ? `<span class="badge b-navy">&#9875;&#65039; Navy</span>`
+    : `<span class="badge b-air">&#9992;&#65039; Air Force</span>`;
 }
 function profBadge(p) {
-  return p==="CE"
-    ? `<span class="badge b-ce">&#9876; CE</span>`
-    : `<span class="badge b-mm">&#128295; MM</span>`;
+  return p==="CE" ? `<span class="badge b-ce">&#9876; CE</span>` : `<span class="badge b-mm">&#128295; MM</span>`;
 }
 function cpBar(cp) {
-  const pct = Math.round((cp/MAX_CP)*100);
-  return `<div class="cp-wrap"><span style="min-width:2.1rem;font-weight:600">${cp}</span><div class="cp-bar"><div class="cp-fill" style="width:${pct}%"></div></div></div>`;
+  return `<div class="cp-wrap"><span style="min-width:2.1rem;font-weight:600">${cp}</span><div class="cp-bar"><div class="cp-fill" style="width:${Math.round((cp/MAX_CP)*100)}%"></div></div></div>`;
 }
 function availDots(p) {
-  return `<div class="avail">${
-    [{v:p.s6,l:"-6"},{v:p.s2n,l:"-2"},{v:p.s2p,l:"+2"},{v:p.s10,l:"+10"}]
-    .map(s=>`<div title="Sat ${s.l}" class="dot ${s.v?'y':'n'}"></div>`).join('')
-  }</div>`;
+  return `<div class="avail">${[{v:p.s6,l:"-6"},{v:p.s2n,l:"-2"},{v:p.s2p,l:"+2"},{v:p.s10,l:"+10"}].map(s=>`<div title="Sat ${s.l}" class="dot ${s.v?'y':'n'}"></div>`).join('')}</div>`;
 }
-function moveTag(notes) {
-  const m = notes && notes.match(/Move to (\w+) by/i);
+function moveTag(n) {
+  const m = n && n.match(/Move to (\w+) by/i);
   return m ? `<span class="move-tag">&#8594; ${m[1]}</span>` : "";
 }
 
 function buildTable(list) {
   const tbody = document.getElementById("rBody");
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="9" class="no-results">No players match your filters.</td></tr>`;
-    return;
-  }
+  if (!list.length) { tbody.innerHTML=`<tr><td colspan="9" class="no-results">No players match your filters.</td></tr>`; return; }
   tbody.innerHTML = list.map((p,i) => {
-    const nameCell = p.isMove
+    const name = p.isMove
       ? `<span class="name-tip" data-tip="${p.notes.replace(/"/g,'&quot;')}">${p.name}${moveTag(p.notes)}</span>`
-      : `${p.name}`;
-    return `
-    <tr data-squad="${p.squad}"${p.isMove?' class="has-move"':''}>
+      : p.name;
+    return `<tr data-squad="${p.squad}"${p.isMove?' class="has-move"':''}>
       <td style="color:var(--muted);font-size:.75rem">${i+1}</td>
-      <td class="pname">${nameCell}</td>
+      <td class="pname">${name}</td>
       <td style="font-size:.8rem;color:var(--muted)">${p.squad}</td>
       <td>${unitBadge(p.unit)}</td>
       <td>${profBadge(p.prof)}</td>
@@ -669,13 +710,11 @@ function getSortedFiltered() {
   const squad = document.getElementById("sSquad").value;
   const unit  = document.getElementById("sUnit").value;
   const prof  = document.getElementById("sProf").value;
-
   if (name)  list = list.filter(p=>p.name.toLowerCase().includes(name));
   if (squad) list = list.filter(p=>p.squad.startsWith(squad));
   else if (tabSquad) list = list.filter(p=>p.squad.startsWith(tabSquad));
   if (unit)  list = list.filter(p=>p.unit===unit);
   if (prof)  list = list.filter(p=>p.prof===prof);
-
   if (sortCol) {
     list.sort((a,b)=>{
       const va=a[sortCol], vb=b[sortCol];
@@ -691,26 +730,20 @@ function applyFilters() {
   buildTable(list);
   updateStats(list);
   document.getElementById("rCount").textContent = `${list.length} of ${players.length} players`;
-
-  // update roster title
   const activeSquad = document.getElementById("sSquad").value || tabSquad;
-  document.getElementById("rosterTitle").textContent =
-    activeSquad ? SQUAD_LABELS[activeSquad] || activeSquad : "Full Roster";
+  document.getElementById("rosterTitle").textContent = activeSquad ? SQUAD_LABELS[activeSquad] || activeSquad : "Full Roster";
 }
-
 function clearFilters() {
   ["sName","sSquad","sUnit","sProf"].forEach(id=>{ document.getElementById(id).value=""; });
   applyFilters();
 }
-
 function tabFilter(el) {
-  document.querySelectorAll(".sqbtn").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".squad-filters .sqbtn").forEach(b=>b.classList.remove("active"));
   el.classList.add("active");
   tabSquad = el.dataset.squad;
   if (tabSquad) document.getElementById("sSquad").value = "";
   applyFilters();
 }
-
 function sortBy(th) {
   const col = th.dataset.col;
   if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=true; }
@@ -720,107 +753,163 @@ function sortBy(th) {
 }
 
 // ── CHARTS ───────────────────────────────────────────────────────────────────
-const UC = {
-  Army:       { bg:"rgba(63,185,80,.7)",  b:"#3fb950" },
-  Navy:       { bg:"rgba(56,139,253,.7)", b:"#388bfd" },
-  "Air Force":{ bg:"rgba(210,153,34,.7)", b:"#d29922" }
-};
-const PC = {
-  CE: { bg:"rgba(227,179,65,.75)", b:"#e3b341" },
-  MM: { bg:"rgba(188,140,255,.75)", b:"#bc8cff" }
-};
+let modalCharts = {};
+let modalChartsBuilt = false;
+let modalSquad = "";
 
-function cf() { return document.documentElement.getAttribute("data-theme")==="dark"?"#8b949e":"#656d76"; }
-function cg() { return document.documentElement.getAttribute("data-theme")==="dark"?"rgba(48,54,61,.7)":"rgba(208,215,222,.5)"; }
-
-function sqUnit(u) { return SQUADS.map(s=>players.filter(p=>p.squad===s&&p.unit===u).length); }
-function sqProf(pr) { return SQUADS.map(s=>players.filter(p=>p.squad===s&&p.prof===pr).length); }
-function sqAvgCP() {
-  return SQUADS.map(s=>{
-    const sp=players.filter(p=>p.squad===s);
-    return sp.length ? Math.round(sp.reduce((a,p)=>a+p.cp,0)/sp.length) : 0;
-  });
-}
-
-let charts = {};
+function cf() { return document.documentElement.getAttribute("data-theme")==="dark" ? "#8b949e" : "#656d76"; }
+function cg() { return document.documentElement.getAttribute("data-theme")==="dark" ? "rgba(48,54,61,.7)" : "rgba(208,215,222,.5)"; }
 
 function baseOpts() {
   return {
-    responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ labels:{ color:cf(), font:{size:11}, boxWidth:12 } } },
-    scales:{
-      x:{ ticks:{ color:cf(), font:{size:10} }, grid:{ color:cg() } },
-      y:{ ticks:{ color:cf(), font:{size:10} }, grid:{ color:cg() }, beginAtZero:true }
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { color: cf(), font: { size: 11 }, boxWidth: 12 } } },
+    scales: {
+      x: { ticks: { color: cf(), font: { size: 10 } }, grid: { color: cg() } },
+      y: { ticks: { color: cf(), font: { size: 10 } }, grid: { color: cg() }, beginAtZero: true }
     }
   };
 }
 
-function buildCharts() {
-  charts.unit = new Chart(document.getElementById("cUnitSquad"), {
-    type:"bar",
-    data:{ labels:SQUAD_SHORT, datasets:[
-      { label:"Army",      data:sqUnit("Army"),       backgroundColor:UC.Army.bg,         borderColor:UC.Army.b,         borderWidth:1, borderRadius:3 },
-      { label:"Navy",      data:sqUnit("Navy"),       backgroundColor:UC.Navy.bg,         borderColor:UC.Navy.b,         borderWidth:1, borderRadius:3 },
-      { label:"Air Force", data:sqUnit("Air Force"),  backgroundColor:UC["Air Force"].bg, borderColor:UC["Air Force"].b, borderWidth:1, borderRadius:3 }
+function getChartList() {
+  return modalSquad ? players.filter(p => p.squad === modalSquad) : players;
+}
+function getChartSquads() {
+  return modalSquad ? [modalSquad] : SQUADS;
+}
+function getChartLabels() {
+  if (modalSquad) return [SQUAD_SHORT[SQUADS.indexOf(modalSquad)]];
+  return SQUAD_SHORT;
+}
+
+function sqUnitData(u) { return getChartSquads().map(s => getChartList().filter(p=>p.squad===s && p.unit===u).length); }
+function sqProfData(pr){ return getChartSquads().map(s => getChartList().filter(p=>p.squad===s && p.prof===pr).length); }
+function sqAvgCPData() {
+  return getChartSquads().map(s => {
+    const sp = getChartList().filter(p=>p.squad===s);
+    return sp.length ? Math.round(sp.reduce((a,p)=>a+p.cp,0)/sp.length) : 0;
+  });
+}
+
+function destroyModalCharts() {
+  Object.values(modalCharts).forEach(c => c.destroy());
+  modalCharts = {};
+}
+
+function buildModalCharts() {
+  destroyModalCharts();
+  const labels = getChartLabels();
+  const list = getChartList();
+
+  // chart 1: unit type by squad
+  document.getElementById("mCh1Title").textContent = modalSquad ? "Unit Type Distribution" : "Unit Type by Squad";
+  modalCharts.unit = new Chart(document.getElementById("mCUnit"), {
+    type: "bar",
+    data: { labels, datasets: [
+      { label:"Army",      data:sqUnitData("Army"),       backgroundColor:UC.Army.bg,         borderColor:UC.Army.b,         borderWidth:1, borderRadius:3 },
+      { label:"Navy",      data:sqUnitData("Navy"),       backgroundColor:UC.Navy.bg,         borderColor:UC.Navy.b,         borderWidth:1, borderRadius:3 },
+      { label:"Air Force", data:sqUnitData("Air Force"),  backgroundColor:UC["Air Force"].bg, borderColor:UC["Air Force"].b, borderWidth:1, borderRadius:3 }
     ]},
     options: baseOpts()
   });
 
-  charts.prof = new Chart(document.getElementById("cProfSquad"), {
-    type:"bar",
-    data:{ labels:SQUAD_SHORT, datasets:[
-      { label:"Combat Elite", data:sqProf("CE"), backgroundColor:PC.CE.bg, borderColor:PC.CE.b, borderWidth:1, borderRadius:3 },
-      { label:"Mech Master",  data:sqProf("MM"), backgroundColor:PC.MM.bg, borderColor:PC.MM.b, borderWidth:1, borderRadius:3 }
+  // chart 2: profession by squad
+  document.getElementById("mCh2Title").textContent = modalSquad ? "Profession Distribution" : "Profession by Squad";
+  modalCharts.prof = new Chart(document.getElementById("mCProf"), {
+    type: "bar",
+    data: { labels, datasets: [
+      { label:"Combat Elite", data:sqProfData("CE"), backgroundColor:PC.CE.bg, borderColor:PC.CE.b, borderWidth:1, borderRadius:3 },
+      { label:"Mech Master",  data:sqProfData("MM"), backgroundColor:PC.MM.bg, borderColor:PC.MM.b, borderWidth:1, borderRadius:3 }
     ]},
     options: baseOpts()
   });
 
-  const unitCounts = ["Army","Navy","Air Force"].map(u=>players.filter(p=>p.unit===u).length);
-  charts.pie = new Chart(document.getElementById("cUnitPie"), {
-    type:"doughnut",
-    data:{
-      labels:["Army","Navy","Air Force"],
-      datasets:[{ data:unitCounts,
-        backgroundColor:[UC.Army.bg, UC.Navy.bg, UC["Air Force"].bg],
-        borderColor:[UC.Army.b, UC.Navy.b, UC["Air Force"].b],
-        borderWidth:2
+  // chart 3: unit pie
+  const unitCounts = ["Army","Navy","Air Force"].map(u => list.filter(p=>p.unit===u).length);
+  modalCharts.pie = new Chart(document.getElementById("mCPie"), {
+    type: "doughnut",
+    data: {
+      labels: ["Army","Navy","Air Force"],
+      datasets: [{ data: unitCounts,
+        backgroundColor: [UC.Army.bg, UC.Navy.bg, UC["Air Force"].bg],
+        borderColor: [UC.Army.b, UC.Navy.b, UC["Air Force"].b],
+        borderWidth: 2
       }]
     },
-    options:{
-      responsive:true, maintainAspectRatio:false, cutout:"62%",
-      plugins:{ legend:{ position:"bottom", labels:{ color:cf(), font:{size:11}, padding:14, boxWidth:12 } } }
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: "62%",
+      plugins: { legend: { position:"bottom", labels: { color:cf(), font:{size:11}, padding:14, boxWidth:12 } } }
     }
   });
 
-  charts.cp = new Chart(document.getElementById("cAvgCP"), {
-    type:"bar",
-    data:{ labels:SQUAD_SHORT, datasets:[{
-      label:"Avg March CP",
-      data:sqAvgCP(),
-      backgroundColor:"rgba(88,166,255,.6)",
-      borderColor:"#58a6ff",
-      borderWidth:1, borderRadius:4
+  // chart 4: avg CP
+  document.getElementById("mCh4Title").textContent = modalSquad ? "Average March CP" : "Average March CP by Squad";
+  modalCharts.cp = new Chart(document.getElementById("mCCP"), {
+    type: "bar",
+    data: { labels, datasets: [{
+      label: "Avg March CP",
+      data: sqAvgCPData(),
+      backgroundColor: "rgba(121,192,255,.6)",
+      borderColor: "#79c0ff",
+      borderWidth: 1, borderRadius: 4
     }]},
     options: baseOpts()
   });
+
+  modalChartsBuilt = true;
 }
 
-function updateChartTheme() {
-  Object.values(charts).forEach(c=>{
-    c.options.plugins.legend.labels.color = cf();
-    if (c.config.type !== "doughnut") {
-      c.options.scales.x.ticks.color = cf();
-      c.options.scales.y.ticks.color = cf();
-      c.options.scales.x.grid.color = cg();
-      c.options.scales.y.grid.color = cg();
-    }
-    c.update();
-  });
+function rebuildModalCharts() {
+  if (modalChartsBuilt) buildModalCharts();
 }
+
+function updateModalMeta() {
+  const list = getChartList();
+  document.getElementById("modalTitle").textContent = modalSquad
+    ? `Charts \u2014 ${SQUAD_LABELS[modalSquad] || modalSquad}`
+    : "Squad Distribution Charts";
+  document.getElementById("modalSubtitle").textContent = modalSquad
+    ? `${list.length} players in this squad`
+    : `All squads \u2014 ${players.length} players`;
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openChartsModal() {
+  document.getElementById("chartsModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+  // reset modal squad to "All" on open
+  modalSquad = "";
+  document.querySelectorAll(".modal-squad-row .sqbtn").forEach(b=>b.classList.remove("active"));
+  document.querySelector('.modal-squad-row .sqbtn[data-squad=""]').classList.add("active");
+  updateModalMeta();
+  buildModalCharts();
+}
+
+function closeChartsModal() {
+  document.getElementById("chartsModal").classList.remove("open");
+  document.body.style.overflow = "";
+  destroyModalCharts();
+  modalChartsBuilt = false;
+}
+
+function handleModalClick(e) {
+  if (e.target === document.getElementById("chartsModal")) closeChartsModal();
+}
+
+function modalSquadFilter(el) {
+  document.querySelectorAll(".modal-squad-row .sqbtn").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+  modalSquad = el.dataset.squad;
+  updateModalMeta();
+  buildModalCharts();
+}
+
+// close on Escape
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeChartsModal(); });
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  buildCharts();
+  initTimestamps();
   applyFilters();
 });
 </script>
