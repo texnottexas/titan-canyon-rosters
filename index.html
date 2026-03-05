@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Server 2864 – Titan Canyon Rosters</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0d1117;
+      --bg2: #161b22;
+      --card: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent2: #79c0ff;
+      --army: #3fb950;
+      --navy: #388bfd;
+      --air: #d29922;
+      --ce: #e3b341;
+      --mm: #bc8cff;
+      --tag: #21262d;
+      --input: #0d1117;
+      --shadow: rgba(0,0,0,.4);
+      --row-hover: #21262d;
+    }
+    :root[data-theme="light"] {
+      --bg: #f6f8fa;
+      --bg2: #ffffff;
+      --card: #ffffff;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted: #656d76;
+      --accent: #0969da;
+      --accent2: #0550ae;
+      --army: #1a7f37;
+      --navy: #0550ae;
+      --air: #9a6700;
+      --ce: #7d4e00;
+      --mm: #6e40c9;
+      --tag: #eaeef2;
+      --input: #ffffff;
+      --shadow: rgba(140,149,159,.2);
+      --row-hover: #f3f4f6;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background .2s, color .2s;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: .9rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .header-title { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+    .header-sub { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .theme-btn {
+      background: var(--tag);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 20px;
+      padding: .4rem 1rem;
+      cursor: pointer;
+      font-size: .82rem;
+      display: flex; align-items: center; gap: .45rem;
+      transition: background .2s;
+    }
+    .theme-btn:hover { background: var(--border); }
+
+    /* ── MAIN ── */
+    main { max-width: 1440px; margin: 0 auto; padding: 1.75rem 2rem; }
+
+    /* ── STATS ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: .9rem;
+      margin-bottom: 1.75rem;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      text-align: center;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+    .stat-num { font-size: 1.9rem; font-weight: 700; color: var(--accent); line-height: 1; }
+    .stat-lbl { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── SEARCH ── */
+    .search-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.3rem;
+      margin-bottom: 1.75rem;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+    .search-card h2 {
+      font-size: .78rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .9rem;
+    }
+    .search-row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
+    .search-group { flex: 1; min-width: 180px; }
+    .search-group label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: .35rem; }
+    .search-input {
+      width: 100%;
+      background: var(--input);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .48rem .75rem;
+      color: var(--text);
+      font-size: .875rem;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .search-input:focus { border-color: var(--accent); }
+    select.search-input option { background: var(--bg2); }
+    .clear-btn {
+      background: var(--tag); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 6px; padding: .48rem 1rem;
+      cursor: pointer; font-size: .82rem; white-space: nowrap; transition: all .2s;
+    }
+    .clear-btn:hover { background: var(--border); color: var(--text); }
+    .result-count { font-size: .78rem; color: var(--muted); margin-top: .65rem; }
+
+    /* ── SECTION TITLE ── */
+    .sec-title {
+      font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text);
+      display: flex; align-items: center; gap: .55rem;
+    }
+    .sec-title::before {
+      content: ''; display: inline-block; width: 3px; height: 1rem;
+      background: var(--accent); border-radius: 2px; flex-shrink: 0;
+    }
+
+    /* ── CHARTS ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .chart-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.1rem; box-shadow: 0 2px 6px var(--shadow);
+    }
+    .chart-card h3 {
+      font-size: .75rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .85rem;
+    }
+    .chart-wrap { position: relative; height: 230px; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: .9rem; }
+    .tab {
+      padding: .35rem .9rem; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--tag); color: var(--muted); cursor: pointer;
+      font-size: .8rem; transition: all .15s;
+    }
+    .tab.active, .tab:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    /* ── TABLE ── */
+    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 2px 6px var(--shadow); }
+    table { width: 100%; border-collapse: collapse; background: var(--card); font-size: .855rem; }
+    thead th {
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: .65rem 1rem; text-align: left;
+      font-size: .73rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+      color: var(--muted); white-space: nowrap;
+    }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { color: var(--accent); }
+    th .si { margin-left: 3px; opacity: .5; font-style: normal; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--row-hover); }
+    tbody td { padding: .6rem 1rem; white-space: nowrap; }
+    tbody tr.hidden { display: none; }
+
+    .pname { font-weight: 600; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 3px;
+      padding: 2px 8px; border-radius: 12px; font-size: .73rem; font-weight: 500;
+    }
+    .b-army { background: rgba(63,185,80,.15); color: var(--army); }
+    .b-navy { background: rgba(56,139,253,.15); color: var(--navy); }
+    .b-air  { background: rgba(210,153,34,.15); color: var(--air); }
+    .b-ce   { background: rgba(227,179,65,.12); color: var(--ce); }
+    .b-mm   { background: rgba(188,140,255,.15); color: var(--mm); }
+
+    .cp-wrap { display: flex; align-items: center; gap: 7px; }
+    .cp-bar { width: 52px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+    .cp-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+
+    .move-tag {
+      display: inline-block; padding: 1px 6px; border-radius: 4px;
+      font-size: .68rem; background: rgba(88,166,255,.13); color: var(--accent); margin-left: 4px;
+    }
+
+    .avail { display: flex; gap: 4px; align-items: center; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot.y { background: var(--army); }
+    .dot.n { background: var(--border); }
+    .avail-lbl { font-size: .65rem; color: var(--muted); }
+
+    .note-tip { font-size: .75rem; color: var(--muted); cursor: help; }
+
+    .no-results {
+      text-align: center; padding: 3rem; color: var(--muted); font-size: .875rem;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+    @media (max-width: 640px) {
+      main { padding: 1rem; }
+      header { padding: .7rem 1rem; }
+      .header-title { font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="header-title">&#9876; Server 2864 &ndash; Titan Canyon Rosters</div>
+    <div class="header-sub">Event: Saturday, March 07 &nbsp;&bull;&nbsp; 5 Squads</div>
+  </div>
+  <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
+    <span id="themeIcon">&#9728;&#65039;</span>
+    <span id="themeLabel">Light Mode</span>
+  </button>
+</header>
+
+<main>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num" id="sTot">0</div><div class="stat-lbl">Total Players</div></div>
+    <div class="stat-card"><div class="stat-num">5</div><div class="stat-lbl">Active Squads</div></div>
+    <div class="stat-card"><div class="stat-num" id="sCE">0</div><div class="stat-lbl">Combat Elite</div></div>
+    <div class="stat-card"><div class="stat-num" id="sMM">0</div><div class="stat-lbl">Mech Master</div></div>
+    <div class="stat-card"><div class="stat-num" id="sAvgCP">0</div><div class="stat-lbl">Avg March CP</div></div>
+    <div class="stat-card"><div class="stat-num" id="sTopCP">0</div><div class="stat-lbl">Top March CP</div></div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-card">
+    <h2>&#128269; Search &amp; Filter</h2>
+    <div class="search-row">
+      <div class="search-group">
+        <label for="sName">Player Name</label>
+        <input type="text" id="sName" class="search-input" placeholder="Type a name..." oninput="applyFilters()">
+      </div>
+      <div class="search-group">
+        <label for="sSquad">Squad</label>
+        <select id="sSquad" class="search-input" onchange="applyFilters()">
+          <option value="">All Squads</option>
+          <option value="Dog Squad A">Dog Squad A (+10)</option>
+          <option value="Dog Squad B">Dog Squad B (-2)</option>
+          <option value="MSS Squad A">MSS Squad A (+2)</option>
+          <option value="MSS Squad B">MSS Squad B (+10)</option>
+          <option value="PRU Squad A">PRU Squad A (-6)</option>
+        </select>
+      </div>
+      <div class="search-group">
+        <label for="sUnit">Unit Type</label>
+        <select id="sUnit" class="search-input" onchange="applyFilters()">
+          <option value="">All Units</option>
+          <option value="Army">Army &#129030;</option>
+          <option value="Navy">Navy &#9875;&#65039;</option>
+          <option value="Air Force">Air Force &#9992;&#65039;</option>
+        </select>
+      </div>
+      <div class="search-group">
+        <label for="sProf">Profession</label>
+        <select id="sProf" class="search-input" onchange="applyFilters()">
+          <option value="">All</option>
+          <option value="CE">Combat Elite (CE)</option>
+          <option value="MM">Mechanical Master (MM)</option>
+        </select>
+      </div>
+      <button class="clear-btn" onclick="clearFilters()">&#10005; Clear</button>
+    </div>
+    <div class="result-count" id="rCount"></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="sec-title">Squad Distribution Charts</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Unit Type by Squad</h3>
+      <div class="chart-wrap"><canvas id="cUnitSquad"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Profession by Squad</h3>
+      <div class="chart-wrap"><canvas id="cProfSquad"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Overall Unit Distribution</h3>
+      <div class="chart-wrap"><canvas id="cUnitPie"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Average March CP by Squad</h3>
+      <div class="chart-wrap"><canvas id="cAvgCP"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Roster -->
+  <div class="sec-title">Full Roster</div>
+  <div class="tabs" id="squadTabs">
+    <button class="tab active" data-squad="" onclick="tabFilter(this)">All Players</button>
+    <button class="tab" data-squad="Dog Squad A" onclick="tabFilter(this)">&#128021; Dog A (+10)</button>
+    <button class="tab" data-squad="Dog Squad B" onclick="tabFilter(this)">&#128021; Dog B (-2)</button>
+    <button class="tab" data-squad="MSS Squad A" onclick="tabFilter(this)">&#128737;&#65039; MSS A (+2)</button>
+    <button class="tab" data-squad="MSS Squad B" onclick="tabFilter(this)">&#128737;&#65039; MSS B (+10)</button>
+    <button class="tab" data-squad="PRU Squad A" onclick="tabFilter(this)">&#9876; PRU A (-6)</button>
+  </div>
+
+  <div class="table-wrap">
+    <table id="rTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th class="sortable" data-col="name" onclick="sortBy(this)">Name <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="squad" onclick="sortBy(this)">Assignment <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="unit" onclick="sortBy(this)">Unit <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="prof" onclick="sortBy(this)">Profession <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="cp" onclick="sortBy(this)">March CP <i class="si">&#8597;</i></th>
+          <th>UC Lvl</th>
+          <th>Alliance</th>
+          <th title="-6 / -2 / +2 / +10">Availability</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="rBody"></tbody>
+    </table>
+  </div>
+
+</main>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+// Fields: name, notes, s6, s2n, s2p, s10, pref, alliance, unit, cp, prof, ucLvl, assignment
+const RAW = [
+  ["Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],
+  ["Aurora","","n","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"],
+  ["Dаrk","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],
+  ["20100","Move to MSS by Thu +10","y","n","y","n","DOG","Army",22,"MM","3","MSS Squad A"],
+  ["a1capo","","n","y","n","n","DOG","Army",29,"CE","","Dog Squad B"],
+  ["Abdullah","","n","y","y","y","DOG","Navy",25,"MM","3","Dog Squad A"],
+  ["AjMaL","Move to PRU by Thu +10","y","y","y","n","DOG","Army",24,"CE","","PRU Squad A"],
+  ["AlexB","","n","n","y","n","MSS","Navy",28,"MM","2","MSS Squad A"],
+  ["AlexMat","","n","y","n","n","DOG","Navy",85,"CE","","Dog Squad B"],
+  ["Ara","","n","n","n","y","MSS","Navy",53,"CE","","MSS Squad B"],
+  ["Aresu","","n","y","n","n","DOG","Army",72,"CE","","Dog Squad B"],
+  ["aristos","Move to PRU by Thu +10","y","y","n","n","DOG","Army",38,"MM","3","PRU Squad A"],
+  ["ARR","","n","n","y","n","MSS","Army",26,"CE","","MSS Squad A"],
+  ["Babym","","n","n","y","n","MSS","Army",66,"MM","4","MSS Squad A"],
+  ["BAL","","n","y","n","n","DOG","Army",41,"CE","","Dog Squad B"],
+  ["Bane","","n","n","y","y","MSS","Army",65,"CE","","MSS Squad A"],
+  ["Bchara","","n","y","n","n","DOG","Army",49,"CE","","Dog Squad B"],
+  ["Beyo","Beyo don't know shit","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
+  ["Bianco","","n","n","y","n","MSS","Army",13,"CE","","MSS Squad A"],
+  ["Biggie","","n","n","n","y","DOG","Army",102,"CE","","Dog Squad A"],
+  ["BlindGuy","Can move to MSS if needed","n","n","y","y","DOG","Army",40,"MM","4","Dog Squad A"],
+  ["BMW5","","n","n","y","n","MSS","Army",65,"CE","","MSS Squad A"],
+  ["brewdog","","n","n","n","y","DOG","Navy",66,"MM","3","Dog Squad A"],
+  ["Calabro","","n","y","n","n","DOG","Air Force",47,"CE","","Dog Squad B"],
+  ["Caliboyx","Fk Planes. Blame Livv!","n","n","n","y","MSS","Navy",38,"CE","","MSS Squad B"],
+  ["cardsfan","","n","y","n","n","DOG","Army",67,"MM","5","Dog Squad B"],
+  ["CHAUSUI","","n","y","n","n","DOG","Army",115,"CE","","Dog Squad B"],
+  ["Darkspy","","n","n","n","y","DOG","Navy",70,"MM","3","Dog Squad A"],
+  ["Demon","","n","y","n","n","DOG","Air Force",79,"CE","","Dog Squad B"],
+  ["Dingus","","n","n","y","n","MSS","Army",73,"CE","","MSS Squad A"],
+  ["DNA","","n","n","y","n","MSS","Army",56,"MM","5","MSS Squad A"],
+  ["DragonMC","","n","y","n","n","DOG","Army",50,"CE","","Dog Squad B"],
+  ["Drak","No feel good as long as people know how to park","n","y","n","n","DOG","Navy",68,"MM","5","Dog Squad B"],
+  ["Drewskii","","n","n","y","y","MSS","Air Force",73,"CE","","MSS Squad B"],
+  ["DRuSE","","n","n","y","n","MSS","Navy",21,"MM","1","MSS Squad A"],
+  ["Dtp20","","n","y","n","y","DOG","Air Force",110,"CE","","Dog Squad A"],
+  ["Elb","Move to PRU by Thu +10","y","n","n","n","MSS","Navy",56,"MM","3","PRU Squad A"],
+  ["Eny","Please join Voice Chat","n","n","y","n","MSS","Navy",135,"CE","","MSS Squad A"],
+  ["Faxe","Move to PRU by Thu +10 - how much is the fish","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],
+  ["Fokker","","n","y","y","n","MSS","Navy",32,"MM","3","MSS Squad A"],
+  ["GM","","n","y","n","n","DOG","Air Force",39,"CE","","Dog Squad B"],
+  ["Gorilla","","n","n","n","y","DOG","Navy",50,"CE","","Dog Squad A"],
+  ["Harley","","n","n","n","y","MSS","Army",90,"CE","","MSS Squad B"],
+  ["Heidi","","n","n","y","n","MSS","Navy",60,"MM","5","MSS Squad A"],
+  ["HELLFIRE","","n","y","n","n","DOG","Navy",62,"CE","","Dog Squad B"],
+  ["Helmo","Burn everything...","n","n","n","y","MSS","Navy",101,"CE","","MSS Squad B"],
+  ["Hm","","n","n","n","y","MSS","Navy",85,"CE","","MSS Squad B"],
+  ["Hoadi","","y","y","y","n","MSS","Air Force",93,"CE","","MSS Squad A"],
+  ["Hot-rods","","n","n","y","y","MSS","Army",28,"MM","2","MSS Squad B"],
+  ["HourPa","Move to Dog by Thu +10","n","n","n","y","MSS","Army",53,"CE","","Dog Squad A"],
+  ["Iceman","","n","n","y","n","MSS","Army",34,"CE","","MSS Squad A"],
+  ["It'sme","","n","n","n","y","DOG","Army",26,"MM","3","Dog Squad A"],
+  ["J","","n","y","n","y","DOG","Air Force",150,"CE","","Dog Squad A"],
+  ["Jerky","","n","y","n","n","DOG","Air Force",72,"CE","","Dog Squad B"],
+  ["Jopn17tl","","n","y","n","y","DOG","Navy",79,"CE","","Dog Squad A"],
+  ["joske","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],
+  ["KiloBo","Move to PRU by Thu +10","y","y","y","n","MSS","Army",50,"MM","5","PRU Squad A"],
+  ["KingSnek","Move to MSS by Thu +10","n","n","y","n","Cat+","Army",120,"CE","","MSS Squad A"],
+  ["kom","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],
+  ["Lady","","n","y","n","n","DOG","Army",100,"CE","","Dog Squad B"],
+  ["LittleV","Move to PRU by Thu +10","y","n","n","y","Cat+","Army",11,"MM","0","PRU Squad A"],
+  ["Livv","Move to MSS by Thu +10","n","y","y","y","DOG","Air Force",57,"CE","","MSS Squad A"],
+  ["Madmaxx","","n","n","n","y","DOG","Navy",106,"CE","","Dog Squad A"],
+  ["Madsey","","n","n","y","n","MSS","Army",64,"CE","","MSS Squad A"],
+  ["Magicguy","","n","n","n","y","DOG","Army",33,"MM","3","Dog Squad A"],
+  ["Mami","","n","n","n","y","MSS","Army",70,"MM","5","MSS Squad B"],
+  ["Mando","","n","y","y","n","DOG","Navy",34,"MM","4","Dog Squad B"],
+  ["Maximum (MSS)","","n","n","n","y","MSS","Army",30,"MM","4","MSS Squad B"],
+  ["Maximum (DOG)","","n","y","n","n","DOG","Navy",80,"CE","","Dog Squad B"],
+  ["MegaBo","","y","y","y","n","MSS","Air Force",80,"CE","","MSS Squad A"],
+  ["meliodas","Move to MSS by Thu +10 - late last week","n","y","y","n","DOG","Air Force",55,"MM","5","MSS Squad A"],
+  ["Melo84","","n","y","n","n","DOG","Army",22,"CE","","Dog Squad B"],
+  ["Mephisto","","n","n","n","y","DOG","Air Force",119,"CE","","Dog Squad A"],
+  ["MF_Bluey","Goon squad","n","n","n","y","DOG","Army",100,"CE","","Dog Squad A"],
+  ["MFBluey2","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
+  ["MicroBo","Move to PRU by Thu +10","y","y","y","n","Cat+","Army",25,"MM","4","PRU Squad A"],
+  ["MONKEY","","n","y","n","n","DOG","Army",56,"CE","","Dog Squad B"],
+  ["Mopar","","n","n","n","y","DOG","Air Force",57,"CE","","Dog Squad A"],
+  ["Morvessa","Move to Dog by Thu +10","n","n","n","y","MSS","Navy",93,"CE","","Dog Squad A"],
+  ["Motyer","","n","y","n","n","DOG","Navy",46,"CE","","Dog Squad B"],
+  ["Mousse","","n","n","y","n","MSS","Army",58,"CE","","MSS Squad A"],
+  ["Mulan","","n","y","n","n","DOG","Air Force",68,"CE","","Dog Squad B"],
+  ["Musashi","","n","n","n","y","MSS","Air Force",49,"CE","","MSS Squad B"],
+  ["Nembo","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],
+  ["OEL13","","n","y","y","y","DOG","Navy",25,"CE","","Dog Squad B"],
+  ["Otts","","n","y","n","n","DOG","Navy",101,"CE","","Dog Squad B"],
+  ["Pacrtr","","n","n","n","y","DOG","Air Force",55,"CE","","Dog Squad A"],
+  ["PastaB","","n","n","n","y","MSS","Army",89,"CE","","MSS Squad B"],
+  ["Patrolfc","Move to MSS by Thu +10","n","y","y","n","DOG","Army",63,"CE","","MSS Squad A"],
+  ["Peewee","","y","y","y","y","DOG","Air Force",170,"CE","","Dog Squad A"],
+  ["Pepper","","n","n","n","y","MSS","Navy",66,"CE","","MSS Squad B"],
+  ["Pete","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],
+  ["Project","","n","n","n","y","DOG","Army",42,"CE","","Dog Squad A"],
+  ["Quaggy","Move to MSS by Thu +10","n","n","y","n","DOG","Navy",73,"CE","","MSS Squad A"],
+  ["Raqqas","","n","y","n","n","DOG","Army",39,"CE","","Dog Squad B"],
+  ["Ray","When Sting dies will he be called Stung?","n","n","y","n","MSS","Army",21,"MM","5","MSS Squad A"],
+  ["Repuff","","n","n","n","y","MSS","Navy",47,"MM","2","MSS Squad B"],
+  ["Rex","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",80,"CE","","MSS Squad A"],
+  ["ROM","","n","n","y","n","MSS","Army",30,"CE","","MSS Squad A"],
+  ["Roma","Move to PRU by Thu +10","y","n","y","n","MSS","Navy",28,"CE","","PRU Squad A"],
+  ["Samson","Why don't we have more MMs","n","y","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
+  ["Shaz","Move to PRU by Thu +10","y","n","n","n","MSS","Air Force",94,"CE","","PRU Squad A"],
+  ["Shorty","","n","y","n","n","DOG","Army",56,"MM","2","Dog Squad B"],
+  ["Smalls","Move to MSS by Thu +10","n","y","y","y","DOG","Army",37,"MM","2","MSS Squad A"],
+  ["Smoke","","n","n","n","y","MSS","Army",62,"CE","","MSS Squad B"],
+  ["Smurfx","","n","n","n","y","DOG","Navy",80,"CE","","Dog Squad A"],
+  ["Sparta","Why couldn't the skeleton cross the road? It didn't have the guts","n","n","y","y","DOG","Navy",175,"CE","","Dog Squad A"],
+  ["Steve","","n","n","n","y","MSS","Air Force",40,"CE","","MSS Squad B"],
+  ["STiCK","","n","n","n","y","DOG","Air Force",50,"MM","5","Dog Squad A"],
+  ["STINGER","","n","n","n","y","MSS","Navy",33,"MM","4","MSS Squad B"],
+  ["Talion","","n","y","n","n","DOG","Air Force",32,"MM","4","Dog Squad B"],
+  ["Termi","","n","y","n","n","DOG","Navy",41,"CE","","Dog Squad B"],
+  ["Tex","","n","n","y","y","DOG","Army",189,"CE","","Dog Squad A"],
+  ["Thor","","n","y","n","n","DOG","Air Force",103,"CE","","Dog Squad B"],
+  ["TigerMan","","n","y","n","n","DOG","Army",46,"MM","0","Dog Squad B"],
+  ["Uber888","","n","n","n","y","MSS","Army",23,"MM","4","MSS Squad B"],
+  ["Venom","Move to PRU by Thu +10","y","n","n","y","MSS","Army",39,"CE","","PRU Squad A"],
+  ["Vik","","n","n","n","y","MSS","Army",22,"MM","3","MSS Squad B"],
+  ["VMJ","","n","n","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
+  ["Vytautas","","n","n","y","n","MSS","Navy",59,"MM","1","MSS Squad A"],
+  ["Wildcat","","n","n","n","y","MSS","Army",35,"MM","5","MSS Squad B"],
+  ["Willow","","n","n","y","n","MSS","Army",53,"MM","4","MSS Squad A"],
+  ["WitcheR","","n","n","y","n","MSS","Army",20,"CE","","MSS Squad A"],
+  ["Wolfie","Move to MSS by Thu +10","n","y","y","n","DOG","Army",67,"CE","","MSS Squad A"],
+  ["Wonka","","n","y","n","n","DOG","Air Force",79,"MM","5","Dog Squad B"],
+  ["WOOOOOO","","n","n","n","y","DOG","Navy",113,"CE","","Dog Squad A"],
+];
+
+// Parse into objects
+const players = RAW.map(r => ({
+  name: r[0], notes: r[1],
+  s6: r[2]==="y", s2n: r[3]==="y", s2p: r[4]==="y", s10: r[5]==="y",
+  alliance: r[6], unit: r[7], cp: r[8], prof: r[9], ucLvl: r[10], squad: r[11]
+}));
+
+const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
+const SQUAD_LABELS = ["Dog A\n(+10)","Dog B\n(-2)","MSS A\n(+2)","MSS B\n(+10)","PRU A\n(-6)"];
+const SQUAD_SHORT = ["Dog A","Dog B","MSS A","MSS B","PRU A"];
+const MAX_CP = Math.max(...players.map(p=>p.cp));
+
+// ── THEME ────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute("data-theme") === "dark";
+  html.setAttribute("data-theme", isDark ? "light" : "dark");
+  document.getElementById("themeIcon").textContent = isDark ? "\uD83C\uDF19" : "☀️";
+  document.getElementById("themeLabel").textContent = isDark ? "Dark Mode" : "Light Mode";
+  updateChartTheme();
+}
+
+// ── STATS ────────────────────────────────────────────────────────────────────
+function initStats() {
+  document.getElementById("sTot").textContent = players.length;
+  document.getElementById("sCE").textContent = players.filter(p=>p.prof==="CE").length;
+  document.getElementById("sMM").textContent = players.filter(p=>p.prof==="MM").length;
+  const avg = Math.round(players.reduce((s,p)=>s+p.cp,0)/players.length);
+  document.getElementById("sAvgCP").textContent = avg;
+  document.getElementById("sTopCP").textContent = MAX_CP;
+}
+
+// ── TABLE ────────────────────────────────────────────────────────────────────
+let sortCol = null, sortAsc = true, tabSquad = "";
+
+function unitBadge(u) {
+  const cls = u==="Army"?"b-army":u==="Navy"?"b-navy":"b-air";
+  const icon = u==="Army"?"&#129030;":u==="Navy"?"&#9875;&#65039;":"&#9992;&#65039;";
+  return `<span class="badge ${cls}">${icon} ${u}</span>`;
+}
+function profBadge(p) {
+  return p==="CE"
+    ? `<span class="badge b-ce">&#9876; CE</span>`
+    : `<span class="badge b-mm">&#128295; MM</span>`;
+}
+function cpBar(cp) {
+  const pct = Math.round((cp/MAX_CP)*100);
+  return `<div class="cp-wrap"><span style="min-width:2.2rem;font-weight:600">${cp}</span><div class="cp-bar"><div class="cp-fill" style="width:${pct}%"></div></div></div>`;
+}
+function availDots(p) {
+  const slots = [
+    {v:p.s6, lbl:"-6"},{v:p.s2n,lbl:"-2"},{v:p.s2p,lbl:"+2"},{v:p.s10,lbl:"+10"}
+  ];
+  return `<div class="avail">${slots.map(s=>`<div title="Sat ${s.lbl}" class="dot ${s.v?'y':'n'}"></div>`).join('')}</div>`;
+}
+function moveTag(notes) {
+  if (!notes) return "";
+  const m = notes.match(/Move to (\w+) by/i);
+  return m ? `<span class="move-tag">&#8594;${m[1]}</span>` : "";
+}
+
+function buildTable(list) {
+  const tbody = document.getElementById("rBody");
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="10" class="no-results">No players match your filters.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map((p,i)=>`
+    <tr data-squad="${p.squad}">
+      <td style="color:var(--muted);font-size:.78rem">${i+1}</td>
+      <td class="pname">${p.name}${moveTag(p.notes)}</td>
+      <td style="font-size:.82rem">${p.squad}</td>
+      <td>${unitBadge(p.unit)}</td>
+      <td>${profBadge(p.prof)}</td>
+      <td>${cpBar(p.cp)}</td>
+      <td style="color:var(--muted);text-align:center">${p.ucLvl||"—"}</td>
+      <td><span style="font-size:.78rem;color:var(--muted)">${p.alliance}</span></td>
+      <td>${availDots(p)}</td>
+      <td>${p.notes?`<span class="note-tip" title="${p.notes.replace(/"/g,'&quot;')}">&#8505;&#65039;</span>`:"—"}</td>
+    </tr>`).join('');
+}
+
+function getSortedFiltered() {
+  let list = [...players];
+  const name = document.getElementById("sName").value.trim().toLowerCase();
+  const squad = document.getElementById("sSquad").value;
+  const unit = document.getElementById("sUnit").value;
+  const prof = document.getElementById("sProf").value;
+  const tab = tabSquad;
+
+  if (name) list = list.filter(p=>p.name.toLowerCase().includes(name));
+  if (squad) list = list.filter(p=>p.squad.startsWith(squad));
+  else if (tab) list = list.filter(p=>p.squad.startsWith(tab));
+  if (unit) list = list.filter(p=>p.unit===unit);
+  if (prof) list = list.filter(p=>p.prof===prof);
+
+  if (sortCol) {
+    list.sort((a,b)=>{
+      let va=a[sortCol], vb=b[sortCol];
+      if (sortCol==="cp") return sortAsc?va-vb:vb-va;
+      return sortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+    });
+  }
+  return list;
+}
+
+function applyFilters() {
+  const list = getSortedFiltered();
+  buildTable(list);
+  document.getElementById("rCount").textContent = `Showing ${list.length} of ${players.length} players`;
+}
+
+function clearFilters() {
+  document.getElementById("sName").value = "";
+  document.getElementById("sSquad").value = "";
+  document.getElementById("sUnit").value = "";
+  document.getElementById("sProf").value = "";
+  applyFilters();
+}
+
+function tabFilter(el) {
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  el.classList.add("active");
+  tabSquad = el.dataset.squad;
+  // sync squad dropdown if needed
+  if (tabSquad) document.getElementById("sSquad").value = "";
+  applyFilters();
+}
+
+function sortBy(th) {
+  const col = th.dataset.col;
+  if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=true; }
+  document.querySelectorAll("th .si").forEach(s=>s.innerHTML="&#8597;");
+  th.querySelector(".si").innerHTML = sortAsc ? "&#8593;" : "&#8595;";
+  applyFilters();
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────────────────
+const UNIT_COLORS = {
+  "Army":     { bg:"rgba(63,185,80,.7)",  border:"#3fb950" },
+  "Navy":     { bg:"rgba(56,139,253,.7)", border:"#388bfd" },
+  "Air Force":{ bg:"rgba(210,153,34,.7)", border:"#d29922" }
+};
+const PROF_COLORS = {
+  "CE": { bg:"rgba(227,179,65,.75)", border:"#e3b341" },
+  "MM": { bg:"rgba(188,140,255,.75)", border:"#bc8cff" }
+};
+
+function chartFont() {
+  return document.documentElement.getAttribute("data-theme")==="dark" ? "#8b949e" : "#656d76";
+}
+function chartGrid() {
+  return document.documentElement.getAttribute("data-theme")==="dark" ? "rgba(48,54,61,.7)" : "rgba(208,215,222,.5)";
+}
+
+function squadData(unit) {
+  return SQUADS.map(s=>players.filter(p=>p.squad===s && p.unit===unit).length);
+}
+function squadProf(prof) {
+  return SQUADS.map(s=>players.filter(p=>p.squad===s && p.prof===prof).length);
+}
+function squadAvgCP() {
+  return SQUADS.map(s=>{
+    const sp=players.filter(p=>p.squad===s);
+    return sp.length ? Math.round(sp.reduce((a,p)=>a+p.cp,0)/sp.length) : 0;
+  });
+}
+
+let charts = {};
+
+function commonOptions(stacked=false) {
+  const fc = chartFont(), gc = chartGrid();
+  return {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ labels:{ color:fc, font:{size:11} } } },
+    scales:{
+      x:{ stacked, ticks:{ color:fc, font:{size:10} }, grid:{ color:gc } },
+      y:{ stacked, ticks:{ color:fc, font:{size:10} }, grid:{ color:gc }, beginAtZero:true }
+    }
+  };
+}
+
+function buildCharts() {
+  const labels = SQUAD_SHORT;
+
+  charts.unitSquad = new Chart(document.getElementById("cUnitSquad"), {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[
+        { label:"Army", data:squadData("Army"), backgroundColor:UNIT_COLORS.Army.bg, borderColor:UNIT_COLORS.Army.border, borderWidth:1, borderRadius:3 },
+        { label:"Navy", data:squadData("Navy"), backgroundColor:UNIT_COLORS.Navy.bg, borderColor:UNIT_COLORS.Navy.border, borderWidth:1, borderRadius:3 },
+        { label:"Air Force", data:squadData("Air Force"), backgroundColor:UNIT_COLORS["Air Force"].bg, borderColor:UNIT_COLORS["Air Force"].border, borderWidth:1, borderRadius:3 }
+      ]
+    },
+    options: commonOptions()
+  });
+
+  charts.profSquad = new Chart(document.getElementById("cProfSquad"), {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[
+        { label:"Combat Elite", data:squadProf("CE"), backgroundColor:PROF_COLORS.CE.bg, borderColor:PROF_COLORS.CE.border, borderWidth:1, borderRadius:3 },
+        { label:"Mech Master", data:squadProf("MM"), backgroundColor:PROF_COLORS.MM.bg, borderColor:PROF_COLORS.MM.border, borderWidth:1, borderRadius:3 }
+      ]
+    },
+    options: commonOptions()
+  });
+
+  const unitCounts = ["Army","Navy","Air Force"].map(u=>players.filter(p=>p.unit===u).length);
+  charts.unitPie = new Chart(document.getElementById("cUnitPie"), {
+    type:"doughnut",
+    data:{
+      labels:["Army &#129030;","Navy &#9875;","Air Force &#9992;"],
+      datasets:[{
+        data: unitCounts,
+        backgroundColor:[UNIT_COLORS.Army.bg, UNIT_COLORS.Navy.bg, UNIT_COLORS["Air Force"].bg],
+        borderColor:[UNIT_COLORS.Army.border, UNIT_COLORS.Navy.border, UNIT_COLORS["Air Force"].border],
+        borderWidth:2
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:"bottom", labels:{ color:chartFont(), font:{size:11}, padding:16 } }
+      },
+      cutout:"62%"
+    }
+  });
+
+  charts.avgCP = new Chart(document.getElementById("cAvgCP"), {
+    type:"bar",
+    data:{
+      labels,
+      datasets:[{
+        label:"Avg March CP",
+        data: squadAvgCP(),
+        backgroundColor:"rgba(88,166,255,.65)",
+        borderColor:"#58a6ff",
+        borderWidth:1,
+        borderRadius:4
+      }]
+    },
+    options: commonOptions()
+  });
+}
+
+function updateChartTheme() {
+  const fc = chartFont(), gc = chartGrid();
+  Object.values(charts).forEach(c=>{
+    if (c.config.type==="doughnut") {
+      c.options.plugins.legend.labels.color = fc;
+    } else {
+      c.options.plugins.legend.labels.color = fc;
+      c.options.scales.x.ticks.color = fc;
+      c.options.scales.y.ticks.color = fc;
+      c.options.scales.x.grid.color = gc;
+      c.options.scales.y.grid.color = gc;
+    }
+    c.update();
+  });
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", ()=>{
+  initStats();
+  buildCharts();
+  applyFilters();
+});
+</script>
+</body>
+</html>
