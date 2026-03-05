@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Server 2864 – Titan Canyon Rosters</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
   <style>
     :root[data-theme="dark"] {
       --bg: #0d1117;
@@ -302,7 +302,7 @@
     <div class="header-sub">Event: Saturday, March 07 &nbsp;&bull;&nbsp; 5 Squads</div>
   </div>
   <div class="header-actions">
-    <a href="https://shattereddisk.github.io/rickroll/" target="_blank" class="easter-egg" title="">&#127828;</a>
+    <a href="https://shattereddisk.github.io/rickroll/" target="_blank" rel="noopener noreferrer" class="easter-egg" title="">&#127828;</a>
     <button class="hdr-btn hdr-btn-charts" onclick="openChartsModal()">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="8" width="3" height="7" rx="1"/><rect x="6" y="4" width="3" height="11" rx="1"/><rect x="11" y="1" width="3" height="14" rx="1"/></svg>
       Charts
@@ -643,6 +643,16 @@ function updateStats(list) {
   document.getElementById("sTopCP").textContent = list.length ? Math.max(...list.map(p=>p.cp)) : 0;
 }
 
+// ── UTILS ─────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // ── TABLE ─────────────────────────────────────────────────────────────────────
 let sortCol = null, sortAsc = true, tabSquad = "";
 
@@ -665,7 +675,7 @@ function availDots(p) {
 }
 function moveTag(n) {
   const m = n && n.match(/Move to (\w+) by/i);
-  return m ? `<span class="move-tag">&#8594; ${m[1]}</span>` : "";
+  return m ? `<span class="move-tag">&#8594; ${esc(m[1])}</span>` : "";
 }
 
 function buildTable(list) {
@@ -673,17 +683,17 @@ function buildTable(list) {
   if (!list.length) { tbody.innerHTML=`<tr><td colspan="9" class="no-results">No players match your filters.</td></tr>`; return; }
   tbody.innerHTML = list.map((p,i) => {
     const name = p.isMove
-      ? `<span class="name-tip" data-tip="${p.notes.replace(/"/g,'&quot;')}">${p.name}${moveTag(p.notes)}</span>`
-      : p.name;
-    return `<tr data-squad="${p.squad}"${p.isMove?' class="has-move"':''}>
+      ? `<span class="name-tip" data-tip="${esc(p.notes)}">${esc(p.name)}${moveTag(p.notes)}</span>`
+      : esc(p.name);
+    return `<tr data-squad="${esc(p.squad)}"${p.isMove?' class="has-move"':''}>
       <td style="color:var(--muted);font-size:.75rem">${i+1}</td>
       <td class="pname">${name}</td>
-      <td style="font-size:.8rem;color:var(--muted)">${p.squad}</td>
+      <td style="font-size:.8rem;color:var(--muted)">${esc(p.squad)}</td>
       <td>${unitBadge(p.unit)}</td>
       <td>${profBadge(p.prof)}</td>
       <td>${cpBar(p.cp)}</td>
-      <td style="color:var(--muted);text-align:center;font-size:.8rem">${p.ucLvl||"—"}</td>
-      <td><span style="font-size:.76rem;color:var(--muted)">${p.alliance}</span></td>
+      <td style="color:var(--muted);text-align:center;font-size:.8rem">${esc(p.ucLvl||"—")}</td>
+      <td><span style="font-size:.76rem;color:var(--muted)">${esc(p.alliance)}</span></td>
       <td>${availDots(p)}</td>
     </tr>`;
   }).join('');
@@ -732,8 +742,8 @@ function tabFilter(el) {
 function sortBy(th) {
   const col = th.dataset.col;
   if (sortCol===col) sortAsc=!sortAsc; else { sortCol=col; sortAsc=true; }
-  document.querySelectorAll("th .si").forEach(s=>s.innerHTML="&#8597;");
-  th.querySelector(".si").innerHTML = sortAsc ? "&#8593;" : "&#8595;";
+  document.querySelectorAll("th .si").forEach(s=>s.textContent="\u2195");
+  th.querySelector(".si").textContent = sortAsc ? "\u2191" : "\u2193";
   applyFilters();
 }
 
