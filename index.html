@@ -14,7 +14,6 @@
       --text: #e6edf3;
       --muted: #8b949e;
       --accent: #58a6ff;
-      --accent2: #79c0ff;
       --army: #3fb950;
       --navy: #388bfd;
       --air: #d29922;
@@ -24,6 +23,9 @@
       --input: #0d1117;
       --shadow: rgba(0,0,0,.4);
       --row-hover: #21262d;
+      --move-bg: rgba(210,153,34,.07);
+      --move-border: #d29922;
+      --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b949e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     }
     :root[data-theme="light"] {
       --bg: #f6f8fa;
@@ -33,7 +35,6 @@
       --text: #1f2328;
       --muted: #656d76;
       --accent: #0969da;
-      --accent2: #0550ae;
       --army: #1a7f37;
       --navy: #0550ae;
       --air: #9a6700;
@@ -43,6 +44,9 @@
       --input: #ffffff;
       --shadow: rgba(140,149,159,.2);
       --row-hover: #f3f4f6;
+      --move-bg: rgba(154,103,0,.06);
+      --move-border: #9a6700;
+      --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23656d76' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -59,184 +63,271 @@
     header {
       background: var(--bg2);
       border-bottom: 1px solid var(--border);
-      padding: .9rem 2rem;
+      padding: .85rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 200;
-      box-shadow: 0 2px 8px var(--shadow);
+      box-shadow: 0 1px 0 var(--border);
     }
-    .header-title { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
-    .header-sub { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+    .header-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); letter-spacing: -.01em; }
+    .header-sub { font-size: .75rem; color: var(--muted); margin-top: 3px; }
     .theme-btn {
       background: var(--tag);
       border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 20px;
-      padding: .4rem 1rem;
+      color: var(--muted);
+      border-radius: 8px;
+      padding: .38rem .9rem;
       cursor: pointer;
-      font-size: .82rem;
-      display: flex; align-items: center; gap: .45rem;
-      transition: background .2s;
+      font-size: .8rem;
+      display: flex; align-items: center; gap: .4rem;
+      transition: all .15s;
     }
-    .theme-btn:hover { background: var(--border); }
+    .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     /* ── MAIN ── */
-    main { max-width: 1440px; margin: 0 auto; padding: 1.75rem 2rem; }
+    main { max-width: 1440px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
 
     /* ── STATS ── */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: .9rem;
-      margin-bottom: 1.75rem;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: .75rem;
+      margin-bottom: 1.25rem;
     }
     .stat-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 1rem 1.1rem;
+      padding: .9rem 1rem;
       text-align: center;
-      box-shadow: 0 2px 6px var(--shadow);
     }
-    .stat-num { font-size: 1.9rem; font-weight: 700; color: var(--accent); line-height: 1; }
-    .stat-lbl { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+    .stat-num { font-size: 1.75rem; font-weight: 700; color: var(--accent); line-height: 1; }
+    .stat-lbl { font-size: .72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .04em; }
 
-    /* ── SEARCH ── */
+    /* ── SQUAD QUICK FILTERS ── */
+    .squad-filters {
+      display: flex;
+      gap: .5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      padding: 1rem 1.25rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      align-items: center;
+    }
+    .squad-filters-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-right: .25rem;
+      white-space: nowrap;
+    }
+    .sqbtn {
+      padding: .42rem 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--tag);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: .82rem;
+      font-weight: 500;
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .sqbtn:hover { border-color: var(--accent); color: var(--accent); }
+    .sqbtn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+    .sqbtn[data-squad="Dog Squad A"].active  { background: #2ea043; border-color: #2ea043; }
+    .sqbtn[data-squad="Dog Squad B"].active  { background: #388bfd; border-color: #388bfd; }
+    .sqbtn[data-squad="MSS Squad A"].active  { background: #8957e5; border-color: #8957e5; }
+    .sqbtn[data-squad="MSS Squad B"].active  { background: #bc4c00; border-color: #bc4c00; }
+    .sqbtn[data-squad="PRU Squad A"].active  { background: #d29922; border-color: #d29922; color: #0d1117; }
+
+    /* ── SEARCH CARD ── */
     .search-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 1.1rem 1.3rem;
-      margin-bottom: 1.75rem;
-      box-shadow: 0 2px 6px var(--shadow);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
     }
-    .search-card h2 {
-      font-size: .78rem; font-weight: 600; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .9rem;
+    .search-card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: .85rem;
     }
+    .search-card-header h2 {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+    .result-count { font-size: .78rem; color: var(--muted); }
     .search-row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; }
-    .search-group { flex: 1; min-width: 180px; }
-    .search-group label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: .35rem; }
-    .search-input {
+    .search-group { flex: 1; min-width: 170px; }
+    .search-group label {
+      display: block; font-size: .73rem; color: var(--muted);
+      margin-bottom: .3rem; font-weight: 500;
+    }
+
+    /* text input */
+    .s-input {
       width: 100%;
-      background: var(--input);
+      background: var(--bg2);
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: .48rem .75rem;
+      border-radius: 7px;
+      padding: .5rem .8rem;
       color: var(--text);
-      font-size: .875rem;
+      font-size: .855rem;
       outline: none;
-      transition: border-color .15s;
+      transition: border-color .15s, box-shadow .15s;
     }
-    .search-input:focus { border-color: var(--accent); }
-    select.search-input option { background: var(--bg2); }
+    .s-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.12); }
+
+    /* modern select */
+    .s-select-wrap { position: relative; }
+    .s-select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: .5rem 2.2rem .5rem .8rem;
+      color: var(--text);
+      font-size: .855rem;
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .15s;
+      background-image: var(--chevron);
+      background-repeat: no-repeat;
+      background-position: right .75rem center;
+    }
+    .s-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88,166,255,.12); }
+    .s-select option { background: var(--bg2); color: var(--text); }
+
     .clear-btn {
-      background: var(--tag); border: 1px solid var(--border);
-      color: var(--muted); border-radius: 6px; padding: .48rem 1rem;
-      cursor: pointer; font-size: .82rem; white-space: nowrap; transition: all .2s;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 7px;
+      padding: .5rem .9rem;
+      cursor: pointer;
+      font-size: .8rem;
+      white-space: nowrap;
+      transition: all .15s;
+      align-self: flex-end;
     }
-    .clear-btn:hover { background: var(--border); color: var(--text); }
-    .result-count { font-size: .78rem; color: var(--muted); margin-top: .65rem; }
+    .clear-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     /* ── SECTION TITLE ── */
     .sec-title {
-      font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text);
-      display: flex; align-items: center; gap: .55rem;
+      font-size: .95rem; font-weight: 700; margin-bottom: .9rem; color: var(--text);
+      display: flex; align-items: center; gap: .5rem;
     }
     .sec-title::before {
-      content: ''; display: inline-block; width: 3px; height: 1rem;
+      content: ''; display: inline-block; width: 3px; height: .95rem;
       background: var(--accent); border-radius: 2px; flex-shrink: 0;
     }
 
-    /* ── CHARTS ── */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
-      gap: 1.25rem;
-      margin-bottom: 2rem;
-    }
-    .chart-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 10px; padding: 1.1rem; box-shadow: 0 2px 6px var(--shadow);
-    }
-    .chart-card h3 {
-      font-size: .75rem; font-weight: 600; color: var(--muted);
-      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .85rem;
-    }
-    .chart-wrap { position: relative; height: 230px; }
-
-    /* ── TABS ── */
-    .tabs { display: flex; gap: .45rem; flex-wrap: wrap; margin-bottom: .9rem; }
-    .tab {
-      padding: .35rem .9rem; border-radius: 20px; border: 1px solid var(--border);
-      background: var(--tag); color: var(--muted); cursor: pointer;
-      font-size: .8rem; transition: all .15s;
-    }
-    .tab.active, .tab:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
-
     /* ── TABLE ── */
-    .table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 2px 6px var(--shadow); }
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
     table { width: 100%; border-collapse: collapse; background: var(--card); font-size: .855rem; }
     thead th {
-      background: var(--bg2); border-bottom: 1px solid var(--border);
-      padding: .65rem 1rem; text-align: left;
-      font-size: .73rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+      background: var(--bg2);
+      border-bottom: 1px solid var(--border);
+      padding: .6rem 1rem;
+      text-align: left;
+      font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .055em;
       color: var(--muted); white-space: nowrap;
     }
     th.sortable { cursor: pointer; user-select: none; }
     th.sortable:hover { color: var(--accent); }
-    th .si { margin-left: 3px; opacity: .5; font-style: normal; }
-    tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+    th .si { margin-left: 3px; opacity: .45; font-style: normal; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: var(--row-hover); }
-    tbody td { padding: .6rem 1rem; white-space: nowrap; }
+    tbody td { padding: .58rem 1rem; white-space: nowrap; }
     tbody tr.hidden { display: none; }
+
+    /* move highlight */
+    tbody tr.has-move {
+      background: var(--move-bg);
+      border-left: 2px solid var(--move-border);
+    }
+    tbody tr.has-move:hover { filter: brightness(1.08); }
 
     .pname { font-weight: 600; }
     .badge {
       display: inline-flex; align-items: center; gap: 3px;
-      padding: 2px 8px; border-radius: 12px; font-size: .73rem; font-weight: 500;
+      padding: 2px 8px; border-radius: 12px; font-size: .72rem; font-weight: 500;
     }
-    .b-army { background: rgba(63,185,80,.15); color: var(--army); }
-    .b-navy { background: rgba(56,139,253,.15); color: var(--navy); }
-    .b-air  { background: rgba(210,153,34,.15); color: var(--air); }
-    .b-ce   { background: rgba(227,179,65,.12); color: var(--ce); }
-    .b-mm   { background: rgba(188,140,255,.15); color: var(--mm); }
+    .b-army { background: rgba(63,185,80,.13); color: var(--army); }
+    .b-navy { background: rgba(56,139,253,.13); color: var(--navy); }
+    .b-air  { background: rgba(210,153,34,.13); color: var(--air); }
+    .b-ce   { background: rgba(227,179,65,.11); color: var(--ce); }
+    .b-mm   { background: rgba(188,140,255,.13); color: var(--mm); }
 
     .cp-wrap { display: flex; align-items: center; gap: 7px; }
-    .cp-bar { width: 52px; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
-    .cp-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+    .cp-bar { width: 50px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+    .cp-fill { height: 100%; background: var(--accent); border-radius: 2px; }
 
     .move-tag {
       display: inline-block; padding: 1px 6px; border-radius: 4px;
-      font-size: .68rem; background: rgba(88,166,255,.13); color: var(--accent); margin-left: 4px;
+      font-size: .67rem; background: rgba(210,153,34,.18); color: var(--air); margin-left: 5px;
+      font-weight: 600;
     }
 
     .avail { display: flex; gap: 4px; align-items: center; }
     .dot { width: 7px; height: 7px; border-radius: 50%; }
     .dot.y { background: var(--army); }
     .dot.n { background: var(--border); }
-    .avail-lbl { font-size: .65rem; color: var(--muted); }
 
-    .note-tip { font-size: .75rem; color: var(--muted); cursor: help; }
+    .note-tip { font-size: .8rem; cursor: help; }
 
-    .no-results {
-      text-align: center; padding: 3rem; color: var(--muted); font-size: .875rem;
+    .no-results { text-align: center; padding: 3rem; color: var(--muted); font-size: .875rem; }
+
+    /* ── CHARTS ── */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.1rem;
+      margin-bottom: 2rem;
     }
+    .chart-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+    }
+    .chart-card h3 {
+      font-size: .7rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem;
+    }
+    .chart-wrap { position: relative; height: 220px; }
 
     /* ── SCROLLBAR ── */
-    ::-webkit-scrollbar { width: 7px; height: 7px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
     @media (max-width: 640px) {
-      main { padding: 1rem; }
+      main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; }
-      .header-title { font-size: 1rem; }
+      .header-title { font-size: .95rem; }
     }
   </style>
 </head>
@@ -265,45 +356,86 @@
     <div class="stat-card"><div class="stat-num" id="sTopCP">0</div><div class="stat-lbl">Top March CP</div></div>
   </div>
 
-  <!-- Search -->
+  <!-- Squad Quick Filters -->
+  <div class="squad-filters">
+    <span class="squad-filters-label">Squad</span>
+    <button class="sqbtn active" data-squad="" onclick="tabFilter(this)">All Players</button>
+    <button class="sqbtn" data-squad="Dog Squad A" onclick="tabFilter(this)">&#128021; Dog A &nbsp;+10</button>
+    <button class="sqbtn" data-squad="Dog Squad B" onclick="tabFilter(this)">&#128021; Dog B &nbsp;&minus;2</button>
+    <button class="sqbtn" data-squad="MSS Squad A" onclick="tabFilter(this)">&#128737;&#65039; MSS A &nbsp;+2</button>
+    <button class="sqbtn" data-squad="MSS Squad B" onclick="tabFilter(this)">&#128737;&#65039; MSS B &nbsp;+10</button>
+    <button class="sqbtn" data-squad="PRU Squad A" onclick="tabFilter(this)">&#9876; PRU A &nbsp;&minus;6</button>
+  </div>
+
+  <!-- Search & Filter -->
   <div class="search-card">
-    <h2>&#128269; Search &amp; Filter</h2>
+    <div class="search-card-header">
+      <h2>&#128269; Search &amp; Filter</h2>
+      <div class="result-count" id="rCount"></div>
+    </div>
     <div class="search-row">
       <div class="search-group">
         <label for="sName">Player Name</label>
-        <input type="text" id="sName" class="search-input" placeholder="Type a name..." oninput="applyFilters()">
+        <input type="text" id="sName" class="s-input" placeholder="Search by name..." oninput="applyFilters()">
       </div>
       <div class="search-group">
-        <label for="sSquad">Squad</label>
-        <select id="sSquad" class="search-input" onchange="applyFilters()">
-          <option value="">All Squads</option>
-          <option value="Dog Squad A">Dog Squad A (+10)</option>
-          <option value="Dog Squad B">Dog Squad B (-2)</option>
-          <option value="MSS Squad A">MSS Squad A (+2)</option>
-          <option value="MSS Squad B">MSS Squad B (+10)</option>
-          <option value="PRU Squad A">PRU Squad A (-6)</option>
-        </select>
+        <label for="sSquad">Assignment</label>
+        <div class="s-select-wrap">
+          <select id="sSquad" class="s-select" onchange="applyFilters()">
+            <option value="">All Squads</option>
+            <option value="Dog Squad A">Dog Squad A (+10)</option>
+            <option value="Dog Squad B">Dog Squad B (-2)</option>
+            <option value="MSS Squad A">MSS Squad A (+2)</option>
+            <option value="MSS Squad B">MSS Squad B (+10)</option>
+            <option value="PRU Squad A">PRU Squad A (-6)</option>
+          </select>
+        </div>
       </div>
       <div class="search-group">
         <label for="sUnit">Unit Type</label>
-        <select id="sUnit" class="search-input" onchange="applyFilters()">
-          <option value="">All Units</option>
-          <option value="Army">Army &#129030;</option>
-          <option value="Navy">Navy &#9875;&#65039;</option>
-          <option value="Air Force">Air Force &#9992;&#65039;</option>
-        </select>
+        <div class="s-select-wrap">
+          <select id="sUnit" class="s-select" onchange="applyFilters()">
+            <option value="">All Units</option>
+            <option value="Army">Army &#129030;</option>
+            <option value="Navy">Navy &#9875;&#65039;</option>
+            <option value="Air Force">Air Force &#9992;&#65039;</option>
+          </select>
+        </div>
       </div>
       <div class="search-group">
         <label for="sProf">Profession</label>
-        <select id="sProf" class="search-input" onchange="applyFilters()">
-          <option value="">All</option>
-          <option value="CE">Combat Elite (CE)</option>
-          <option value="MM">Mechanical Master (MM)</option>
-        </select>
+        <div class="s-select-wrap">
+          <select id="sProf" class="s-select" onchange="applyFilters()">
+            <option value="">All Professions</option>
+            <option value="CE">Combat Elite (CE)</option>
+            <option value="MM">Mechanical Master (MM)</option>
+          </select>
+        </div>
       </div>
       <button class="clear-btn" onclick="clearFilters()">&#10005; Clear</button>
     </div>
-    <div class="result-count" id="rCount"></div>
+  </div>
+
+  <!-- Roster -->
+  <div class="sec-title">Full Roster</div>
+  <div class="table-wrap">
+    <table id="rTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th class="sortable" data-col="name" onclick="sortBy(this)">Name <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="squad" onclick="sortBy(this)">Assignment <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="unit" onclick="sortBy(this)">Unit <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="prof" onclick="sortBy(this)">Profession <i class="si">&#8597;</i></th>
+          <th class="sortable" data-col="cp" onclick="sortBy(this)">March CP <i class="si">&#8597;</i></th>
+          <th>UC Lvl</th>
+          <th>Alliance</th>
+          <th title="-6 / -2 / +2 / +10">Availability</th>
+          <th>Notes</th>
+        </tr>
+      </thead>
+      <tbody id="rBody"></tbody>
+    </table>
   </div>
 
   <!-- Charts -->
@@ -327,46 +459,14 @@
     </div>
   </div>
 
-  <!-- Roster -->
-  <div class="sec-title">Full Roster</div>
-  <div class="tabs" id="squadTabs">
-    <button class="tab active" data-squad="" onclick="tabFilter(this)">All Players</button>
-    <button class="tab" data-squad="Dog Squad A" onclick="tabFilter(this)">&#128021; Dog A (+10)</button>
-    <button class="tab" data-squad="Dog Squad B" onclick="tabFilter(this)">&#128021; Dog B (-2)</button>
-    <button class="tab" data-squad="MSS Squad A" onclick="tabFilter(this)">&#128737;&#65039; MSS A (+2)</button>
-    <button class="tab" data-squad="MSS Squad B" onclick="tabFilter(this)">&#128737;&#65039; MSS B (+10)</button>
-    <button class="tab" data-squad="PRU Squad A" onclick="tabFilter(this)">&#9876; PRU A (-6)</button>
-  </div>
-
-  <div class="table-wrap">
-    <table id="rTable">
-      <thead>
-        <tr>
-          <th>#</th>
-          <th class="sortable" data-col="name" onclick="sortBy(this)">Name <i class="si">&#8597;</i></th>
-          <th class="sortable" data-col="squad" onclick="sortBy(this)">Assignment <i class="si">&#8597;</i></th>
-          <th class="sortable" data-col="unit" onclick="sortBy(this)">Unit <i class="si">&#8597;</i></th>
-          <th class="sortable" data-col="prof" onclick="sortBy(this)">Profession <i class="si">&#8597;</i></th>
-          <th class="sortable" data-col="cp" onclick="sortBy(this)">March CP <i class="si">&#8597;</i></th>
-          <th>UC Lvl</th>
-          <th>Alliance</th>
-          <th title="-6 / -2 / +2 / +10">Availability</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody id="rBody"></tbody>
-    </table>
-  </div>
-
 </main>
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-// Fields: name, notes, s6, s2n, s2p, s10, pref, alliance, unit, cp, prof, ucLvl, assignment
 const RAW = [
   ["Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],
   ["Aurora","","n","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"],
-  ["Dаrk","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],
+  ["Dark","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],
   ["20100","Move to MSS by Thu +10","y","n","y","n","DOG","Army",22,"MM","3","MSS Squad A"],
   ["a1capo","","n","y","n","n","DOG","Army",29,"CE","","Dog Squad B"],
   ["Abdullah","","n","y","y","y","DOG","Navy",25,"MM","3","Dog Squad A"],
@@ -492,19 +592,18 @@ const RAW = [
   ["WOOOOOO","","n","n","n","y","DOG","Navy",113,"CE","","Dog Squad A"],
 ];
 
-// Parse into objects
 const players = RAW.map(r => ({
   name: r[0], notes: r[1],
   s6: r[2]==="y", s2n: r[3]==="y", s2p: r[4]==="y", s10: r[5]==="y",
-  alliance: r[6], unit: r[7], cp: r[8], prof: r[9], ucLvl: r[10], squad: r[11]
+  alliance: r[6], unit: r[7], cp: r[8], prof: r[9], ucLvl: r[10], squad: r[11],
+  isMove: /move to/i.test(r[1])
 }));
 
 const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
-const SQUAD_LABELS = ["Dog A\n(+10)","Dog B\n(-2)","MSS A\n(+2)","MSS B\n(+10)","PRU A\n(-6)"];
 const SQUAD_SHORT = ["Dog A","Dog B","MSS A","MSS B","PRU A"];
 const MAX_CP = Math.max(...players.map(p=>p.cp));
 
-// ── THEME ────────────────────────────────────────────────────────────────────
+// ── THEME ─────────────────────────────────────────────────────────────────────
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute("data-theme") === "dark";
@@ -514,17 +613,16 @@ function toggleTheme() {
   updateChartTheme();
 }
 
-// ── STATS ────────────────────────────────────────────────────────────────────
+// ── STATS ─────────────────────────────────────────────────────────────────────
 function initStats() {
   document.getElementById("sTot").textContent = players.length;
   document.getElementById("sCE").textContent = players.filter(p=>p.prof==="CE").length;
   document.getElementById("sMM").textContent = players.filter(p=>p.prof==="MM").length;
-  const avg = Math.round(players.reduce((s,p)=>s+p.cp,0)/players.length);
-  document.getElementById("sAvgCP").textContent = avg;
+  document.getElementById("sAvgCP").textContent = Math.round(players.reduce((s,p)=>s+p.cp,0)/players.length);
   document.getElementById("sTopCP").textContent = MAX_CP;
 }
 
-// ── TABLE ────────────────────────────────────────────────────────────────────
+// ── TABLE ─────────────────────────────────────────────────────────────────────
 let sortCol = null, sortAsc = true, tabSquad = "";
 
 function unitBadge(u) {
@@ -539,18 +637,17 @@ function profBadge(p) {
 }
 function cpBar(cp) {
   const pct = Math.round((cp/MAX_CP)*100);
-  return `<div class="cp-wrap"><span style="min-width:2.2rem;font-weight:600">${cp}</span><div class="cp-bar"><div class="cp-fill" style="width:${pct}%"></div></div></div>`;
+  return `<div class="cp-wrap"><span style="min-width:2.1rem;font-weight:600">${cp}</span><div class="cp-bar"><div class="cp-fill" style="width:${pct}%"></div></div></div>`;
 }
 function availDots(p) {
-  const slots = [
-    {v:p.s6, lbl:"-6"},{v:p.s2n,lbl:"-2"},{v:p.s2p,lbl:"+2"},{v:p.s10,lbl:"+10"}
-  ];
-  return `<div class="avail">${slots.map(s=>`<div title="Sat ${s.lbl}" class="dot ${s.v?'y':'n'}"></div>`).join('')}</div>`;
+  return `<div class="avail">${
+    [{v:p.s6,l:"-6"},{v:p.s2n,l:"-2"},{v:p.s2p,l:"+2"},{v:p.s10,l:"+10"}]
+    .map(s=>`<div title="Sat ${s.l}" class="dot ${s.v?'y':'n'}"></div>`).join('')
+  }</div>`;
 }
 function moveTag(notes) {
-  if (!notes) return "";
-  const m = notes.match(/Move to (\w+) by/i);
-  return m ? `<span class="move-tag">&#8594;${m[1]}</span>` : "";
+  const m = notes && notes.match(/Move to (\w+) by/i);
+  return m ? `<span class="move-tag">&#8594; ${m[1]}</span>` : "";
 }
 
 function buildTable(list) {
@@ -560,39 +657,38 @@ function buildTable(list) {
     return;
   }
   tbody.innerHTML = list.map((p,i)=>`
-    <tr data-squad="${p.squad}">
-      <td style="color:var(--muted);font-size:.78rem">${i+1}</td>
+    <tr data-squad="${p.squad}"${p.isMove?' class="has-move"':''}>
+      <td style="color:var(--muted);font-size:.75rem">${i+1}</td>
       <td class="pname">${p.name}${moveTag(p.notes)}</td>
-      <td style="font-size:.82rem">${p.squad}</td>
+      <td style="font-size:.8rem;color:var(--muted)">${p.squad}</td>
       <td>${unitBadge(p.unit)}</td>
       <td>${profBadge(p.prof)}</td>
       <td>${cpBar(p.cp)}</td>
-      <td style="color:var(--muted);text-align:center">${p.ucLvl||"—"}</td>
-      <td><span style="font-size:.78rem;color:var(--muted)">${p.alliance}</span></td>
+      <td style="color:var(--muted);text-align:center;font-size:.8rem">${p.ucLvl||"—"}</td>
+      <td><span style="font-size:.76rem;color:var(--muted)">${p.alliance}</span></td>
       <td>${availDots(p)}</td>
-      <td>${p.notes?`<span class="note-tip" title="${p.notes.replace(/"/g,'&quot;')}">&#8505;&#65039;</span>`:"—"}</td>
+      <td>${p.notes?`<span class="note-tip" title="${p.notes.replace(/"/g,'&quot;')}">&#8505;&#65039;</span>`:`<span style="color:var(--border)">—</span>`}</td>
     </tr>`).join('');
 }
 
 function getSortedFiltered() {
   let list = [...players];
-  const name = document.getElementById("sName").value.trim().toLowerCase();
+  const name  = document.getElementById("sName").value.trim().toLowerCase();
   const squad = document.getElementById("sSquad").value;
-  const unit = document.getElementById("sUnit").value;
-  const prof = document.getElementById("sProf").value;
-  const tab = tabSquad;
+  const unit  = document.getElementById("sUnit").value;
+  const prof  = document.getElementById("sProf").value;
 
-  if (name) list = list.filter(p=>p.name.toLowerCase().includes(name));
+  if (name)  list = list.filter(p=>p.name.toLowerCase().includes(name));
   if (squad) list = list.filter(p=>p.squad.startsWith(squad));
-  else if (tab) list = list.filter(p=>p.squad.startsWith(tab));
-  if (unit) list = list.filter(p=>p.unit===unit);
-  if (prof) list = list.filter(p=>p.prof===prof);
+  else if (tabSquad) list = list.filter(p=>p.squad.startsWith(tabSquad));
+  if (unit)  list = list.filter(p=>p.unit===unit);
+  if (prof)  list = list.filter(p=>p.prof===prof);
 
   if (sortCol) {
     list.sort((a,b)=>{
-      let va=a[sortCol], vb=b[sortCol];
-      if (sortCol==="cp") return sortAsc?va-vb:vb-va;
-      return sortAsc?String(va).localeCompare(String(vb)):String(vb).localeCompare(String(va));
+      const va=a[sortCol], vb=b[sortCol];
+      if (sortCol==="cp") return sortAsc ? va-vb : vb-va;
+      return sortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
     });
   }
   return list;
@@ -601,22 +697,18 @@ function getSortedFiltered() {
 function applyFilters() {
   const list = getSortedFiltered();
   buildTable(list);
-  document.getElementById("rCount").textContent = `Showing ${list.length} of ${players.length} players`;
+  document.getElementById("rCount").textContent = `${list.length} of ${players.length} players`;
 }
 
 function clearFilters() {
-  document.getElementById("sName").value = "";
-  document.getElementById("sSquad").value = "";
-  document.getElementById("sUnit").value = "";
-  document.getElementById("sProf").value = "";
+  ["sName","sSquad","sUnit","sProf"].forEach(id=>{ document.getElementById(id).value=""; });
   applyFilters();
 }
 
 function tabFilter(el) {
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".sqbtn").forEach(b=>b.classList.remove("active"));
   el.classList.add("active");
   tabSquad = el.dataset.squad;
-  // sync squad dropdown if needed
   if (tabSquad) document.getElementById("sSquad").value = "";
   applyFilters();
 }
@@ -630,30 +722,22 @@ function sortBy(th) {
 }
 
 // ── CHARTS ───────────────────────────────────────────────────────────────────
-const UNIT_COLORS = {
-  "Army":     { bg:"rgba(63,185,80,.7)",  border:"#3fb950" },
-  "Navy":     { bg:"rgba(56,139,253,.7)", border:"#388bfd" },
-  "Air Force":{ bg:"rgba(210,153,34,.7)", border:"#d29922" }
+const UC = {
+  Army:      { bg:"rgba(63,185,80,.7)",  b:"#3fb950" },
+  Navy:      { bg:"rgba(56,139,253,.7)", b:"#388bfd" },
+  "Air Force":{ bg:"rgba(210,153,34,.7)", b:"#d29922" }
 };
-const PROF_COLORS = {
-  "CE": { bg:"rgba(227,179,65,.75)", border:"#e3b341" },
-  "MM": { bg:"rgba(188,140,255,.75)", border:"#bc8cff" }
+const PC = {
+  CE: { bg:"rgba(227,179,65,.75)", b:"#e3b341" },
+  MM: { bg:"rgba(188,140,255,.75)", b:"#bc8cff" }
 };
 
-function chartFont() {
-  return document.documentElement.getAttribute("data-theme")==="dark" ? "#8b949e" : "#656d76";
-}
-function chartGrid() {
-  return document.documentElement.getAttribute("data-theme")==="dark" ? "rgba(48,54,61,.7)" : "rgba(208,215,222,.5)";
-}
+function cf() { return document.documentElement.getAttribute("data-theme")==="dark"?"#8b949e":"#656d76"; }
+function cg() { return document.documentElement.getAttribute("data-theme")==="dark"?"rgba(48,54,61,.7)":"rgba(208,215,222,.5)"; }
 
-function squadData(unit) {
-  return SQUADS.map(s=>players.filter(p=>p.squad===s && p.unit===unit).length);
-}
-function squadProf(prof) {
-  return SQUADS.map(s=>players.filter(p=>p.squad===s && p.prof===prof).length);
-}
-function squadAvgCP() {
+function sqUnit(u) { return SQUADS.map(s=>players.filter(p=>p.squad===s&&p.unit===u).length); }
+function sqProf(pr) { return SQUADS.map(s=>players.filter(p=>p.squad===s&&p.prof===pr).length); }
+function sqAvgCP() {
   return SQUADS.map(s=>{
     const sp=players.filter(p=>p.squad===s);
     return sp.length ? Math.round(sp.reduce((a,p)=>a+p.cp,0)/sp.length) : 0;
@@ -662,102 +746,83 @@ function squadAvgCP() {
 
 let charts = {};
 
-function commonOptions(stacked=false) {
-  const fc = chartFont(), gc = chartGrid();
+function baseOpts() {
   return {
     responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ labels:{ color:fc, font:{size:11} } } },
+    plugins:{ legend:{ labels:{ color:cf(), font:{size:11}, boxWidth:12 } } },
     scales:{
-      x:{ stacked, ticks:{ color:fc, font:{size:10} }, grid:{ color:gc } },
-      y:{ stacked, ticks:{ color:fc, font:{size:10} }, grid:{ color:gc }, beginAtZero:true }
+      x:{ ticks:{ color:cf(), font:{size:10} }, grid:{ color:cg() } },
+      y:{ ticks:{ color:cf(), font:{size:10} }, grid:{ color:cg() }, beginAtZero:true }
     }
   };
 }
 
 function buildCharts() {
-  const labels = SQUAD_SHORT;
-
-  charts.unitSquad = new Chart(document.getElementById("cUnitSquad"), {
+  charts.unit = new Chart(document.getElementById("cUnitSquad"), {
     type:"bar",
-    data:{
-      labels,
-      datasets:[
-        { label:"Army", data:squadData("Army"), backgroundColor:UNIT_COLORS.Army.bg, borderColor:UNIT_COLORS.Army.border, borderWidth:1, borderRadius:3 },
-        { label:"Navy", data:squadData("Navy"), backgroundColor:UNIT_COLORS.Navy.bg, borderColor:UNIT_COLORS.Navy.border, borderWidth:1, borderRadius:3 },
-        { label:"Air Force", data:squadData("Air Force"), backgroundColor:UNIT_COLORS["Air Force"].bg, borderColor:UNIT_COLORS["Air Force"].border, borderWidth:1, borderRadius:3 }
-      ]
-    },
-    options: commonOptions()
+    data:{ labels:SQUAD_SHORT, datasets:[
+      { label:"Army",      data:sqUnit("Army"),       backgroundColor:UC.Army.bg,      borderColor:UC.Army.b,      borderWidth:1, borderRadius:3 },
+      { label:"Navy",      data:sqUnit("Navy"),       backgroundColor:UC.Navy.bg,      borderColor:UC.Navy.b,      borderWidth:1, borderRadius:3 },
+      { label:"Air Force", data:sqUnit("Air Force"),  backgroundColor:UC["Air Force"].bg, borderColor:UC["Air Force"].b, borderWidth:1, borderRadius:3 }
+    ]},
+    options: baseOpts()
   });
 
-  charts.profSquad = new Chart(document.getElementById("cProfSquad"), {
+  charts.prof = new Chart(document.getElementById("cProfSquad"), {
     type:"bar",
-    data:{
-      labels,
-      datasets:[
-        { label:"Combat Elite", data:squadProf("CE"), backgroundColor:PROF_COLORS.CE.bg, borderColor:PROF_COLORS.CE.border, borderWidth:1, borderRadius:3 },
-        { label:"Mech Master", data:squadProf("MM"), backgroundColor:PROF_COLORS.MM.bg, borderColor:PROF_COLORS.MM.border, borderWidth:1, borderRadius:3 }
-      ]
-    },
-    options: commonOptions()
+    data:{ labels:SQUAD_SHORT, datasets:[
+      { label:"Combat Elite", data:sqProf("CE"), backgroundColor:PC.CE.bg, borderColor:PC.CE.b, borderWidth:1, borderRadius:3 },
+      { label:"Mech Master",  data:sqProf("MM"), backgroundColor:PC.MM.bg, borderColor:PC.MM.b, borderWidth:1, borderRadius:3 }
+    ]},
+    options: baseOpts()
   });
 
   const unitCounts = ["Army","Navy","Air Force"].map(u=>players.filter(p=>p.unit===u).length);
-  charts.unitPie = new Chart(document.getElementById("cUnitPie"), {
+  charts.pie = new Chart(document.getElementById("cUnitPie"), {
     type:"doughnut",
     data:{
-      labels:["Army &#129030;","Navy &#9875;","Air Force &#9992;"],
-      datasets:[{
-        data: unitCounts,
-        backgroundColor:[UNIT_COLORS.Army.bg, UNIT_COLORS.Navy.bg, UNIT_COLORS["Air Force"].bg],
-        borderColor:[UNIT_COLORS.Army.border, UNIT_COLORS.Navy.border, UNIT_COLORS["Air Force"].border],
+      labels:["Army","Navy","Air Force"],
+      datasets:[{ data:unitCounts,
+        backgroundColor:[UC.Army.bg, UC.Navy.bg, UC["Air Force"].bg],
+        borderColor:[UC.Army.b, UC.Navy.b, UC["Air Force"].b],
         borderWidth:2
       }]
     },
     options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{
-        legend:{ position:"bottom", labels:{ color:chartFont(), font:{size:11}, padding:16 } }
-      },
-      cutout:"62%"
+      responsive:true, maintainAspectRatio:false, cutout:"62%",
+      plugins:{ legend:{ position:"bottom", labels:{ color:cf(), font:{size:11}, padding:14, boxWidth:12 } } }
     }
   });
 
-  charts.avgCP = new Chart(document.getElementById("cAvgCP"), {
+  charts.cp = new Chart(document.getElementById("cAvgCP"), {
     type:"bar",
-    data:{
-      labels,
-      datasets:[{
-        label:"Avg March CP",
-        data: squadAvgCP(),
-        backgroundColor:"rgba(88,166,255,.65)",
-        borderColor:"#58a6ff",
-        borderWidth:1,
-        borderRadius:4
-      }]
-    },
-    options: commonOptions()
+    data:{ labels:SQUAD_SHORT, datasets:[{
+      label:"Avg March CP",
+      data:sqAvgCP(),
+      backgroundColor:"rgba(88,166,255,.6)",
+      borderColor:"#58a6ff",
+      borderWidth:1, borderRadius:4
+    }]},
+    options: baseOpts()
   });
 }
 
 function updateChartTheme() {
-  const fc = chartFont(), gc = chartGrid();
   Object.values(charts).forEach(c=>{
-    if (c.config.type==="doughnut") {
-      c.options.plugins.legend.labels.color = fc;
-    } else {
-      c.options.plugins.legend.labels.color = fc;
-      c.options.scales.x.ticks.color = fc;
-      c.options.scales.y.ticks.color = fc;
-      c.options.scales.x.grid.color = gc;
-      c.options.scales.y.grid.color = gc;
+    const isDoughnut = c.config.type==="doughnut";
+    c.options.plugins.legend.labels.color = cf();
+    if (!isDoughnut) {
+      c.options.scales.x.ticks.color = cf();
+      c.options.scales.y.ticks.color = cf();
+      c.options.scales.x.grid.color = cg();
+      c.options.scales.y.grid.color = cg();
     }
     c.update();
   });
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", ()=>{
+document.addEventListener("DOMContentLoaded", () => {
   initStats();
   buildCharts();
   applyFilters();
