@@ -681,7 +681,7 @@ function profBadge(p) {
   return p==="CE" ? `<span class="badge b-ce">&#9876; CE</span>` : `<span class="badge b-mm">&#128295; MM</span>`;
 }
 function cpBar(cp) {
-  return `<div class="cp-wrap"><span style="min-width:2.1rem;font-weight:600">${cp}</span><div class="cp-bar"><div class="cp-fill" style="width:${Math.round((cp/MAX_CP)*100)}%"></div></div></div>`;
+  return `<div class="cp-wrap"><span style="min-width:2.1rem;font-weight:600">${esc(cp)}</span><div class="cp-bar"><div class="cp-fill" style="width:${Math.round((cp/MAX_CP)*100)}%"></div></div></div>`;
 }
 function availDots(p) {
   return `<div class="avail">${[{v:p.s6,l:"-6"},{v:p.s2n,l:"-2"},{v:p.s2p,l:"+2"},{v:p.s10,l:"+10"}].map(s=>`<div title="Sat ${s.l}" class="dot ${s.v?'y':'n'}"></div>`).join('')}</div>`;
