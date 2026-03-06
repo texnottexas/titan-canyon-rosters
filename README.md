@@ -1,6 +1,6 @@
 # Titan Canyon Rosters — Server 2864
 
-A roster and battle plan hub for **Server 2864 Titan Canyon** in [Top War](https://topwar.com/). View squad rosters, compare player stats, and check the latest battle plan assignments — all from one page.
+A roster and battle plan hub for **Server 2864 Titan Canyon** in [Top War](https://rivergame.net/). View squad rosters, compare player stats, and check the latest battle plan assignments — all from one page.
 
 **Live site:** [test.2864tw.com](https://test.2864tw.com)
 
