@@ -246,8 +246,8 @@ function render() {
       </div>
       <div class="panel">
         <h3>Roster Assignments</h3>
-        ${renderPositionSections(data)}
         ${SECTIONS.map(s => renderSection(s, data)).join("")}
+        ${renderPositionSections(data)}
       </div>
     </div>
     ${data.notes ? `<div class="notes-card"><h3>Squad Notes</h3><div class="notes-body">${esc(data.notes)}</div></div>` : ""}
