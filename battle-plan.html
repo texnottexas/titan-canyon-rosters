@@ -90,20 +90,12 @@
     .map-node .num { font-weight: 700; font-size: .9rem; color: var(--accent); line-height: 1; }
     .map-node .role { font-size: .5rem; color: var(--muted); line-height: 1.1; margin-top: 1px; }
     .map-node .player { font-size: .6rem; font-weight: 600; color: var(--text); margin-top: 2px; }
-    .map-node .fdot {
-      position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%;
-    }
     .map-hub {
       position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
       width: 28%; height: 28%; background: var(--tag); border: 1px dashed var(--border); border-radius: 8px;
       display: flex; align-items: center; justify-content: center; text-align: center;
       font-size: .6rem; color: var(--muted); padding: 4px; line-height: 1.2;
     }
-    .map-legend {
-      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: .7rem; color: var(--muted);
-    }
-    .legend-item { display: flex; align-items: center; gap: .3rem; }
-    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); }
 
     /* Roster sections */
     .assign-section { margin-bottom: 1rem; }
@@ -239,10 +231,6 @@ function render() {
       <div class="panel">
         <h3>Battle Map &mdash; ${esc(SQUAD_SHORT[activeSquad])}</h3>
         <div class="diamond-grid" id="mapGrid"></div>
-        <div class="map-legend">
-          <div class="legend-item"><div class="legend-swatch" style="background:#3fb950"></div> Strengthening</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#d29922"></div> Urgent Care</div>
-        </div>
       </div>
       <div class="panel">
         <h3>Roster Assignments</h3>
