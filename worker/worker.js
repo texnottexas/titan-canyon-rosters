@@ -43,7 +43,7 @@ export default {
         const content = JSON.parse(atob(file.content));
         return jsonResponse({ data: content, sha: file.sha }, 200, corsHeaders);
       } catch (e) {
-        return jsonResponse({ error: e.message }, 500, corsHeaders);
+        return jsonResponse({ error: "Internal error" }, 500, corsHeaders);
       }
     }
 
@@ -110,7 +110,7 @@ export default {
         const result = await putRes.json();
         return jsonResponse({ ok: true, sha: result.content.sha }, 200, corsHeaders);
       } catch (e) {
-        return jsonResponse({ error: e.message }, 500, corsHeaders);
+        return jsonResponse({ error: "Internal error" }, 500, corsHeaders);
       }
     }
 

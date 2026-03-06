@@ -608,7 +608,7 @@ function playerOptHtml(sqPlayers, selected, filterProf, usedNames) {
   list.forEach(p => {
     if (usedNames && usedNames.has(p.name) && p.name !== selected) return;
     const sel = p.name === selected ? " selected" : "";
-    h += `<option value="${esc(p.name)}"${sel}>${esc(p.name)} (${p.cp} ${p.prof} ${esc(p.unit)})</option>`;
+    h += `<option value="${esc(p.name)}"${sel}>${esc(p.name)} (${esc(p.cp)} ${esc(p.prof)} ${esc(p.unit)})</option>`;
   });
   return h;
 }
@@ -835,7 +835,7 @@ function renderRosterTable() {
       <td>${esc(r[6])}</td>
       <td>${esc(r[7])}</td>
       <td>${esc(r[9])}</td>
-      <td>${r[8]}</td>
+      <td>${esc(r[8])}</td>
       <td>${esc(r[10])}</td>
       <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${esc(r[1])}">${esc(r[1]) || "&mdash;"}</td>
       <td>${r[2]==="y"?"-6 ":""}${r[3]==="y"?"-2 ":""}${r[4]==="y"?"+2 ":""}${r[5]==="y"?"+10":""}</td>
