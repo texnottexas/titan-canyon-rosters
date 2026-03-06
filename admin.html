@@ -127,6 +127,16 @@
       display: flex; align-items: center; justify-content: center; text-align: center;
       font-size: .6rem; color: var(--muted); padding: 4px; line-height: 1.2;
     }
+    .map-select-overlay {
+      position: absolute; transform: translate(-50%,-50%); width: 28%; z-index: 10;
+    }
+    .map-select-overlay select {
+      width: 100%; background: var(--bg2); border: 2px solid var(--accent);
+      border-radius: 6px; color: var(--text); padding: .35rem .3rem; font-size: .68rem;
+      outline: none; cursor: pointer;
+    }
+    .assign-item.highlight { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg2)); }
+    .pos-role-label { font-size: .62rem; color: var(--muted); flex-shrink: 0; }
     .map-legend {
       display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: .7rem; color: var(--muted);
     }
@@ -268,9 +278,12 @@ const POSITIONS = [
   { num:8, role:"Any MM, no urgent care (4 towers)", color:"#d29922", x:78, y:22 },
 ];
 
+const POS_GROUPS = [
+  { title:"CE Positions (Map #1–2)", nums:[1,2], prof:"CE" },
+  { title:"MM Positions (Map #3–8)", nums:[3,4,5,6,7,8], prof:"MM" },
+];
+
 const SECTIONS = [
-  { key:"mm", title:"MM Slots", defaults:6 },
-  { key:"ce", title:"CE Slots (Start)", defaults:2 },
   { key:"goon", title:"CE Goon Squad", defaults:4, note:"Go on offense / run around freely" },
   { key:"standby", title:"Standby (Fill as Needed)", defaults:5 },
   { key:"hover", title:"Hover Captains", defaults:2, note:"Make sure people get to hover station every round / notify when it's bounty time" },
@@ -408,9 +421,10 @@ function getSquadPlayers(sq) {
   return players.filter(p => p.squad === sq).sort((a, b) => b.cp - a.cp);
 }
 
-function playerOptHtml(sqPlayers, selected) {
+function playerOptHtml(sqPlayers, selected, filterProf) {
   let h = '<option value="">-- Select --</option>';
-  sqPlayers.forEach(p => {
+  const list = filterProf ? sqPlayers.filter(p => p.prof === filterProf) : sqPlayers;
+  list.forEach(p => {
     const sel = p.name === selected ? " selected" : "";
     h += `<option value="${esc(p.name)}"${sel}>${esc(p.name)} (${p.cp} ${p.prof} ${esc(p.unit)})</option>`;
   });
@@ -462,6 +476,12 @@ function renderEditor() {
       </div>
       <div class="panel">
         <h3>Roster Assignments</h3>
+        ${POS_GROUPS.map(g => `
+          <div class="assign-section">
+            <div class="assign-header">${esc(g.title)}</div>
+            <ul class="assign-list" id="list_pos_${g.prof}"></ul>
+          </div>
+        `).join("")}
         ${SECTIONS.map(s => `
           <div class="assign-section">
             <div class="assign-header">${esc(s.title)} <button class="add-btn" onclick="addSlot('${s.key}')">+ Add</button></div>
@@ -481,6 +501,8 @@ function renderEditor() {
   renderMap(data, sqPlayers);
   renderAllSlots(data, sqPlayers);
 }
+
+function posProf(num) { return num <= 2 ? "CE" : "MM"; }
 
 function renderMap(data, sqPlayers) {
   const grid = document.getElementById("mapGrid");
@@ -503,21 +525,78 @@ function renderMap(data, sqPlayers) {
       ${assigned ? `<span class="player">${esc(assigned)}</span>` : ""}
       <div class="fdot" style="background:${pos.color}"></div>
     `;
-    node.onclick = () => {
-      const name = prompt(
-        `Position ${pos.num} (${pos.role})\n\nAvailable players:\n${sqPlayers.map(p => p.name + " (" + p.cp + " " + p.prof + ")").join("\n")}\n\nType a name or leave blank to clear:`
-      );
-      if (name !== null) {
-        data.positions[pos.num] = name.trim();
+    node.onclick = (e) => {
+      e.stopPropagation();
+      // Remove any existing map select overlay
+      document.querySelectorAll(".map-select-overlay").forEach(el => el.remove());
+      // Create floating select
+      const wrap = document.createElement("div");
+      wrap.className = "map-select-overlay";
+      wrap.style.left = pos.x + "%";
+      wrap.style.top = pos.y + "%";
+      const sel = document.createElement("select");
+      sel.innerHTML = playerOptHtml(sqPlayers, assigned, posProf(pos.num));
+      sel.onchange = () => {
+        data.positions[pos.num] = sel.value;
         markDirty();
+        wrap.remove();
         renderMap(data, sqPlayers);
-      }
+        renderPositionSlots(data, sqPlayers);
+      };
+      sel.onblur = () => wrap.remove();
+      wrap.appendChild(sel);
+      grid.appendChild(wrap);
+      sel.focus();
+      // Highlight corresponding roster row
+      highlightPosRow(pos.num);
     };
     grid.appendChild(node);
   });
+
+  // Close overlay on outside click
+  grid.onclick = (e) => {
+    if (e.target === grid) {
+      document.querySelectorAll(".map-select-overlay").forEach(el => el.remove());
+    }
+  };
+}
+
+function highlightPosRow(num) {
+  document.querySelectorAll(".assign-item.highlight").forEach(el => el.classList.remove("highlight"));
+  const row = document.getElementById("pos_row_" + num);
+  if (row) {
+    row.classList.add("highlight");
+    row.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    setTimeout(() => row.classList.remove("highlight"), 1500);
+  }
+}
+
+function renderPositionSlots(data, sqPlayers) {
+  POS_GROUPS.forEach(g => {
+    const list = document.getElementById("list_pos_" + g.prof);
+    const posInfo = POSITIONS.filter(p => g.nums.includes(p.num));
+    list.innerHTML = posInfo.map(pos => `
+      <li class="assign-item" id="pos_row_${pos.num}">
+        <span class="slot-label">#${pos.num}</span>
+        <span class="pos-role-label">${esc(pos.role)}</span>
+        <select class="player-select" onchange="updatePosition(${pos.num},this.value)">
+          ${playerOptHtml(sqPlayers, data.positions[pos.num] || "", g.prof)}
+        </select>
+      </li>
+    `).join("");
+  });
+}
+
+function updatePosition(num, val) {
+  const data = getSquadData(activeSquad);
+  data.positions[num] = val;
+  markDirty();
+  renderMap(data, getSquadPlayers(activeSquad));
+  renderPositionSlots(data, getSquadPlayers(activeSquad));
 }
 
 function renderAllSlots(data, sqPlayers) {
+  renderPositionSlots(data, sqPlayers);
   SECTIONS.forEach(s => {
     const list = document.getElementById("list_" + s.key);
     const slots = data[s.key] || [];
