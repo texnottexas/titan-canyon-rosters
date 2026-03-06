@@ -1,9 +1,11 @@
 {
   "Dog Squad A": {
-    "positions": {},
+    "positions": {
+      "1": "Tex"
+    },
     "mm": [
       "Tex",
-      "",
+      "Sparta",
       "",
       "",
       "",
