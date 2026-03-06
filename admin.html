@@ -585,10 +585,28 @@ function getSquadPlayers(sq) {
   return players.filter(p => p.squad === sq).sort((a, b) => b.cp - a.cp);
 }
 
-function playerOptHtml(sqPlayers, selected, filterProf) {
+function getUsedNames(data, excludeKey, excludeIdx) {
+  const used = new Set();
+  // Positions
+  if (data.positions) {
+    Object.entries(data.positions).forEach(([k, v]) => {
+      if (v && !(excludeKey === "pos" && String(excludeIdx) === String(k))) used.add(v);
+    });
+  }
+  // Sections
+  SECTIONS.forEach(s => {
+    (data[s.key] || []).forEach((v, i) => {
+      if (v && !(excludeKey === s.key && excludeIdx === i)) used.add(v);
+    });
+  });
+  return used;
+}
+
+function playerOptHtml(sqPlayers, selected, filterProf, usedNames) {
   let h = '<option value="">-- Select --</option>';
   const list = filterProf ? sqPlayers.filter(p => p.prof === filterProf) : sqPlayers;
   list.forEach(p => {
+    if (usedNames && usedNames.has(p.name) && p.name !== selected) return;
     const sel = p.name === selected ? " selected" : "";
     h += `<option value="${esc(p.name)}"${sel}>${esc(p.name)} (${p.cp} ${p.prof} ${esc(p.unit)})</option>`;
   });
@@ -687,7 +705,6 @@ function renderMap(data, sqPlayers) {
       <span class="num">${pos.num}</span>
       <span class="role">${esc(pos.role)}</span>
       ${assigned ? `<span class="player">${esc(assigned)}</span>` : ""}
-      <div class="fdot" style="background:${pos.color}"></div>
     `;
     node.onclick = (e) => {
       e.stopPropagation();
@@ -699,13 +716,13 @@ function renderMap(data, sqPlayers) {
       wrap.style.left = pos.x + "%";
       wrap.style.top = pos.y + "%";
       const sel = document.createElement("select");
-      sel.innerHTML = playerOptHtml(sqPlayers, assigned, posProf(pos.num));
+      sel.innerHTML = playerOptHtml(sqPlayers, assigned, posProf(pos.num), getUsedNames(data, "pos", pos.num));
       sel.onchange = () => {
         data.positions[pos.num] = sel.value;
         markDirty();
         wrap.remove();
         renderMap(data, sqPlayers);
-        renderPositionSlots(data, sqPlayers);
+        renderAllSlots(data, sqPlayers);
       };
       sel.onblur = () => wrap.remove();
       wrap.appendChild(sel);
@@ -739,15 +756,17 @@ function renderPositionSlots(data, sqPlayers) {
   POS_GROUPS.forEach(g => {
     const list = document.getElementById("list_pos_" + g.prof);
     const posInfo = POSITIONS.filter(p => g.nums.includes(p.num));
-    list.innerHTML = posInfo.map(pos => `
+    list.innerHTML = posInfo.map(pos => {
+      const used = getUsedNames(data, "pos", pos.num);
+      return `
       <li class="assign-item" id="pos_row_${pos.num}">
         <span class="slot-label">#${pos.num}</span>
         <span class="pos-role-label">${esc(pos.role)}</span>
         <select class="player-select" onchange="updatePosition(${pos.num},this.value)">
-          ${playerOptHtml(sqPlayers, data.positions[pos.num] || "", g.prof)}
+          ${playerOptHtml(sqPlayers, data.positions[pos.num] || "", g.prof, used)}
         </select>
-      </li>
-    `).join("");
+      </li>`;
+    }).join("");
   });
 }
 
@@ -756,7 +775,7 @@ function updatePosition(num, val) {
   data.positions[num] = val;
   markDirty();
   renderMap(data, getSquadPlayers(activeSquad));
-  renderPositionSlots(data, getSquadPlayers(activeSquad));
+  renderAllSlots(data, getSquadPlayers(activeSquad));
 }
 
 function renderAllSlots(data, sqPlayers) {
@@ -764,11 +783,13 @@ function renderAllSlots(data, sqPlayers) {
   SECTIONS.forEach(s => {
     const list = document.getElementById("list_" + s.key);
     const slots = data[s.key] || [];
-    list.innerHTML = slots.map((val, i) => `
+    list.innerHTML = slots.map((val, i) => {
+      const used = getUsedNames(data, s.key, i);
+      return `
       <li class="assign-item">
         <span class="slot-label">#${i + 1}</span>
         <select class="player-select" onchange="updateSlot('${s.key}',${i},this.value)">
-          ${playerOptHtml(sqPlayers, val)}
+          ${playerOptHtml(sqPlayers, val, null, used)}
         </select>
         <button class="remove-btn" onclick="removeSlot('${s.key}',${i})" title="Remove">&times;</button>
       </li>
@@ -777,8 +798,11 @@ function renderAllSlots(data, sqPlayers) {
 }
 
 function updateSlot(key, idx, val) {
-  getSquadData(activeSquad)[key][idx] = val;
+  const data = getSquadData(activeSquad);
+  data[key][idx] = val;
   markDirty();
+  renderMap(data, getSquadPlayers(activeSquad));
+  renderAllSlots(data, getSquadPlayers(activeSquad));
 }
 
 function addSlot(key) {
