@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin – Battle Plan Editor</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0d1117; --bg2: #161b22; --card: #1c2128; --border: #30363d;
+      --text: #e6edf3; --muted: #8b949e; --accent: #79c0ff;
+      --army: #3fb950; --navy: #388bfd; --air: #d29922;
+      --ce: #e3b341; --mm: #bc8cff; --tag: #21262d;
+      --shadow: rgba(0,0,0,.45); --success: #3fb950; --danger: #f85149;
+    }
+    :root[data-theme="light"] {
+      --bg: #f6f8fa; --bg2: #ffffff; --card: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --muted: #656d76; --accent: #1f75d4;
+      --army: #1a7f37; --navy: #0550ae; --air: #9a6700;
+      --ce: #7d4e00; --mm: #6e40c9; --tag: #eaeef2;
+      --shadow: rgba(140,149,159,.2); --success: #1a7f37; --danger: #cf222e;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header {
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: .85rem 2rem; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 0 var(--border);
+    }
+    .header-left { display: flex; align-items: center; gap: 1.2rem; }
+    .header-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .header-sub { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+    .nav-link {
+      font-size: .8rem; color: var(--muted); text-decoration: none; padding: .35rem .8rem;
+      border: 1px solid var(--border); border-radius: 7px; transition: all .15s;
+    }
+    .nav-link:hover { border-color: var(--accent); color: var(--accent); }
+    .header-actions { display: flex; gap: .6rem; align-items: center; }
+    .hdr-btn {
+      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: .38rem .9rem; cursor: pointer; font-size: .8rem;
+      display: flex; align-items: center; gap: .4rem; transition: all .15s; white-space: nowrap;
+    }
+    .hdr-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .save-btn {
+      background: var(--accent); border: 1px solid var(--accent); color: #fff;
+      border-radius: 8px; padding: .45rem 1.2rem; cursor: pointer; font-size: .82rem;
+      font-weight: 600; transition: all .15s; white-space: nowrap;
+    }
+    .save-btn:hover { filter: brightness(1.15); }
+    .save-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    main { max-width: 1440px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+    /* Auth gate */
+    .auth-gate {
+      max-width: 480px; margin: 4rem auto; background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 2.5rem 2rem; text-align: center;
+      box-shadow: 0 16px 48px var(--shadow);
+    }
+    .auth-gate h2 { font-size: 1.1rem; margin-bottom: .4rem; }
+    .auth-gate p { font-size: .82rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.5; }
+    .auth-gate input {
+      width: 100%; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: .65rem 1rem; color: var(--text); font-size: .85rem;
+      outline: none; font-family: monospace;
+    }
+    .auth-gate input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+    .auth-gate .auth-btn {
+      margin-top: 1rem; background: var(--accent); border: none; color: #fff; border-radius: 8px;
+      padding: .6rem 2rem; cursor: pointer; font-size: .85rem; font-weight: 600; transition: all .15s;
+    }
+    .auth-gate .auth-btn:hover { filter: brightness(1.15); }
+    .auth-err { font-size: .78rem; color: var(--danger); margin-top: .6rem; display: none; }
+    .auth-hint { font-size: .72rem; color: var(--muted); margin-top: 1rem; line-height: 1.5; }
+    .auth-hint a { color: var(--accent); }
+
+    /* Editor content */
+    .editor-content { display: none; }
+    .editor-content.visible { display: block; }
+
+    .squad-tabs {
+      display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+      padding: .9rem 1.25rem; background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; align-items: center;
+    }
+    .squad-tabs-label {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-right: .25rem;
+    }
+    .tab-btn {
+      padding: .4rem 1rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--tag); color: var(--muted); cursor: pointer;
+      font-size: .82rem; font-weight: 500; transition: all .15s;
+    }
+    .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .tab-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+    .plan-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 960px) { .plan-layout { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;
+    }
+    .panel h3 {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem;
+    }
+
+    /* Diamond Map */
+    .diamond-grid { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1; }
+    .map-node {
+      position: absolute; transform: translate(-50%,-50%);
+      width: 22%; height: 18%; background: var(--bg2); border: 2px solid var(--border);
+      border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 4px; transition: all .15s; cursor: pointer;
+    }
+    .map-node:hover { border-color: var(--accent); }
+    .map-node.filled { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg2)); }
+    .map-node .num { font-weight: 700; font-size: .9rem; color: var(--accent); line-height: 1; }
+    .map-node .role { font-size: .5rem; color: var(--muted); line-height: 1.1; margin-top: 1px; }
+    .map-node .player { font-size: .6rem; font-weight: 600; color: var(--text); margin-top: 2px; }
+    .map-node .fdot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; }
+    .map-hub {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      width: 28%; height: 28%; background: var(--tag); border: 1px dashed var(--border); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      font-size: .6rem; color: var(--muted); padding: 4px; line-height: 1.2;
+    }
+    .map-legend {
+      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: .7rem; color: var(--muted);
+    }
+    .legend-item { display: flex; align-items: center; gap: .3rem; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); }
+
+    /* Assignment editor */
+    .assign-section { margin-bottom: 1.1rem; }
+    .assign-section:last-child { margin-bottom: 0; }
+    .assign-header {
+      font-size: .78rem; font-weight: 700; color: var(--text); margin-bottom: .5rem;
+      padding-bottom: .35rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .add-btn {
+      background: var(--tag); border: 1px solid var(--border); color: var(--accent);
+      border-radius: 6px; padding: 2px 8px; cursor: pointer; font-size: .7rem; transition: all .15s;
+    }
+    .add-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .assign-note { font-size: .68rem; color: var(--muted); font-style: italic; margin-top: .3rem; }
+    .assign-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+    .assign-item {
+      display: flex; align-items: center; gap: .5rem; padding: .3rem .6rem;
+      border-radius: 6px; font-size: .8rem; background: var(--bg2); border: 1px solid var(--border);
+    }
+    .slot-label { color: var(--muted); font-size: .68rem; min-width: 1.4rem; font-weight: 600; }
+    .player-select {
+      flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+      color: var(--text); padding: .25rem .5rem; font-size: .78rem; outline: none;
+      appearance: none; -webkit-appearance: none; cursor: pointer;
+    }
+    .player-select:focus { border-color: var(--accent); }
+    .remove-btn {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: .85rem; padding: 0 2px; transition: color .15s;
+    }
+    .remove-btn:hover { color: var(--danger); }
+
+    .notes-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+    .notes-card h3 {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem;
+    }
+    .notes-card textarea {
+      width: 100%; min-height: 100px; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: .7rem; color: var(--text); font-size: .82rem;
+      font-family: inherit; outline: none; resize: vertical;
+    }
+    .notes-card textarea:focus { border-color: var(--accent); }
+
+    /* Status bar */
+    .status-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2);
+      border-top: 1px solid var(--border); padding: .6rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .78rem; z-index: 100;
+    }
+    .status-bar.hidden { display: none; }
+    .status-text { color: var(--muted); }
+    .status-text.saving { color: var(--accent); }
+    .status-text.saved { color: var(--success); }
+    .status-text.error { color: var(--danger); }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 640px) {
+      main { padding: 1rem 1rem 2rem; }
+      header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div>
+      <div class="header-title">&#9876; Battle Plan Editor</div>
+      <div class="header-sub">Admin &ndash; Server 2864</div>
+    </div>
+    <a href="battle-plan.html" class="nav-link">View Plan &rarr;</a>
+  </div>
+  <div class="header-actions">
+    <button class="hdr-btn" onclick="toggleTheme()">
+      <span id="themeIcon">&#9728;&#65039;</span>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+    <button class="save-btn" id="saveBtn" onclick="saveToGitHub()" style="display:none">Save &amp; Publish</button>
+  </div>
+</header>
+
+<main>
+  <!-- Auth Gate -->
+  <div id="authGate" class="auth-gate">
+    <h2>Admin Access</h2>
+    <p>Enter a GitHub Personal Access Token with <strong>repo</strong> scope to edit and publish battle plans.</p>
+    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx" autocomplete="off">
+    <div class="auth-err" id="authErr">Invalid token or insufficient permissions.</div>
+    <button class="auth-btn" onclick="authenticate()">Authenticate</button>
+    <div class="auth-hint">
+      Create a token at <a href="https://github.com/settings/tokens" target="_blank" rel="noopener">github.com/settings/tokens</a><br>
+      Needs <strong>repo</strong> scope. Token is only stored in this browser tab.
+    </div>
+  </div>
+
+  <!-- Editor -->
+  <div id="editor" class="editor-content">
+    <div class="squad-tabs" id="squadTabs">
+      <span class="squad-tabs-label">Squad</span>
+    </div>
+    <div id="editorContent"></div>
+  </div>
+</main>
+
+<div class="status-bar hidden" id="statusBar">
+  <span class="status-text" id="statusText"></span>
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const REPO = "texnottexas/titan-canyon-rosters";
+const DATA_PATH = "battle-plan-data.json";
+const API = "https://api.github.com";
+
+// ── PLAYER DATA ───────────────────────────────────────────────────────────────
+const RAW=[["Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],["Aurora","","n","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"],["Dark","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],["20100","Move to MSS by Thu +10","y","n","y","n","DOG","Army",22,"MM","3","MSS Squad A"],["a1capo","","n","y","n","n","DOG","Army",29,"CE","","Dog Squad B"],["Abdullah","","n","y","y","y","DOG","Navy",25,"MM","3","Dog Squad A"],["AjMaL","Move to PRU by Thu +10","y","y","y","n","DOG","Army",24,"CE","","PRU Squad A"],["AlexB","","n","n","y","n","MSS","Navy",28,"MM","2","MSS Squad A"],["AlexMat","","n","y","n","n","DOG","Navy",85,"CE","","Dog Squad B"],["Ara","","n","n","n","y","MSS","Navy",53,"CE","","MSS Squad B"],["Aresu","","n","y","n","n","DOG","Army",72,"CE","","Dog Squad B"],["aristos","Move to PRU by Thu +10","y","y","n","n","DOG","Army",38,"MM","3","PRU Squad A"],["ARR","","n","n","y","n","MSS","Army",26,"CE","","MSS Squad A"],["Babym","","n","n","y","n","MSS","Army",66,"MM","4","MSS Squad A"],["BAL","","n","y","n","n","DOG","Army",41,"CE","","Dog Squad B"],["Bane","","n","n","y","y","MSS","Army",65,"CE","","MSS Squad A"],["Bchara","","n","y","n","n","DOG","Army",49,"CE","","Dog Squad B"],["Beyo","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],["Bianco","","n","n","y","n","MSS","Army",13,"CE","","MSS Squad A"],["Biggie","","n","n","n","y","DOG","Army",102,"CE","","Dog Squad A"],["BlindGuy","","n","n","y","y","DOG","Army",40,"MM","4","Dog Squad A"],["BMW5","","n","n","y","n","MSS","Army",65,"CE","","MSS Squad A"],["brewdog","","n","n","n","y","DOG","Navy",66,"MM","3","Dog Squad A"],["Calabro","","n","y","n","n","DOG","Air Force",47,"CE","","Dog Squad B"],["Caliboyx","","n","n","n","y","MSS","Navy",38,"CE","","MSS Squad B"],["cardsfan","","n","y","n","n","DOG","Army",67,"MM","5","Dog Squad B"],["CHAUSUI","","n","y","n","n","DOG","Army",115,"CE","","Dog Squad B"],["Darkspy","","n","n","n","y","DOG","Navy",70,"MM","3","Dog Squad A"],["Demon","","n","y","n","n","DOG","Air Force",79,"CE","","Dog Squad B"],["Dingus","","n","n","y","n","MSS","Army",73,"CE","","MSS Squad A"],["DNA","","n","n","y","n","MSS","Army",56,"MM","5","MSS Squad A"],["DragonMC","","n","y","n","n","DOG","Army",50,"CE","","Dog Squad B"],["Drak","","n","y","n","n","DOG","Navy",68,"MM","5","Dog Squad B"],["Drewskii","","n","n","y","y","MSS","Air Force",73,"CE","","MSS Squad B"],["DRuSE","","n","n","y","n","MSS","Navy",21,"MM","1","MSS Squad A"],["Dtp20","","n","y","n","y","DOG","Air Force",110,"CE","","Dog Squad A"],["Elb","Move to PRU by Thu +10","y","n","n","n","MSS","Navy",56,"MM","3","PRU Squad A"],["Eny","","n","n","y","n","MSS","Navy",135,"CE","","MSS Squad A"],["Faxe","Move to PRU by Thu +10","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],["Fokker","","n","y","y","n","MSS","Navy",32,"MM","3","MSS Squad A"],["GM","","n","y","n","n","DOG","Air Force",39,"CE","","Dog Squad B"],["Gorilla","","n","n","n","y","DOG","Navy",50,"CE","","Dog Squad A"],["Harley","","n","n","n","y","MSS","Army",90,"CE","","MSS Squad B"],["Heidi","","n","n","y","n","MSS","Navy",60,"MM","5","MSS Squad A"],["HELLFIRE","","n","y","n","n","DOG","Navy",62,"CE","","Dog Squad B"],["Helmo","","n","n","n","y","MSS","Navy",101,"CE","","MSS Squad B"],["Hm","","n","n","n","y","MSS","Navy",85,"CE","","MSS Squad B"],["Hoadi","","y","y","y","n","MSS","Air Force",93,"CE","","MSS Squad A"],["Hot-rods","","n","n","y","y","MSS","Army",28,"MM","2","MSS Squad B"],["HourPa","Move to Dog by Thu +10","n","n","n","y","MSS","Army",53,"CE","","Dog Squad A"],["Iceman","","n","n","y","n","MSS","Army",34,"CE","","MSS Squad A"],["It'sme","","n","n","n","y","DOG","Army",26,"MM","3","Dog Squad A"],["J","","n","y","n","y","DOG","Air Force",150,"CE","","Dog Squad A"],["Jerky","","n","y","n","n","DOG","Air Force",72,"CE","","Dog Squad B"],["Jopn17tl","","n","y","n","y","DOG","Navy",79,"CE","","Dog Squad A"],["joske","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],["KiloBo","Move to PRU by Thu +10","y","y","y","n","MSS","Army",50,"MM","5","PRU Squad A"],["KingSnek","Move to MSS by Thu +10","n","n","y","n","Cat+","Army",120,"CE","","MSS Squad A"],["kom","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],["Lady","","n","y","n","n","DOG","Army",100,"CE","","Dog Squad B"],["LittleV","Move to PRU by Thu +10","y","n","n","y","Cat+","Army",11,"MM","0","PRU Squad A"],["Livv","Move to MSS by Thu +10","n","y","y","y","DOG","Air Force",57,"CE","","MSS Squad A"],["Madmaxx","","n","n","n","y","DOG","Navy",106,"CE","","Dog Squad A"],["Madsey","","n","n","y","n","MSS","Army",64,"CE","","MSS Squad A"],["Magicguy","","n","n","n","y","DOG","Army",33,"MM","3","Dog Squad A"],["Mami","","n","n","n","y","MSS","Army",70,"MM","5","MSS Squad B"],["Mando","","n","y","y","n","DOG","Navy",34,"MM","4","Dog Squad B"],["Maximum (MSS)","","n","n","n","y","MSS","Army",30,"MM","4","MSS Squad B"],["Maximum (DOG)","","n","y","n","n","DOG","Navy",80,"CE","","Dog Squad B"],["MegaBo","","y","y","y","n","MSS","Air Force",80,"CE","","MSS Squad A"],["meliodas","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",55,"MM","5","MSS Squad A"],["Melo84","","n","y","n","n","DOG","Army",22,"CE","","Dog Squad B"],["Mephisto","","n","n","n","y","DOG","Air Force",119,"CE","","Dog Squad A"],["MF_Bluey","","n","n","n","y","DOG","Army",100,"CE","","Dog Squad A"],["MFBluey2","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],["MicroBo","Move to PRU by Thu +10","y","y","y","n","Cat+","Army",25,"MM","4","PRU Squad A"],["MONKEY","","n","y","n","n","DOG","Army",56,"CE","","Dog Squad B"],["Mopar","","n","n","n","y","DOG","Air Force",57,"CE","","Dog Squad A"],["Morvessa","Move to Dog by Thu +10","n","n","n","y","MSS","Navy",93,"CE","","Dog Squad A"],["Motyer","","n","y","n","n","DOG","Navy",46,"CE","","Dog Squad B"],["Mousse","","n","n","y","n","MSS","Army",58,"CE","","MSS Squad A"],["Mulan","","n","y","n","n","DOG","Air Force",68,"CE","","Dog Squad B"],["Musashi","","n","n","n","y","MSS","Air Force",49,"CE","","MSS Squad B"],["Nembo","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],["OEL13","","n","y","y","y","DOG","Navy",25,"CE","","Dog Squad B"],["Otts","","n","y","n","n","DOG","Navy",101,"CE","","Dog Squad B"],["Pacrtr","","n","n","n","y","DOG","Air Force",55,"CE","","Dog Squad A"],["PastaB","","n","n","n","y","MSS","Army",89,"CE","","MSS Squad B"],["Patrolfc","Move to MSS by Thu +10","n","y","y","n","DOG","Army",63,"CE","","MSS Squad A"],["Peewee","","y","y","y","y","DOG","Air Force",170,"CE","","Dog Squad A"],["Pepper","","n","n","n","y","MSS","Navy",66,"CE","","MSS Squad B"],["Pete","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],["Project","","n","n","n","y","DOG","Army",42,"CE","","Dog Squad A"],["Quaggy","Move to MSS by Thu +10","n","n","y","n","DOG","Navy",73,"CE","","MSS Squad A"],["Raqqas","","n","y","n","n","DOG","Army",39,"CE","","Dog Squad B"],["Ray","","n","n","y","n","MSS","Army",21,"MM","5","MSS Squad A"],["Repuff","","n","n","n","y","MSS","Navy",47,"MM","2","MSS Squad B"],["Rex","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",80,"CE","","MSS Squad A"],["ROM","","n","n","y","n","MSS","Army",30,"CE","","MSS Squad A"],["Roma","Move to PRU by Thu +10","y","n","y","n","MSS","Navy",28,"CE","","PRU Squad A"],["Samson","","n","y","n","y","DOG","Army",65,"MM","5","Dog Squad A"],["Shaz","Move to PRU by Thu +10","y","n","n","n","MSS","Air Force",94,"CE","","PRU Squad A"],["Shorty","","n","y","n","n","DOG","Army",56,"MM","2","Dog Squad B"],["Smalls","Move to MSS by Thu +10","n","y","y","y","DOG","Army",37,"MM","2","MSS Squad A"],["Smoke","","n","n","n","y","MSS","Army",62,"CE","","MSS Squad B"],["Smurfx","","n","n","n","y","DOG","Navy",80,"CE","","Dog Squad A"],["Sparta","","n","n","y","y","DOG","Navy",175,"CE","","Dog Squad A"],["Steve","","n","n","n","y","MSS","Air Force",40,"CE","","MSS Squad B"],["STiCK","","n","n","n","y","DOG","Air Force",50,"MM","5","Dog Squad A"],["STINGER","","n","n","n","y","MSS","Navy",33,"MM","4","MSS Squad B"],["Talion","","n","y","n","n","DOG","Air Force",32,"MM","4","Dog Squad B"],["Termi","","n","y","n","n","DOG","Navy",41,"CE","","Dog Squad B"],["Tex","","n","n","y","y","DOG","Army",189,"CE","","Dog Squad A"],["Thor","","n","y","n","n","DOG","Air Force",103,"CE","","Dog Squad B"],["TigerMan","","n","y","n","n","DOG","Army",46,"MM","0","Dog Squad B"],["Uber888","","n","n","n","y","MSS","Army",23,"MM","4","MSS Squad B"],["Venom","Move to PRU by Thu +10","y","n","n","y","MSS","Army",39,"CE","","PRU Squad A"],["Vik","","n","n","n","y","MSS","Army",22,"MM","3","MSS Squad B"],["VMJ","","n","n","n","y","DOG","Army",65,"MM","5","Dog Squad A"],["Vytautas","","n","n","y","n","MSS","Navy",59,"MM","1","MSS Squad A"],["Wildcat","","n","n","n","y","MSS","Army",35,"MM","5","MSS Squad B"],["Willow","","n","n","y","n","MSS","Army",53,"MM","4","MSS Squad A"],["WitcheR","","n","n","y","n","MSS","Army",20,"CE","","MSS Squad A"],["Wolfie","Move to MSS by Thu +10","n","y","y","n","DOG","Army",67,"CE","","MSS Squad A"],["Wonka","","n","y","n","n","DOG","Air Force",79,"MM","5","Dog Squad B"],["WOOOOOO","","n","n","n","y","DOG","Navy",113,"CE","","Dog Squad A"]];
+const players = RAW.map(r=>({name:r[0],unit:r[7],cp:r[8],prof:r[9],squad:r[11]}));
+
+const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
+const SQUAD_SHORT = {"Dog Squad A":"Dog A (+10)","Dog Squad B":"Dog B (-2)","MSS Squad A":"MSS A (+2)","MSS Squad B":"MSS B (+10)","PRU Squad A":"PRU A (-6)"};
+
+const POSITIONS = [
+  { num:1, role:"Bigger CE", color:"#3fb950", x:22, y:22 },
+  { num:2, role:"Medium-strong CE", color:"#3fb950", x:78, y:78 },
+  { num:3, role:"MM + Urgent Care", color:"#d29922", x:5, y:50 },
+  { num:4, role:"MM + Urgent Care", color:"#d29922", x:50, y:5 },
+  { num:5, role:"MM + Urgent Care", color:"#d29922", x:50, y:95 },
+  { num:6, role:"MM + Urgent Care", color:"#d29922", x:95, y:50 },
+  { num:7, role:"Any MM, no urgent care (4 towers)", color:"#3fb950", x:22, y:78 },
+  { num:8, role:"Any MM, no urgent care (4 towers)", color:"#d29922", x:78, y:22 },
+];
+
+const SECTIONS = [
+  { key:"mm", title:"MM Slots", defaults:6 },
+  { key:"ce", title:"CE Slots (Start)", defaults:2 },
+  { key:"goon", title:"CE Goon Squad", defaults:4, note:"Go on offense / run around freely" },
+  { key:"standby", title:"Standby (Fill as Needed)", defaults:5 },
+  { key:"hover", title:"Hover Captains", defaults:2, note:"Make sure people get to hover station every round / notify when it's bounty time" },
+  { key:"crystal", title:"Crystal Lab Captains", defaults:2, note:"Track open labs, share labs that need help" },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let token = "";
+let fileSha = "";
+let planData = {};
+let activeSquad = "";
+let dirty = false;
+
+function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function toggleTheme() {
+  const d = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", d ? "light" : "dark");
+  document.getElementById("themeIcon").textContent = d ? "\uD83C\uDF19" : "\u2600\uFE0F";
+  document.getElementById("themeLabel").textContent = d ? "Dark Mode" : "Light Mode";
+}
+
+// ── AUTH ───────────────────────────────────────────────────────────────────────
+async function authenticate() {
+  const t = document.getElementById("tokenInput").value.trim();
+  if (!t) return;
+  try {
+    const res = await fetch(`${API}/repos/${REPO}`, { headers: { Authorization: `token ${t}` } });
+    if (!res.ok) throw new Error("Bad token");
+    const repo = await res.json();
+    if (!repo.permissions || !repo.permissions.push) throw new Error("No push access");
+    token = t;
+    sessionStorage.setItem("bp_token", t);
+    document.getElementById("authGate").style.display = "none";
+    document.getElementById("editor").classList.add("visible");
+    document.getElementById("saveBtn").style.display = "";
+    document.getElementById("statusBar").classList.remove("hidden");
+    await loadFromGitHub();
+    buildTabs();
+    selectSquad(SQUADS[0]);
+  } catch (e) {
+    document.getElementById("authErr").style.display = "block";
+    document.getElementById("authErr").textContent = e.message || "Authentication failed.";
+  }
+}
+
+document.getElementById("tokenInput").addEventListener("keydown", e => { if (e.key === "Enter") authenticate(); });
+
+// Check for stored token on load
+(async function checkSession() {
+  const t = sessionStorage.getItem("bp_token");
+  if (t) { document.getElementById("tokenInput").value = t; await authenticate(); }
+})();
+
+// ── GITHUB API ────────────────────────────────────────────────────────────────
+async function loadFromGitHub() {
+  setStatus("Loading data...", "saving");
+  try {
+    const res = await fetch(`${API}/repos/${REPO}/contents/${DATA_PATH}`, {
+      headers: { Authorization: `token ${token}` }
+    });
+    if (res.ok) {
+      const file = await res.json();
+      fileSha = file.sha;
+      planData = JSON.parse(atob(file.content));
+    } else {
+      planData = {};
+      fileSha = "";
+    }
+    setStatus("Loaded", "saved");
+  } catch (e) {
+    setStatus("Failed to load: " + e.message, "error");
+    planData = {};
+  }
+}
+
+async function saveToGitHub() {
+  const btn = document.getElementById("saveBtn");
+  btn.disabled = true;
+  setStatus("Saving & publishing...", "saving");
+
+  // Collect notes from textarea before saving
+  collectNotes();
+
+  try {
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(planData, null, 2))));
+    const body = { message: "Update battle plan data", content, sha: fileSha || undefined };
+
+    const res = await fetch(`${API}/repos/${REPO}/contents/${DATA_PATH}`, {
+      method: "PUT",
+      headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+
+    if (!res.ok) { const e = await res.json(); throw new Error(e.message || "Save failed"); }
+
+    const result = await res.json();
+    fileSha = result.content.sha;
+    dirty = false;
+    setStatus("Published! GitHub Pages will update in ~1 min.", "saved");
+  } catch (e) {
+    setStatus("Error: " + e.message, "error");
+  }
+  btn.disabled = false;
+}
+
+function setStatus(msg, cls) {
+  const el = document.getElementById("statusText");
+  el.textContent = msg;
+  el.className = "status-text " + (cls || "");
+}
+
+// ── SQUAD DATA ────────────────────────────────────────────────────────────────
+function getSquadData(sq) {
+  if (!planData[sq]) {
+    planData[sq] = { positions: {} };
+    SECTIONS.forEach(s => { planData[sq][s.key] = Array(s.defaults).fill(""); });
+    planData[sq].notes = "";
+  }
+  return planData[sq];
+}
+
+function getSquadPlayers(sq) {
+  return players.filter(p => p.squad === sq).sort((a, b) => b.cp - a.cp);
+}
+
+function playerOptHtml(sqPlayers, selected) {
+  let h = '<option value="">-- Select --</option>';
+  sqPlayers.forEach(p => {
+    const sel = p.name === selected ? " selected" : "";
+    h += `<option value="${esc(p.name)}"${sel}>${esc(p.name)} (${p.cp} ${p.prof} ${esc(p.unit)})</option>`;
+  });
+  return h;
+}
+
+// ── UI ────────────────────────────────────────────────────────────────────────
+function buildTabs() {
+  const c = document.getElementById("squadTabs");
+  SQUADS.forEach(sq => {
+    const btn = document.createElement("button");
+    btn.className = "tab-btn";
+    btn.textContent = SQUAD_SHORT[sq];
+    btn.dataset.squad = sq;
+    btn.onclick = () => selectSquad(sq);
+    c.appendChild(btn);
+  });
+}
+
+function selectSquad(sq) {
+  collectNotes(); // save notes from previous squad
+  activeSquad = sq;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.squad === sq));
+  renderEditor();
+}
+
+function collectNotes() {
+  if (!activeSquad) return;
+  const ta = document.getElementById("squadNotes");
+  if (ta) { getSquadData(activeSquad).notes = ta.value; }
+}
+
+function markDirty() { dirty = true; setStatus("Unsaved changes", ""); }
+
+function renderEditor() {
+  const data = getSquadData(activeSquad);
+  const sqPlayers = getSquadPlayers(activeSquad);
+  const el = document.getElementById("editorContent");
+
+  el.innerHTML = `
+    <div class="plan-layout">
+      <div class="panel">
+        <h3>Battle Map &mdash; ${esc(SQUAD_SHORT[activeSquad])}</h3>
+        <div class="diamond-grid" id="mapGrid"></div>
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-swatch" style="background:#3fb950"></div> Strengthening</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#d29922"></div> Urgent Care</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Roster Assignments</h3>
+        ${SECTIONS.map(s => `
+          <div class="assign-section">
+            <div class="assign-header">${esc(s.title)} <button class="add-btn" onclick="addSlot('${s.key}')">+ Add</button></div>
+            <ul class="assign-list" id="list_${s.key}"></ul>
+            ${s.note ? `<div class="assign-note">${esc(s.note)}</div>` : ""}
+          </div>
+        `).join("")}
+      </div>
+    </div>
+    <div class="notes-card">
+      <h3>Squad Notes &amp; Instructions</h3>
+      <textarea id="squadNotes" placeholder="Add battle plan notes, reminders, or instructions...">${esc(data.notes || "")}</textarea>
+    </div>
+  `;
+
+  document.getElementById("squadNotes").addEventListener("input", markDirty);
+  renderMap(data, sqPlayers);
+  renderAllSlots(data, sqPlayers);
+}
+
+function renderMap(data, sqPlayers) {
+  const grid = document.getElementById("mapGrid");
+  grid.innerHTML = "";
+
+  const hub = document.createElement("div");
+  hub.className = "map-hub";
+  hub.textContent = "Discarded Repository / Nexus Hub";
+  grid.appendChild(hub);
+
+  POSITIONS.forEach(pos => {
+    const assigned = data.positions[pos.num] || "";
+    const node = document.createElement("div");
+    node.className = "map-node" + (assigned ? " filled" : "");
+    node.style.left = pos.x + "%";
+    node.style.top = pos.y + "%";
+    node.innerHTML = `
+      <span class="num">${pos.num}</span>
+      <span class="role">${esc(pos.role)}</span>
+      ${assigned ? `<span class="player">${esc(assigned)}</span>` : ""}
+      <div class="fdot" style="background:${pos.color}"></div>
+    `;
+    node.onclick = () => {
+      const name = prompt(
+        `Position ${pos.num} (${pos.role})\n\nAvailable players:\n${sqPlayers.map(p => p.name + " (" + p.cp + " " + p.prof + ")").join("\n")}\n\nType a name or leave blank to clear:`
+      );
+      if (name !== null) {
+        data.positions[pos.num] = name.trim();
+        markDirty();
+        renderMap(data, sqPlayers);
+      }
+    };
+    grid.appendChild(node);
+  });
+}
+
+function renderAllSlots(data, sqPlayers) {
+  SECTIONS.forEach(s => {
+    const list = document.getElementById("list_" + s.key);
+    const slots = data[s.key] || [];
+    list.innerHTML = slots.map((val, i) => `
+      <li class="assign-item">
+        <span class="slot-label">#${i + 1}</span>
+        <select class="player-select" onchange="updateSlot('${s.key}',${i},this.value)">
+          ${playerOptHtml(sqPlayers, val)}
+        </select>
+        <button class="remove-btn" onclick="removeSlot('${s.key}',${i})" title="Remove">&times;</button>
+      </li>
+    `).join("");
+  });
+}
+
+function updateSlot(key, idx, val) {
+  getSquadData(activeSquad)[key][idx] = val;
+  markDirty();
+}
+
+function addSlot(key) {
+  if (!activeSquad) return;
+  getSquadData(activeSquad)[key].push("");
+  markDirty();
+  renderAllSlots(getSquadData(activeSquad), getSquadPlayers(activeSquad));
+}
+
+function removeSlot(key, idx) {
+  if (!activeSquad) return;
+  getSquadData(activeSquad)[key].splice(idx, 1);
+  markDirty();
+  renderAllSlots(getSquadData(activeSquad), getSquadPlayers(activeSquad));
+}
+
+// Warn on leave with unsaved changes
+window.addEventListener("beforeunload", e => {
+  if (dirty) { e.preventDefault(); e.returnValue = ""; }
+});
+</script>
+</body>
+</html>
