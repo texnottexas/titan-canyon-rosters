@@ -8,7 +8,7 @@ A roster and battle plan hub for **Server 2864 Titan Canyon** in [Top War](https
 
 ## Pages
 
-### Roster (`index.html`)
+### Roster
 
 The main roster page lists every player in the server with key stats:
 
@@ -18,7 +18,7 @@ The main roster page lists every player in the server with key stats:
 
 Use the **search bar** to find players by name, or the **filter buttons** to narrow by squad, profession, or alliance.
 
-### Battle Plan (`battle-plan.html`)
+### Battle Plan
 
 A visual battle map showing the current Titan Canyon assignments for each squad:
 
@@ -26,7 +26,7 @@ A visual battle map showing the current Titan Canyon assignments for each squad:
 - **Role sections** below the map list Goon, Standby, Hover, and Crystal assignments
 - Click any squad tab to switch between squad plans
 
-### Admin Editor (`admin.html`)
+### Admin Editor
 
 A password-protected editor for managing battle plans and the player roster. Admins can:
 
