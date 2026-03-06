@@ -474,7 +474,11 @@
 
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
-const RAW = [
+let RAW = [];
+let players = [];
+
+// Fallback hardcoded data (used if fetch fails)
+const RAW_FALLBACK = [
   ["Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],
   ["Aurora","","n","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"],
   ["Dark","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],
@@ -603,12 +607,14 @@ const RAW = [
   ["WOOOOOO","","n","n","n","y","DOG","Navy",113,"CE","","Dog Squad A"],
 ];
 
-const players = RAW.map(r => ({
-  name: r[0], notes: r[1],
-  s6: r[2]==="y", s2n: r[3]==="y", s2p: r[4]==="y", s10: r[5]==="y",
-  alliance: r[6], unit: r[7], cp: r[8], prof: r[9], ucLvl: r[10], squad: r[11],
-  isMove: /move to/i.test(r[1])
-}));
+function mapRawToPlayers(raw) {
+  return raw.map(r => ({
+    name: r[0], notes: r[1],
+    s6: r[2]==="y", s2n: r[3]==="y", s2p: r[4]==="y", s10: r[5]==="y",
+    alliance: r[6], unit: r[7], cp: r[8], prof: r[9], ucLvl: r[10], squad: r[11],
+    isMove: /move to/i.test(r[1])
+  }));
+}
 
 const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
 const SQUAD_SHORT = ["Dog A","Dog B","MSS A","MSS B","PRU A"];
@@ -619,7 +625,7 @@ const SQUAD_LABELS = {
   "MSS Squad B": "MSS Squad B \u2014 Saturday +10",
   "PRU Squad A": "PRU Squad A \u2014 Saturday \u22126",
 };
-const MAX_CP = Math.max(...players.map(p=>p.cp));
+let MAX_CP = 0;
 
 const UC = {
   Army:       { bg:"rgba(63,185,80,.7)",  b:"#3fb950" },
@@ -921,7 +927,14 @@ function modalSquadFilter(el) {
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeChartsModal(); });
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const res = await fetch("roster-data.json?t=" + Date.now());
+    if (res.ok) RAW = await res.json();
+    else RAW = RAW_FALLBACK;
+  } catch { RAW = RAW_FALLBACK; }
+  players = mapRawToPlayers(RAW);
+  MAX_CP = players.length ? Math.max(...players.map(p=>p.cp)) : 0;
   applyFilters();
 });
 </script>

@@ -1,5 +1,5 @@
 /**
- * Cloudflare Worker — Battle Plan Save Proxy
+ * Cloudflare Worker — Admin Save Proxy
  *
  * Env secrets (set via `wrangler secret put`):
  *   ADMIN_PASSWORD  — shared password editors use
@@ -7,9 +7,10 @@
  *
  * Env vars (set in wrangler.toml):
  *   REPO            — e.g. "texnottexas/titan-canyon-rosters"
- *   DATA_PATH       — e.g. "battle-plan-data.json"
  *   ALLOWED_ORIGIN  — e.g. "https://test.2864tw.com"
  */
+
+const ALLOWED_PATHS = ["battle-plan-data.json", "roster-data.json"];
 
 export default {
   async fetch(request, env) {
@@ -24,11 +25,17 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders });
     }
 
+    const url = new URL(request.url);
+    const path = url.searchParams.get("path") || "battle-plan-data.json";
+    if (!ALLOWED_PATHS.includes(path)) {
+      return jsonResponse({ error: "Invalid path" }, 400, corsHeaders);
+    }
+
     // GET = read current data (no auth needed, just proxies to GitHub)
     if (request.method === "GET") {
       try {
         const res = await fetch(
-          `https://api.github.com/repos/${env.REPO}/contents/${env.DATA_PATH}`,
+          `https://api.github.com/repos/${env.REPO}/contents/${path}`,
           { headers: { Authorization: `token ${env.GITHUB_PAT}`, "User-Agent": "cf-worker" } }
         );
         if (!res.ok) return jsonResponse({ error: "Failed to fetch data" }, 502, corsHeaders);
@@ -48,6 +55,10 @@ export default {
       }
 
       const { password, data, ping } = body;
+      const filePath = body.path || "battle-plan-data.json";
+      if (!ALLOWED_PATHS.includes(filePath)) {
+        return jsonResponse({ error: "Invalid path" }, 400, corsHeaders);
+      }
       if (!password || password !== env.ADMIN_PASSWORD) {
         return jsonResponse({ error: "Invalid password" }, 401, corsHeaders);
       }
@@ -64,7 +75,7 @@ export default {
       try {
         // Get current SHA
         const getRes = await fetch(
-          `https://api.github.com/repos/${env.REPO}/contents/${env.DATA_PATH}`,
+          `https://api.github.com/repos/${env.REPO}/contents/${filePath}`,
           { headers: { Authorization: `token ${env.GITHUB_PAT}`, "User-Agent": "cf-worker" } }
         );
         let sha;
@@ -73,13 +84,13 @@ export default {
           sha = file.sha;
         }
 
-        // Commit updated file
+        const commitMsg = filePath === "roster-data.json" ? "Update roster data" : "Update battle plan data";
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-        const putBody = { message: "Update battle plan data", content };
+        const putBody = { message: commitMsg, content };
         if (sha) putBody.sha = sha;
 
         const putRes = await fetch(
-          `https://api.github.com/repos/${env.REPO}/contents/${env.DATA_PATH}`,
+          `https://api.github.com/repos/${env.REPO}/contents/${filePath}`,
           {
             method: "PUT",
             headers: {

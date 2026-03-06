@@ -207,6 +207,74 @@
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
+    /* Roster Manager */
+    .roster-mgr { margin-top: 2rem; }
+    .roster-mgr-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem;
+    }
+    .roster-mgr-header h3 {
+      font-size: .85rem; font-weight: 700; color: var(--accent);
+    }
+    .roster-search {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); padding: .35rem .7rem; font-size: .78rem; outline: none; width: 180px;
+    }
+    .roster-search:focus { border-color: var(--accent); }
+    .roster-table-wrap {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      overflow: auto; max-height: 420px;
+    }
+    .roster-table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+    .roster-table th {
+      position: sticky; top: 0; background: var(--bg2); color: var(--muted);
+      font-size: .65rem; text-transform: uppercase; letter-spacing: .04em;
+      padding: .5rem .6rem; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    .roster-table td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .roster-table tr:hover td { background: var(--tag); }
+    .roster-table .move-row td { background: var(--move-bg, rgba(210,153,34,.07)); }
+    .roster-actions { display: flex; gap: 4px; }
+    .roster-actions button {
+      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: .68rem; transition: all .15s;
+    }
+    .roster-actions button:hover { border-color: var(--accent); color: var(--accent); }
+    .roster-actions .del-btn:hover { border-color: var(--danger); color: var(--danger); }
+
+    /* Player Modal */
+    .player-modal-bg {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+      z-index: 300; align-items: center; justify-content: center;
+    }
+    .player-modal-bg.open { display: flex; }
+    .player-modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+      box-shadow: 0 20px 60px var(--shadow);
+    }
+    .player-modal h3 { font-size: .95rem; font-weight: 700; margin-bottom: 1rem; color: var(--accent); }
+    .pm-row { display: flex; gap: .8rem; margin-bottom: .7rem; }
+    .pm-field { display: flex; flex-direction: column; flex: 1; }
+    .pm-field label { font-size: .65rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+    .pm-field input, .pm-field select {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
+      color: var(--text); padding: .4rem .6rem; font-size: .8rem; outline: none;
+    }
+    .pm-field input:focus, .pm-field select:focus { border-color: var(--accent); }
+    .pm-checks { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .pm-check { display: flex; align-items: center; gap: .3rem; font-size: .78rem; }
+    .pm-check input { accent-color: var(--accent); }
+    .pm-actions { display: flex; gap: .6rem; justify-content: flex-end; margin-top: 1.2rem; }
+    .pm-actions button {
+      padding: .45rem 1.2rem; border-radius: 8px; font-size: .82rem; font-weight: 600;
+      cursor: pointer; transition: all .15s;
+    }
+    .pm-cancel { background: var(--tag); border: 1px solid var(--border); color: var(--muted); }
+    .pm-cancel:hover { border-color: var(--accent); color: var(--accent); }
+    .pm-save { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
+    .pm-save:hover { filter: brightness(1.15); }
+
     @media (max-width: 640px) {
       main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
@@ -248,8 +316,91 @@
       <span class="squad-tabs-label">Squad</span>
     </div>
     <div id="editorContent"></div>
+
+    <!-- Roster Manager -->
+    <div class="roster-mgr" id="rosterMgr">
+      <div class="roster-mgr-header">
+        <h3>Manage Roster</h3>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input class="roster-search" id="rosterSearch" placeholder="Search players..." oninput="renderRosterTable()">
+          <button class="add-btn" style="padding:4px 12px;font-size:.75rem" onclick="openPlayerModal(-1)">+ Add Player</button>
+        </div>
+      </div>
+      <div class="roster-table-wrap">
+        <table class="roster-table">
+          <thead><tr>
+            <th>Name</th><th>Squad</th><th>Alliance</th><th>Unit</th><th>Prof</th><th>CP</th><th>UC</th><th>Notes</th><th>Avail</th><th></th>
+          </tr></thead>
+          <tbody id="rosterBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </main>
+
+<!-- Player Add/Edit Modal -->
+<div class="player-modal-bg" id="playerModalBg" onclick="if(event.target===this)closePlayerModal()">
+  <div class="player-modal">
+    <h3 id="pmTitle">Add Player</h3>
+    <input type="hidden" id="pmIdx" value="-1">
+    <div class="pm-row">
+      <div class="pm-field"><label>Name</label><input id="pmName"></div>
+      <div class="pm-field"><label>Squad</label>
+        <select id="pmSquad">
+          <option value="Dog Squad A">Dog Squad A</option>
+          <option value="Dog Squad B">Dog Squad B</option>
+          <option value="MSS Squad A">MSS Squad A</option>
+          <option value="MSS Squad B">MSS Squad B</option>
+          <option value="PRU Squad A">PRU Squad A</option>
+        </select>
+      </div>
+    </div>
+    <div class="pm-row">
+      <div class="pm-field"><label>Alliance</label>
+        <select id="pmAlliance">
+          <option value="DOG">DOG</option>
+          <option value="MSS">MSS</option>
+          <option value="Cat+">Cat+</option>
+        </select>
+      </div>
+      <div class="pm-field"><label>Unit</label>
+        <select id="pmUnit">
+          <option value="Army">Army</option>
+          <option value="Navy">Navy</option>
+          <option value="Air Force">Air Force</option>
+        </select>
+      </div>
+    </div>
+    <div class="pm-row">
+      <div class="pm-field"><label>Profession</label>
+        <select id="pmProf">
+          <option value="CE">CE</option>
+          <option value="MM">MM</option>
+        </select>
+      </div>
+      <div class="pm-field"><label>March CP</label><input id="pmCP" type="number" min="0"></div>
+      <div class="pm-field"><label>UC Level</label><input id="pmUC" placeholder="0-5 or blank"></div>
+    </div>
+    <div class="pm-row">
+      <div class="pm-field" style="flex:2"><label>Notes (e.g. "Move to PRU by Thu +10")</label><input id="pmNotes"></div>
+    </div>
+    <div class="pm-row">
+      <div class="pm-field">
+        <label>Availability</label>
+        <div class="pm-checks">
+          <label class="pm-check"><input type="checkbox" id="pmS6"> -6</label>
+          <label class="pm-check"><input type="checkbox" id="pmS2n"> -2</label>
+          <label class="pm-check"><input type="checkbox" id="pmS2p"> +2</label>
+          <label class="pm-check"><input type="checkbox" id="pmS10"> +10</label>
+        </div>
+      </div>
+    </div>
+    <div class="pm-actions">
+      <button class="pm-cancel" onclick="closePlayerModal()">Cancel</button>
+      <button class="pm-save" onclick="savePlayer()">Save Player</button>
+    </div>
+  </div>
+</div>
 
 <div class="status-bar hidden" id="statusBar">
   <span class="status-text" id="statusText"></span>
@@ -260,9 +411,21 @@
 // IMPORTANT: Replace this URL with your deployed Cloudflare Worker URL
 const WORKER_URL = "https://battle-plan-proxy.27tb8s6fct.workers.dev";
 
-// ── PLAYER DATA ───────────────────────────────────────────────────────────────
-const RAW=[["Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],["Aurora","","n","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"],["Dark","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],["20100","Move to MSS by Thu +10","y","n","y","n","DOG","Army",22,"MM","3","MSS Squad A"],["a1capo","","n","y","n","n","DOG","Army",29,"CE","","Dog Squad B"],["Abdullah","","n","y","y","y","DOG","Navy",25,"MM","3","Dog Squad A"],["AjMaL","Move to PRU by Thu +10","y","y","y","n","DOG","Army",24,"CE","","PRU Squad A"],["AlexB","","n","n","y","n","MSS","Navy",28,"MM","2","MSS Squad A"],["AlexMat","","n","y","n","n","DOG","Navy",85,"CE","","Dog Squad B"],["Ara","","n","n","n","y","MSS","Navy",53,"CE","","MSS Squad B"],["Aresu","","n","y","n","n","DOG","Army",72,"CE","","Dog Squad B"],["aristos","Move to PRU by Thu +10","y","y","n","n","DOG","Army",38,"MM","3","PRU Squad A"],["ARR","","n","n","y","n","MSS","Army",26,"CE","","MSS Squad A"],["Babym","","n","n","y","n","MSS","Army",66,"MM","4","MSS Squad A"],["BAL","","n","y","n","n","DOG","Army",41,"CE","","Dog Squad B"],["Bane","","n","n","y","y","MSS","Army",65,"CE","","MSS Squad A"],["Bchara","","n","y","n","n","DOG","Army",49,"CE","","Dog Squad B"],["Beyo","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],["Bianco","","n","n","y","n","MSS","Army",13,"CE","","MSS Squad A"],["Biggie","","n","n","n","y","DOG","Army",102,"CE","","Dog Squad A"],["BlindGuy","","n","n","y","y","DOG","Army",40,"MM","4","Dog Squad A"],["BMW5","","n","n","y","n","MSS","Army",65,"CE","","MSS Squad A"],["brewdog","","n","n","n","y","DOG","Navy",66,"MM","3","Dog Squad A"],["Calabro","","n","y","n","n","DOG","Air Force",47,"CE","","Dog Squad B"],["Caliboyx","","n","n","n","y","MSS","Navy",38,"CE","","MSS Squad B"],["cardsfan","","n","y","n","n","DOG","Army",67,"MM","5","Dog Squad B"],["CHAUSUI","","n","y","n","n","DOG","Army",115,"CE","","Dog Squad B"],["Darkspy","","n","n","n","y","DOG","Navy",70,"MM","3","Dog Squad A"],["Demon","","n","y","n","n","DOG","Air Force",79,"CE","","Dog Squad B"],["Dingus","","n","n","y","n","MSS","Army",73,"CE","","MSS Squad A"],["DNA","","n","n","y","n","MSS","Army",56,"MM","5","MSS Squad A"],["DragonMC","","n","y","n","n","DOG","Army",50,"CE","","Dog Squad B"],["Drak","","n","y","n","n","DOG","Navy",68,"MM","5","Dog Squad B"],["Drewskii","","n","n","y","y","MSS","Air Force",73,"CE","","MSS Squad B"],["DRuSE","","n","n","y","n","MSS","Navy",21,"MM","1","MSS Squad A"],["Dtp20","","n","y","n","y","DOG","Air Force",110,"CE","","Dog Squad A"],["Elb","Move to PRU by Thu +10","y","n","n","n","MSS","Navy",56,"MM","3","PRU Squad A"],["Eny","","n","n","y","n","MSS","Navy",135,"CE","","MSS Squad A"],["Faxe","Move to PRU by Thu +10","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],["Fokker","","n","y","y","n","MSS","Navy",32,"MM","3","MSS Squad A"],["GM","","n","y","n","n","DOG","Air Force",39,"CE","","Dog Squad B"],["Gorilla","","n","n","n","y","DOG","Navy",50,"CE","","Dog Squad A"],["Harley","","n","n","n","y","MSS","Army",90,"CE","","MSS Squad B"],["Heidi","","n","n","y","n","MSS","Navy",60,"MM","5","MSS Squad A"],["HELLFIRE","","n","y","n","n","DOG","Navy",62,"CE","","Dog Squad B"],["Helmo","","n","n","n","y","MSS","Navy",101,"CE","","MSS Squad B"],["Hm","","n","n","n","y","MSS","Navy",85,"CE","","MSS Squad B"],["Hoadi","","y","y","y","n","MSS","Air Force",93,"CE","","MSS Squad A"],["Hot-rods","","n","n","y","y","MSS","Army",28,"MM","2","MSS Squad B"],["HourPa","Move to Dog by Thu +10","n","n","n","y","MSS","Army",53,"CE","","Dog Squad A"],["Iceman","","n","n","y","n","MSS","Army",34,"CE","","MSS Squad A"],["It'sme","","n","n","n","y","DOG","Army",26,"MM","3","Dog Squad A"],["J","","n","y","n","y","DOG","Air Force",150,"CE","","Dog Squad A"],["Jerky","","n","y","n","n","DOG","Air Force",72,"CE","","Dog Squad B"],["Jopn17tl","","n","y","n","y","DOG","Navy",79,"CE","","Dog Squad A"],["joske","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],["KiloBo","Move to PRU by Thu +10","y","y","y","n","MSS","Army",50,"MM","5","PRU Squad A"],["KingSnek","Move to MSS by Thu +10","n","n","y","n","Cat+","Army",120,"CE","","MSS Squad A"],["kom","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],["Lady","","n","y","n","n","DOG","Army",100,"CE","","Dog Squad B"],["LittleV","Move to PRU by Thu +10","y","n","n","y","Cat+","Army",11,"MM","0","PRU Squad A"],["Livv","Move to MSS by Thu +10","n","y","y","y","DOG","Air Force",57,"CE","","MSS Squad A"],["Madmaxx","","n","n","n","y","DOG","Navy",106,"CE","","Dog Squad A"],["Madsey","","n","n","y","n","MSS","Army",64,"CE","","MSS Squad A"],["Magicguy","","n","n","n","y","DOG","Army",33,"MM","3","Dog Squad A"],["Mami","","n","n","n","y","MSS","Army",70,"MM","5","MSS Squad B"],["Mando","","n","y","y","n","DOG","Navy",34,"MM","4","Dog Squad B"],["Maximum (MSS)","","n","n","n","y","MSS","Army",30,"MM","4","MSS Squad B"],["Maximum (DOG)","","n","y","n","n","DOG","Navy",80,"CE","","Dog Squad B"],["MegaBo","","y","y","y","n","MSS","Air Force",80,"CE","","MSS Squad A"],["meliodas","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",55,"MM","5","MSS Squad A"],["Melo84","","n","y","n","n","DOG","Army",22,"CE","","Dog Squad B"],["Mephisto","","n","n","n","y","DOG","Air Force",119,"CE","","Dog Squad A"],["MF_Bluey","","n","n","n","y","DOG","Army",100,"CE","","Dog Squad A"],["MFBluey2","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],["MicroBo","Move to PRU by Thu +10","y","y","y","n","Cat+","Army",25,"MM","4","PRU Squad A"],["MONKEY","","n","y","n","n","DOG","Army",56,"CE","","Dog Squad B"],["Mopar","","n","n","n","y","DOG","Air Force",57,"CE","","Dog Squad A"],["Morvessa","Move to Dog by Thu +10","n","n","n","y","MSS","Navy",93,"CE","","Dog Squad A"],["Motyer","","n","y","n","n","DOG","Navy",46,"CE","","Dog Squad B"],["Mousse","","n","n","y","n","MSS","Army",58,"CE","","MSS Squad A"],["Mulan","","n","y","n","n","DOG","Air Force",68,"CE","","Dog Squad B"],["Musashi","","n","n","n","y","MSS","Air Force",49,"CE","","MSS Squad B"],["Nembo","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],["OEL13","","n","y","y","y","DOG","Navy",25,"CE","","Dog Squad B"],["Otts","","n","y","n","n","DOG","Navy",101,"CE","","Dog Squad B"],["Pacrtr","","n","n","n","y","DOG","Air Force",55,"CE","","Dog Squad A"],["PastaB","","n","n","n","y","MSS","Army",89,"CE","","MSS Squad B"],["Patrolfc","Move to MSS by Thu +10","n","y","y","n","DOG","Army",63,"CE","","MSS Squad A"],["Peewee","","y","y","y","y","DOG","Air Force",170,"CE","","Dog Squad A"],["Pepper","","n","n","n","y","MSS","Navy",66,"CE","","MSS Squad B"],["Pete","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],["Project","","n","n","n","y","DOG","Army",42,"CE","","Dog Squad A"],["Quaggy","Move to MSS by Thu +10","n","n","y","n","DOG","Navy",73,"CE","","MSS Squad A"],["Raqqas","","n","y","n","n","DOG","Army",39,"CE","","Dog Squad B"],["Ray","","n","n","y","n","MSS","Army",21,"MM","5","MSS Squad A"],["Repuff","","n","n","n","y","MSS","Navy",47,"MM","2","MSS Squad B"],["Rex","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",80,"CE","","MSS Squad A"],["ROM","","n","n","y","n","MSS","Army",30,"CE","","MSS Squad A"],["Roma","Move to PRU by Thu +10","y","n","y","n","MSS","Navy",28,"CE","","PRU Squad A"],["Samson","","n","y","n","y","DOG","Army",65,"MM","5","Dog Squad A"],["Shaz","Move to PRU by Thu +10","y","n","n","n","MSS","Air Force",94,"CE","","PRU Squad A"],["Shorty","","n","y","n","n","DOG","Army",56,"MM","2","Dog Squad B"],["Smalls","Move to MSS by Thu +10","n","y","y","y","DOG","Army",37,"MM","2","MSS Squad A"],["Smoke","","n","n","n","y","MSS","Army",62,"CE","","MSS Squad B"],["Smurfx","","n","n","n","y","DOG","Navy",80,"CE","","Dog Squad A"],["Sparta","","n","n","y","y","DOG","Navy",175,"CE","","Dog Squad A"],["Steve","","n","n","n","y","MSS","Air Force",40,"CE","","MSS Squad B"],["STiCK","","n","n","n","y","DOG","Air Force",50,"MM","5","Dog Squad A"],["STINGER","","n","n","n","y","MSS","Navy",33,"MM","4","MSS Squad B"],["Talion","","n","y","n","n","DOG","Air Force",32,"MM","4","Dog Squad B"],["Termi","","n","y","n","n","DOG","Navy",41,"CE","","Dog Squad B"],["Tex","","n","n","y","y","DOG","Army",189,"CE","","Dog Squad A"],["Thor","","n","y","n","n","DOG","Air Force",103,"CE","","Dog Squad B"],["TigerMan","","n","y","n","n","DOG","Army",46,"MM","0","Dog Squad B"],["Uber888","","n","n","n","y","MSS","Army",23,"MM","4","MSS Squad B"],["Venom","Move to PRU by Thu +10","y","n","n","y","MSS","Army",39,"CE","","PRU Squad A"],["Vik","","n","n","n","y","MSS","Army",22,"MM","3","MSS Squad B"],["VMJ","","n","n","n","y","DOG","Army",65,"MM","5","Dog Squad A"],["Vytautas","","n","n","y","n","MSS","Navy",59,"MM","1","MSS Squad A"],["Wildcat","","n","n","n","y","MSS","Army",35,"MM","5","MSS Squad B"],["Willow","","n","n","y","n","MSS","Army",53,"MM","4","MSS Squad A"],["WitcheR","","n","n","y","n","MSS","Army",20,"CE","","MSS Squad A"],["Wolfie","Move to MSS by Thu +10","n","y","y","n","DOG","Army",67,"CE","","MSS Squad A"],["Wonka","","n","y","n","n","DOG","Air Force",79,"MM","5","Dog Squad B"],["WOOOOOO","","n","n","n","y","DOG","Navy",113,"CE","","Dog Squad A"]];
-const players = RAW.map(r=>({name:r[0],unit:r[7],cp:r[8],prof:r[9],squad:r[11]}));
+// ── PLAYER DATA (loaded dynamically) ──────────────────────────────────────────
+let RAW = [];
+let players = [];
+
+function rebuildPlayers() {
+  players = RAW.map(r=>({name:r[0],notes:r[1],unit:r[7],cp:r[8],prof:r[9],ucLvl:r[10],squad:r[11],alliance:r[6]}));
+}
+
+async function loadRoster() {
+  try {
+    const res = await fetch("roster-data.json?t=" + Date.now());
+    if (res.ok) RAW = await res.json();
+  } catch {}
+  rebuildPlayers();
+}
 
 const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
 const SQUAD_SHORT = {"Dog Squad A":"Dog A (+10)","Dog Squad B":"Dog B (-2)","MSS Squad A":"MSS A (+2)","MSS Squad B":"MSS B (+10)","PRU Squad A":"PRU A (-6)"};
@@ -326,9 +489,10 @@ async function authenticate() {
     document.getElementById("editor").classList.add("visible");
     document.getElementById("saveBtn").style.display = "";
     document.getElementById("statusBar").classList.remove("hidden");
-    await loadData();
+    await Promise.all([loadData(), loadRoster()]);
     buildTabs();
     selectSquad(SQUADS[0]);
+    renderRosterTable();
   } catch (e) {
     document.getElementById("authErr").style.display = "block";
     document.getElementById("authErr").textContent = e.message || "Authentication failed.";
@@ -629,6 +793,132 @@ function removeSlot(key, idx) {
   getSquadData(activeSquad)[key].splice(idx, 1);
   markDirty();
   renderAllSlots(getSquadData(activeSquad), getSquadPlayers(activeSquad));
+}
+
+// ── ROSTER MANAGEMENT ─────────────────────────────────────────────────────────
+function renderRosterTable() {
+  const q = (document.getElementById("rosterSearch").value || "").toLowerCase();
+  const body = document.getElementById("rosterBody");
+  const filtered = RAW.map((r, i) => [r, i]).filter(([r]) =>
+    !q || r[0].toLowerCase().includes(q) || r[11].toLowerCase().includes(q) || r[1].toLowerCase().includes(q)
+  );
+  body.innerHTML = filtered.map(([r, i]) => {
+    const isMove = /move to/i.test(r[1]);
+    return `<tr class="${isMove ? "move-row" : ""}">
+      <td><strong>${esc(r[0])}</strong></td>
+      <td>${esc(r[11])}</td>
+      <td>${esc(r[6])}</td>
+      <td>${esc(r[7])}</td>
+      <td>${esc(r[9])}</td>
+      <td>${r[8]}</td>
+      <td>${esc(r[10])}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${esc(r[1])}">${esc(r[1]) || "&mdash;"}</td>
+      <td>${r[2]==="y"?"-6 ":""}${r[3]==="y"?"-2 ":""}${r[4]==="y"?"+2 ":""}${r[5]==="y"?"+10":""}</td>
+      <td class="roster-actions">
+        <button onclick="openPlayerModal(${i})">Edit</button>
+        <button class="del-btn" onclick="deletePlayer(${i})">Del</button>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+function openPlayerModal(idx) {
+  document.getElementById("pmIdx").value = idx;
+  if (idx >= 0 && RAW[idx]) {
+    const r = RAW[idx];
+    document.getElementById("pmTitle").textContent = "Edit Player";
+    document.getElementById("pmName").value = r[0];
+    document.getElementById("pmNotes").value = r[1];
+    document.getElementById("pmS6").checked = r[2] === "y";
+    document.getElementById("pmS2n").checked = r[3] === "y";
+    document.getElementById("pmS2p").checked = r[4] === "y";
+    document.getElementById("pmS10").checked = r[5] === "y";
+    document.getElementById("pmAlliance").value = r[6];
+    document.getElementById("pmUnit").value = r[7];
+    document.getElementById("pmCP").value = r[8];
+    document.getElementById("pmProf").value = r[9];
+    document.getElementById("pmUC").value = r[10];
+    document.getElementById("pmSquad").value = r[11];
+  } else {
+    document.getElementById("pmTitle").textContent = "Add Player";
+    document.getElementById("pmName").value = "";
+    document.getElementById("pmNotes").value = "";
+    document.getElementById("pmS6").checked = false;
+    document.getElementById("pmS2n").checked = false;
+    document.getElementById("pmS2p").checked = false;
+    document.getElementById("pmS10").checked = false;
+    document.getElementById("pmAlliance").value = "DOG";
+    document.getElementById("pmUnit").value = "Army";
+    document.getElementById("pmCP").value = "";
+    document.getElementById("pmProf").value = "CE";
+    document.getElementById("pmUC").value = "";
+    document.getElementById("pmSquad").value = "Dog Squad A";
+  }
+  document.getElementById("playerModalBg").classList.add("open");
+  document.getElementById("pmName").focus();
+}
+
+function closePlayerModal() {
+  document.getElementById("playerModalBg").classList.remove("open");
+}
+
+function savePlayer() {
+  const name = document.getElementById("pmName").value.trim();
+  if (!name) { alert("Name is required"); return; }
+  const row = [
+    name,
+    document.getElementById("pmNotes").value.trim(),
+    document.getElementById("pmS6").checked ? "y" : "n",
+    document.getElementById("pmS2n").checked ? "y" : "n",
+    document.getElementById("pmS2p").checked ? "y" : "n",
+    document.getElementById("pmS10").checked ? "y" : "n",
+    document.getElementById("pmAlliance").value,
+    document.getElementById("pmUnit").value,
+    parseInt(document.getElementById("pmCP").value) || 0,
+    document.getElementById("pmProf").value,
+    document.getElementById("pmUC").value.trim(),
+    document.getElementById("pmSquad").value,
+  ];
+  const idx = parseInt(document.getElementById("pmIdx").value);
+  if (idx >= 0 && RAW[idx]) {
+    RAW[idx] = row;
+  } else {
+    RAW.push(row);
+  }
+  RAW.sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: "base" }));
+  rebuildPlayers();
+  closePlayerModal();
+  renderRosterTable();
+  saveRosterToWorker();
+  // Re-render battle plan selects with updated player list
+  if (activeSquad) renderEditor();
+}
+
+function deletePlayer(idx) {
+  if (!confirm(`Delete ${RAW[idx][0]}?`)) return;
+  RAW.splice(idx, 1);
+  rebuildPlayers();
+  renderRosterTable();
+  saveRosterToWorker();
+  if (activeSquad) renderEditor();
+}
+
+async function saveRosterToWorker() {
+  setStatus("Saving roster...", "saving");
+  try {
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password, data: RAW, path: "roster-data.json" })
+    });
+    if (!res.ok) {
+      const result = await res.json();
+      throw new Error(result.error || "Roster save failed");
+    }
+    setStatus("Roster saved! Main page will update in ~1 min.", "saved");
+  } catch (e) {
+    setStatus("Roster error: " + e.message, "error");
+  }
 }
 
 // Warn on leave with unsaved changes
