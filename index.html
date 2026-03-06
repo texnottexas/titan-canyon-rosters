@@ -131,6 +131,8 @@
     .sqbtn[data-squad="MSS Squad A"].active { background: #8957e5; border-color: #8957e5; color: #fff; }
     .sqbtn[data-squad="MSS Squad B"].active { background: #bc4c00; border-color: #bc4c00; color: #fff; }
     .sqbtn[data-squad="PRU Squad A"].active { background: #d29922; border-color: #d29922; color: #0d1117; }
+    .sqbtn[data-move="1"].active { background: var(--move-border); border-color: var(--move-border); color: #0d1117; }
+    .squad-filters-sep { width: 1px; background: var(--border); align-self: stretch; margin: 0 .15rem; flex-shrink: 0; }
 
     /* ── SEARCH CARD ── */
     .search-card {
@@ -346,6 +348,10 @@
     </button>
     <button class="sqbtn" data-squad="PRU Squad A" onclick="tabFilter(this)">
       <span class="sqbtn-name">&#9876; PRU A &nbsp;&minus;6</span>
+    </button>
+    <div class="squad-filters-sep"></div>
+    <button class="sqbtn" data-move="1" onclick="moveFilter(this)">
+      <span class="sqbtn-name">&#8594; Needs to Move</span>
     </button>
   </div>
 
@@ -654,7 +660,7 @@ function esc(s) {
 }
 
 // ── TABLE ─────────────────────────────────────────────────────────────────────
-let sortCol = null, sortAsc = true, tabSquad = "";
+let sortCol = null, sortAsc = true, tabSquad = "", tabMove = false;
 
 const TANK = `<svg width="14" height="11" viewBox="0 0 14 11" fill="currentColor" style="vertical-align:middle;margin-right:1px"><rect x="1" y="5" width="12" height="5" rx="1.2"/><rect x="3.5" y="2" width="5" height="3" rx="1"/><rect x="8" y="3" width="4" height="1.2" rx=".6"/><circle cx="2.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="5" cy="10" r=".9" fill="var(--bg)"/><circle cx="7.5" cy="10" r=".9" fill="var(--bg)"/><circle cx="10" cy="10" r=".9" fill="var(--bg)"/><circle cx="12.5" cy="10" r=".9" fill="var(--bg)"/></svg>`;
 
@@ -708,6 +714,7 @@ function getSortedFiltered() {
   if (name)  list = list.filter(p=>p.name.toLowerCase().includes(name));
   if (squad) list = list.filter(p=>p.squad.startsWith(squad));
   else if (tabSquad) list = list.filter(p=>p.squad.startsWith(tabSquad));
+  if (tabMove) list = list.filter(p=>p.isMove);
   if (unit)  list = list.filter(p=>p.unit===unit);
   if (prof)  list = list.filter(p=>p.prof===prof);
   if (sortCol) {
@@ -726,17 +733,27 @@ function applyFilters() {
   updateStats(list);
   document.getElementById("rCount").textContent = `${list.length} of ${players.length} players`;
   const activeSquad = document.getElementById("sSquad").value || tabSquad;
-  document.getElementById("rosterTitle").textContent = activeSquad ? SQUAD_LABELS[activeSquad] || activeSquad : "Full Roster";
+  document.getElementById("rosterTitle").textContent = tabMove ? "Needs to Move" : (activeSquad ? SQUAD_LABELS[activeSquad] || activeSquad : "Full Roster");
 }
 function clearFilters() {
   ["sName","sSquad","sUnit","sProf"].forEach(id=>{ document.getElementById(id).value=""; });
+  tabMove = false;
   applyFilters();
 }
 function tabFilter(el) {
   document.querySelectorAll(".squad-filters .sqbtn").forEach(b=>b.classList.remove("active"));
   el.classList.add("active");
   tabSquad = el.dataset.squad;
+  tabMove = false;
   if (tabSquad) document.getElementById("sSquad").value = "";
+  applyFilters();
+}
+function moveFilter(el) {
+  document.querySelectorAll(".squad-filters .sqbtn").forEach(b=>b.classList.remove("active"));
+  el.classList.add("active");
+  tabMove = true;
+  tabSquad = "";
+  document.getElementById("sSquad").value = "";
   applyFilters();
 }
 function sortBy(th) {
