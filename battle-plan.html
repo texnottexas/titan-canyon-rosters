@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Battle Plan – Server 2864</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0d1117; --bg2: #161b22; --card: #1c2128; --border: #30363d;
+      --text: #e6edf3; --muted: #8b949e; --accent: #79c0ff;
+      --army: #3fb950; --navy: #388bfd; --air: #d29922;
+      --ce: #e3b341; --mm: #bc8cff; --tag: #21262d;
+      --shadow: rgba(0,0,0,.45); --row-hover: #21262d;
+    }
+    :root[data-theme="light"] {
+      --bg: #f6f8fa; --bg2: #ffffff; --card: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --muted: #656d76; --accent: #1f75d4;
+      --army: #1a7f37; --navy: #0550ae; --air: #9a6700;
+      --ce: #7d4e00; --mm: #6e40c9; --tag: #eaeef2;
+      --shadow: rgba(140,149,159,.2); --row-hover: #f3f4f6;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: .85rem 2rem; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 0 var(--border);
+    }
+    .header-left { display: flex; align-items: center; gap: 1.2rem; }
+    .header-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); letter-spacing: -.01em; }
+    .header-sub { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+    .nav-link {
+      font-size: .8rem; color: var(--muted); text-decoration: none; padding: .35rem .8rem;
+      border: 1px solid var(--border); border-radius: 7px; transition: all .15s;
+    }
+    .nav-link:hover { border-color: var(--accent); color: var(--accent); }
+    .header-actions { display: flex; gap: .6rem; align-items: center; }
+    .hdr-btn {
+      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: .38rem .9rem; cursor: pointer; font-size: .8rem;
+      display: flex; align-items: center; gap: .4rem; transition: all .15s; white-space: nowrap;
+    }
+    .hdr-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── PASSCODE GATE ── */
+    .gate-overlay {
+      position: fixed; inset: 0; background: var(--bg); z-index: 999;
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1.2rem;
+    }
+    .gate-overlay.hidden { display: none; }
+    .gate-box {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 2.5rem 2rem; text-align: center; max-width: 380px; width: 90%;
+      box-shadow: 0 16px 48px var(--shadow);
+    }
+    .gate-box h2 { font-size: 1.1rem; margin-bottom: .4rem; }
+    .gate-box p { font-size: .82rem; color: var(--muted); margin-bottom: 1.2rem; }
+    .gate-input {
+      width: 100%; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: .65rem 1rem; color: var(--text); font-size: .9rem;
+      text-align: center; outline: none; letter-spacing: .08em;
+    }
+    .gate-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+    .gate-input.shake { animation: shake .4s ease-in-out; border-color: #f85149; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-8px)} 75%{transform:translateX(8px)} }
+    .gate-err { font-size: .78rem; color: #f85149; margin-top: .6rem; display: none; }
+
+    /* ── MAIN CONTENT ── */
+    .app-content { display: none; }
+    .app-content.visible { display: block; }
+    main { max-width: 1440px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+    /* ── SQUAD SELECTOR ── */
+    .squad-selector {
+      display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
+      padding: .9rem 1.25rem; background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; align-items: center;
+    }
+    .squad-selector-label {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-right: .25rem;
+    }
+    .sq-sel-btn {
+      padding: .4rem 1rem; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--tag); color: var(--muted); cursor: pointer;
+      font-size: .82rem; font-weight: 500; transition: all .15s;
+    }
+    .sq-sel-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .sq-sel-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+
+    /* ── LAYOUT: MAP + ROSTER ── */
+    .plan-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 960px) { .plan-layout { grid-template-columns: 1fr; } }
+
+    /* ── DIAMOND MAP ── */
+    .map-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.25rem; position: relative;
+    }
+    .map-card h3 {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem;
+    }
+    .diamond-grid {
+      position: relative; width: 100%; max-width: 420px; margin: 0 auto;
+      aspect-ratio: 1; /* keep it square */
+    }
+    .diamond-grid-inner {
+      position: absolute; inset: 0;
+      transform: rotate(45deg);
+      display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr);
+      gap: 4px; padding: 4px;
+    }
+    .map-cell {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden; cursor: default;
+      transition: border-color .15s, background .15s;
+    }
+    .map-cell:hover { border-color: var(--accent); }
+    .map-cell.assigned { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg2)); }
+    .map-cell-content {
+      transform: rotate(-45deg);
+      text-align: center; font-size: .65rem; line-height: 1.25;
+      padding: 2px; width: 130%; /* overflow rotated content */
+    }
+    .cell-num { font-weight: 700; font-size: .85rem; color: var(--accent); display: block; }
+    .cell-role { color: var(--muted); font-size: .58rem; display: block; margin-top: 1px; }
+    .cell-player { color: var(--text); font-weight: 600; font-size: .62rem; display: block; margin-top: 3px; }
+    /* empty/discarded cells */
+    .map-cell.empty { background: transparent; border-color: transparent; }
+    .map-cell.center-cell { background: var(--tag); border-style: dashed; }
+    .center-label { font-size: .55rem; color: var(--muted); }
+
+    /* ── LEGEND ── */
+    .map-legend {
+      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;
+      font-size: .7rem; color: var(--muted);
+    }
+    .legend-item { display: flex; align-items: center; gap: .3rem; }
+    .legend-swatch {
+      width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); flex-shrink: 0;
+    }
+
+    /* ── ROSTER ASSIGNMENT PANELS ── */
+    .roster-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;
+    }
+    .roster-card h3 {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem;
+    }
+    .assign-section { margin-bottom: 1.1rem; }
+    .assign-section:last-child { margin-bottom: 0; }
+    .assign-header {
+      font-size: .78rem; font-weight: 700; color: var(--text); margin-bottom: .5rem;
+      padding-bottom: .35rem; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .assign-header .add-btn {
+      background: var(--tag); border: 1px solid var(--border); color: var(--accent);
+      border-radius: 6px; padding: 2px 8px; cursor: pointer; font-size: .7rem; transition: all .15s;
+    }
+    .assign-header .add-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .assign-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+    .assign-item {
+      display: flex; align-items: center; gap: .5rem; padding: .3rem .6rem;
+      border-radius: 6px; font-size: .8rem; background: var(--bg2); border: 1px solid var(--border);
+      transition: all .15s;
+    }
+    .assign-item .slot-label { color: var(--muted); font-size: .68rem; min-width: 1.2rem; font-weight: 600; }
+    .assign-item .player-select {
+      flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 5px;
+      color: var(--text); padding: .25rem .5rem; font-size: .78rem; outline: none;
+      appearance: none; -webkit-appearance: none; cursor: pointer;
+    }
+    .assign-item .player-select:focus { border-color: var(--accent); }
+    .assign-item .remove-btn {
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: .85rem; padding: 0 2px; transition: color .15s;
+    }
+    .assign-item .remove-btn:hover { color: #f85149; }
+    .assign-note { font-size: .7rem; color: var(--muted); font-style: italic; margin-top: .3rem; }
+
+    /* ── INSTRUCTIONS PANEL ── */
+    .instructions-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.25rem; margin-bottom: 1.5rem;
+    }
+    .instructions-card h3 {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem;
+    }
+    .instructions-card textarea {
+      width: 100%; min-height: 100px; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 8px; padding: .7rem; color: var(--text); font-size: .82rem;
+      font-family: inherit; outline: none; resize: vertical;
+    }
+    .instructions-card textarea:focus { border-color: var(--accent); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+    @media (max-width: 640px) {
+      main { padding: 1rem 1rem 2rem; }
+      header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
+    }
+
+    .sec-title {
+      font-size: .95rem; font-weight: 700; margin-bottom: .9rem; color: var(--text);
+      display: flex; align-items: center; gap: .5rem;
+    }
+    .sec-title::before {
+      content: ''; display: inline-block; width: 3px; height: .95rem;
+      background: var(--accent); border-radius: 2px; flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- PASSCODE GATE -->
+<div class="gate-overlay" id="gate">
+  <div class="gate-box">
+    <h2>Battle Plan Access</h2>
+    <p>Enter the passcode to view and edit battle plans.</p>
+    <input type="password" class="gate-input" id="gateInput" placeholder="Passcode" autofocus autocomplete="off">
+    <div class="gate-err" id="gateErr">Incorrect passcode. Try again.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-content" id="app">
+<header>
+  <div class="header-left">
+    <div>
+      <div class="header-title">&#9876; Battle Plan Builder</div>
+      <div class="header-sub">Server 2864 &ndash; Titan Canyon</div>
+    </div>
+    <a href="index.html" class="nav-link">&larr; Rosters</a>
+  </div>
+  <div class="header-actions">
+    <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()">
+      <span id="themeIcon">&#9728;&#65039;</span>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- Squad Selector -->
+  <div class="squad-selector" id="squadSelector">
+    <span class="squad-selector-label">Squad</span>
+  </div>
+
+  <div class="plan-layout">
+    <!-- LEFT: Diamond Map -->
+    <div class="map-card">
+      <h3 id="mapTitle">Battle Map &mdash; Select a squad</h3>
+      <div class="diamond-grid">
+        <div class="diamond-grid-inner" id="diamondGrid"></div>
+      </div>
+      <div class="map-legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:#3fb950"></div> Strengthening</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#f85149"></div> Weakening</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#d29922"></div> Urgent Care</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Assignment Panels -->
+    <div class="roster-card">
+      <h3>Roster Assignments</h3>
+
+      <!-- MM Slots -->
+      <div class="assign-section">
+        <div class="assign-header">MM Slots <button class="add-btn" onclick="addSlot('mm')">+ Add</button></div>
+        <ul class="assign-list" id="mmSlots"></ul>
+      </div>
+
+      <!-- CE Slots -->
+      <div class="assign-section">
+        <div class="assign-header">CE Slots (Start) <button class="add-btn" onclick="addSlot('ce')">+ Add</button></div>
+        <ul class="assign-list" id="ceSlots"></ul>
+      </div>
+
+      <!-- CE Goon Squad -->
+      <div class="assign-section">
+        <div class="assign-header">CE Goon Squad <button class="add-btn" onclick="addSlot('goon')">+ Add</button></div>
+        <ul class="assign-list" id="goonSlots"></ul>
+        <div class="assign-note">Go on offense / run around freely</div>
+      </div>
+
+      <!-- Standby -->
+      <div class="assign-section">
+        <div class="assign-header">Standby (Fill as Needed) <button class="add-btn" onclick="addSlot('standby')">+ Add</button></div>
+        <ul class="assign-list" id="standbySlots"></ul>
+      </div>
+
+      <!-- Hover Captains -->
+      <div class="assign-section">
+        <div class="assign-header">Hover Captains <button class="add-btn" onclick="addSlot('hover')">+ Add</button></div>
+        <ul class="assign-list" id="hoverSlots"></ul>
+        <div class="assign-note">Make sure people get to hover station every round / notify when it's bounty time</div>
+      </div>
+
+      <!-- Crystal Lab Captains -->
+      <div class="assign-section">
+        <div class="assign-header">Crystal Lab Captains <button class="add-btn" onclick="addSlot('crystal')">+ Add</button></div>
+        <ul class="assign-list" id="crystalSlots"></ul>
+        <div class="assign-note">Track open labs, share labs that need help ("need Army", "need Navy", etc.)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Instructions / Notes -->
+  <div class="instructions-card">
+    <h3>Squad Notes &amp; Instructions</h3>
+    <textarea id="squadNotes" placeholder="Add battle plan notes, reminders, or instructions for this squad..."></textarea>
+  </div>
+
+</main>
+</div>
+
+<script>
+// ── PASSCODE ──────────────────────────────────────────────────────────────────
+const PASS = "fkboats";
+const gateEl = document.getElementById("gate");
+const appEl = document.getElementById("app");
+const gateInput = document.getElementById("gateInput");
+const gateErr = document.getElementById("gateErr");
+
+if (sessionStorage.getItem("bp_auth") === "1") unlock();
+
+gateInput.addEventListener("keydown", e => {
+  if (e.key === "Enter") {
+    if (gateInput.value === PASS) {
+      sessionStorage.setItem("bp_auth", "1");
+      unlock();
+    } else {
+      gateInput.classList.add("shake");
+      gateErr.style.display = "block";
+      setTimeout(() => gateInput.classList.remove("shake"), 400);
+    }
+  }
+});
+
+function unlock() {
+  gateEl.classList.add("hidden");
+  appEl.classList.add("visible");
+}
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", isDark ? "light" : "dark");
+  document.getElementById("themeIcon").textContent = isDark ? "\uD83C\uDF19" : "\u2600\uFE0F";
+  document.getElementById("themeLabel").textContent = isDark ? "Dark Mode" : "Light Mode";
+}
+
+// ── DATA (copied from main roster) ────────────────────────────────────────────
+const RAW = [
+  ["Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],
+  ["Aurora","","n","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"],
+  ["Dark","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],
+  ["20100","Move to MSS by Thu +10","y","n","y","n","DOG","Army",22,"MM","3","MSS Squad A"],
+  ["a1capo","","n","y","n","n","DOG","Army",29,"CE","","Dog Squad B"],
+  ["Abdullah","","n","y","y","y","DOG","Navy",25,"MM","3","Dog Squad A"],
+  ["AjMaL","Move to PRU by Thu +10","y","y","y","n","DOG","Army",24,"CE","","PRU Squad A"],
+  ["AlexB","","n","n","y","n","MSS","Navy",28,"MM","2","MSS Squad A"],
+  ["AlexMat","","n","y","n","n","DOG","Navy",85,"CE","","Dog Squad B"],
+  ["Ara","","n","n","n","y","MSS","Navy",53,"CE","","MSS Squad B"],
+  ["Aresu","","n","y","n","n","DOG","Army",72,"CE","","Dog Squad B"],
+  ["aristos","Move to PRU by Thu +10","y","y","n","n","DOG","Army",38,"MM","3","PRU Squad A"],
+  ["ARR","","n","n","y","n","MSS","Army",26,"CE","","MSS Squad A"],
+  ["Babym","","n","n","y","n","MSS","Army",66,"MM","4","MSS Squad A"],
+  ["BAL","","n","y","n","n","DOG","Army",41,"CE","","Dog Squad B"],
+  ["Bane","","n","n","y","y","MSS","Army",65,"CE","","MSS Squad A"],
+  ["Bchara","","n","y","n","n","DOG","Army",49,"CE","","Dog Squad B"],
+  ["Beyo","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
+  ["Bianco","","n","n","y","n","MSS","Army",13,"CE","","MSS Squad A"],
+  ["Biggie","","n","n","n","y","DOG","Army",102,"CE","","Dog Squad A"],
+  ["BlindGuy","","n","n","y","y","DOG","Army",40,"MM","4","Dog Squad A"],
+  ["BMW5","","n","n","y","n","MSS","Army",65,"CE","","MSS Squad A"],
+  ["brewdog","","n","n","n","y","DOG","Navy",66,"MM","3","Dog Squad A"],
+  ["Calabro","","n","y","n","n","DOG","Air Force",47,"CE","","Dog Squad B"],
+  ["Caliboyx","","n","n","n","y","MSS","Navy",38,"CE","","MSS Squad B"],
+  ["cardsfan","","n","y","n","n","DOG","Army",67,"MM","5","Dog Squad B"],
+  ["CHAUSUI","","n","y","n","n","DOG","Army",115,"CE","","Dog Squad B"],
+  ["Darkspy","","n","n","n","y","DOG","Navy",70,"MM","3","Dog Squad A"],
+  ["Demon","","n","y","n","n","DOG","Air Force",79,"CE","","Dog Squad B"],
+  ["Dingus","","n","n","y","n","MSS","Army",73,"CE","","MSS Squad A"],
+  ["DNA","","n","n","y","n","MSS","Army",56,"MM","5","MSS Squad A"],
+  ["DragonMC","","n","y","n","n","DOG","Army",50,"CE","","Dog Squad B"],
+  ["Drak","","n","y","n","n","DOG","Navy",68,"MM","5","Dog Squad B"],
+  ["Drewskii","","n","n","y","y","MSS","Air Force",73,"CE","","MSS Squad B"],
+  ["DRuSE","","n","n","y","n","MSS","Navy",21,"MM","1","MSS Squad A"],
+  ["Dtp20","","n","y","n","y","DOG","Air Force",110,"CE","","Dog Squad A"],
+  ["Elb","Move to PRU by Thu +10","y","n","n","n","MSS","Navy",56,"MM","3","PRU Squad A"],
+  ["Eny","","n","n","y","n","MSS","Navy",135,"CE","","MSS Squad A"],
+  ["Faxe","Move to PRU by Thu +10","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],
+  ["Fokker","","n","y","y","n","MSS","Navy",32,"MM","3","MSS Squad A"],
+  ["GM","","n","y","n","n","DOG","Air Force",39,"CE","","Dog Squad B"],
+  ["Gorilla","","n","n","n","y","DOG","Navy",50,"CE","","Dog Squad A"],
+  ["Harley","","n","n","n","y","MSS","Army",90,"CE","","MSS Squad B"],
+  ["Heidi","","n","n","y","n","MSS","Navy",60,"MM","5","MSS Squad A"],
+  ["HELLFIRE","","n","y","n","n","DOG","Navy",62,"CE","","Dog Squad B"],
+  ["Helmo","","n","n","n","y","MSS","Navy",101,"CE","","MSS Squad B"],
+  ["Hm","","n","n","n","y","MSS","Navy",85,"CE","","MSS Squad B"],
+  ["Hoadi","","y","y","y","n","MSS","Air Force",93,"CE","","MSS Squad A"],
+  ["Hot-rods","","n","n","y","y","MSS","Army",28,"MM","2","MSS Squad B"],
+  ["HourPa","Move to Dog by Thu +10","n","n","n","y","MSS","Army",53,"CE","","Dog Squad A"],
+  ["Iceman","","n","n","y","n","MSS","Army",34,"CE","","MSS Squad A"],
+  ["It'sme","","n","n","n","y","DOG","Army",26,"MM","3","Dog Squad A"],
+  ["J","","n","y","n","y","DOG","Air Force",150,"CE","","Dog Squad A"],
+  ["Jerky","","n","y","n","n","DOG","Air Force",72,"CE","","Dog Squad B"],
+  ["Jopn17tl","","n","y","n","y","DOG","Navy",79,"CE","","Dog Squad A"],
+  ["joske","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],
+  ["KiloBo","Move to PRU by Thu +10","y","y","y","n","MSS","Army",50,"MM","5","PRU Squad A"],
+  ["KingSnek","Move to MSS by Thu +10","n","n","y","n","Cat+","Army",120,"CE","","MSS Squad A"],
+  ["kom","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],
+  ["Lady","","n","y","n","n","DOG","Army",100,"CE","","Dog Squad B"],
+  ["LittleV","Move to PRU by Thu +10","y","n","n","y","Cat+","Army",11,"MM","0","PRU Squad A"],
+  ["Livv","Move to MSS by Thu +10","n","y","y","y","DOG","Air Force",57,"CE","","MSS Squad A"],
+  ["Madmaxx","","n","n","n","y","DOG","Navy",106,"CE","","Dog Squad A"],
+  ["Madsey","","n","n","y","n","MSS","Army",64,"CE","","MSS Squad A"],
+  ["Magicguy","","n","n","n","y","DOG","Army",33,"MM","3","Dog Squad A"],
+  ["Mami","","n","n","n","y","MSS","Army",70,"MM","5","MSS Squad B"],
+  ["Mando","","n","y","y","n","DOG","Navy",34,"MM","4","Dog Squad B"],
+  ["Maximum (MSS)","","n","n","n","y","MSS","Army",30,"MM","4","MSS Squad B"],
+  ["Maximum (DOG)","","n","y","n","n","DOG","Navy",80,"CE","","Dog Squad B"],
+  ["MegaBo","","y","y","y","n","MSS","Air Force",80,"CE","","MSS Squad A"],
+  ["meliodas","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",55,"MM","5","MSS Squad A"],
+  ["Melo84","","n","y","n","n","DOG","Army",22,"CE","","Dog Squad B"],
+  ["Mephisto","","n","n","n","y","DOG","Air Force",119,"CE","","Dog Squad A"],
+  ["MF_Bluey","","n","n","n","y","DOG","Army",100,"CE","","Dog Squad A"],
+  ["MFBluey2","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
+  ["MicroBo","Move to PRU by Thu +10","y","y","y","n","Cat+","Army",25,"MM","4","PRU Squad A"],
+  ["MONKEY","","n","y","n","n","DOG","Army",56,"CE","","Dog Squad B"],
+  ["Mopar","","n","n","n","y","DOG","Air Force",57,"CE","","Dog Squad A"],
+  ["Morvessa","Move to Dog by Thu +10","n","n","n","y","MSS","Navy",93,"CE","","Dog Squad A"],
+  ["Motyer","","n","y","n","n","DOG","Navy",46,"CE","","Dog Squad B"],
+  ["Mousse","","n","n","y","n","MSS","Army",58,"CE","","MSS Squad A"],
+  ["Mulan","","n","y","n","n","DOG","Air Force",68,"CE","","Dog Squad B"],
+  ["Musashi","","n","n","n","y","MSS","Air Force",49,"CE","","MSS Squad B"],
+  ["Nembo","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],
+  ["OEL13","","n","y","y","y","DOG","Navy",25,"CE","","Dog Squad B"],
+  ["Otts","","n","y","n","n","DOG","Navy",101,"CE","","Dog Squad B"],
+  ["Pacrtr","","n","n","n","y","DOG","Air Force",55,"CE","","Dog Squad A"],
+  ["PastaB","","n","n","n","y","MSS","Army",89,"CE","","MSS Squad B"],
+  ["Patrolfc","Move to MSS by Thu +10","n","y","y","n","DOG","Army",63,"CE","","MSS Squad A"],
+  ["Peewee","","y","y","y","y","DOG","Air Force",170,"CE","","Dog Squad A"],
+  ["Pepper","","n","n","n","y","MSS","Navy",66,"CE","","MSS Squad B"],
+  ["Pete","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],
+  ["Project","","n","n","n","y","DOG","Army",42,"CE","","Dog Squad A"],
+  ["Quaggy","Move to MSS by Thu +10","n","n","y","n","DOG","Navy",73,"CE","","MSS Squad A"],
+  ["Raqqas","","n","y","n","n","DOG","Army",39,"CE","","Dog Squad B"],
+  ["Ray","","n","n","y","n","MSS","Army",21,"MM","5","MSS Squad A"],
+  ["Repuff","","n","n","n","y","MSS","Navy",47,"MM","2","MSS Squad B"],
+  ["Rex","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",80,"CE","","MSS Squad A"],
+  ["ROM","","n","n","y","n","MSS","Army",30,"CE","","MSS Squad A"],
+  ["Roma","Move to PRU by Thu +10","y","n","y","n","MSS","Navy",28,"CE","","PRU Squad A"],
+  ["Samson","","n","y","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
+  ["Shaz","Move to PRU by Thu +10","y","n","n","n","MSS","Air Force",94,"CE","","PRU Squad A"],
+  ["Shorty","","n","y","n","n","DOG","Army",56,"MM","2","Dog Squad B"],
+  ["Smalls","Move to MSS by Thu +10","n","y","y","y","DOG","Army",37,"MM","2","MSS Squad A"],
+  ["Smoke","","n","n","n","y","MSS","Army",62,"CE","","MSS Squad B"],
+  ["Smurfx","","n","n","n","y","DOG","Navy",80,"CE","","Dog Squad A"],
+  ["Sparta","","n","n","y","y","DOG","Navy",175,"CE","","Dog Squad A"],
+  ["Steve","","n","n","n","y","MSS","Air Force",40,"CE","","MSS Squad B"],
+  ["STiCK","","n","n","n","y","DOG","Air Force",50,"MM","5","Dog Squad A"],
+  ["STINGER","","n","n","n","y","MSS","Navy",33,"MM","4","MSS Squad B"],
+  ["Talion","","n","y","n","n","DOG","Air Force",32,"MM","4","Dog Squad B"],
+  ["Termi","","n","y","n","n","DOG","Navy",41,"CE","","Dog Squad B"],
+  ["Tex","","n","n","y","y","DOG","Army",189,"CE","","Dog Squad A"],
+  ["Thor","","n","y","n","n","DOG","Air Force",103,"CE","","Dog Squad B"],
+  ["TigerMan","","n","y","n","n","DOG","Army",46,"MM","0","Dog Squad B"],
+  ["Uber888","","n","n","n","y","MSS","Army",23,"MM","4","MSS Squad B"],
+  ["Venom","Move to PRU by Thu +10","y","n","n","y","MSS","Army",39,"CE","","PRU Squad A"],
+  ["Vik","","n","n","n","y","MSS","Army",22,"MM","3","MSS Squad B"],
+  ["VMJ","","n","n","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
+  ["Vytautas","","n","n","y","n","MSS","Navy",59,"MM","1","MSS Squad A"],
+  ["Wildcat","","n","n","n","y","MSS","Army",35,"MM","5","MSS Squad B"],
+  ["Willow","","n","n","y","n","MSS","Army",53,"MM","4","MSS Squad A"],
+  ["WitcheR","","n","n","y","n","MSS","Army",20,"CE","","MSS Squad A"],
+  ["Wolfie","Move to MSS by Thu +10","n","y","y","n","DOG","Army",67,"CE","","MSS Squad A"],
+  ["Wonka","","n","y","n","n","DOG","Air Force",79,"MM","5","Dog Squad B"],
+  ["WOOOOOO","","n","n","n","y","DOG","Navy",113,"CE","","Dog Squad A"],
+];
+
+const players = RAW.map(r => ({
+  name: r[0], unit: r[7], cp: r[8], prof: r[9], ucLvl: r[10], squad: r[11]
+}));
+
+const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
+const SQUAD_LABELS = {
+  "Dog Squad A": "Dog A (+10)", "Dog Squad B": "Dog B (-2)",
+  "MSS Squad A": "MSS A (+2)", "MSS Squad B": "MSS B (+10)",
+  "PRU Squad A": "PRU A (-6)",
+};
+
+// ── MAP POSITIONS ─────────────────────────────────────────────────────────────
+// 4x4 grid, rotated 45deg to form diamond. Positions map to image layout.
+// Grid cells: 0-15. Some are positions, center is "Discarded/Nexus", others empty.
+const MAP_CELLS = [
+  // row 0
+  { pos: null, type: "empty" },
+  { pos: null, type: "empty" },
+  { pos: null, type: "empty" },
+  { pos: 4, role: "MM + Urgent Care", facility: "uc" },
+  // row 1
+  { pos: null, type: "empty" },
+  { pos: 1, role: "Bigger CE", facility: "str" },
+  { pos: 8, role: "Any MM, no urgent care (4 towers)", facility: "uc" },
+  { pos: null, type: "referencing", label: "Referencing" },
+  // row 2
+  { pos: 3, role: "MM + Urgent Care", facility: "uc" },
+  { pos: null, type: "center", label: "Discarded Repository / Nexus Hub" },
+  { pos: null, type: "center", label: "" },
+  { pos: 6, role: "MM + Urgent Care", facility: "uc" },
+  // row 3
+  { pos: null, type: "empty" },
+  { pos: 7, role: "Any MM, no urgent care (4 towers)", facility: "str" },
+  { pos: 2, role: "Medium-strong CE", facility: "str" },
+  { pos: null, type: "empty" },
+  // row 4 (conceptual - we only have 4 rows in 4x4)
+];
+
+// Simpler approach: use a clean 5x5 diamond layout
+// The image shows 8 numbered positions around a diamond with a center hub.
+// Let me use a fixed visual layout instead of CSS grid rotation.
+
+// Positions from the image (clockwise from top):
+// 4 (top), 8 (upper-right), 6 (right), 2 (lower-right),
+// 5 (bottom), 7 (lower-left), 3 (left), 1 (upper-left)
+// Center: Discarded Repository / Nexus Hub
+
+const POSITIONS = [
+  { num: 1, role: "Bigger CE", color: "#3fb950", note: "Strengthening Facility" },
+  { num: 2, role: "Medium-strong CE", color: "#3fb950", note: "Strengthening Facility" },
+  { num: 3, role: "MM + Urgent Care", color: "#d29922", note: "Urgent Care Facility" },
+  { num: 4, role: "MM + Urgent Care", color: "#d29922", note: "Urgent Care Facility" },
+  { num: 5, role: "MM + Urgent Care", color: "#d29922", note: "Urgent Care Facility" },
+  { num: 6, role: "MM + Urgent Care", color: "#d29922", note: "Urgent Care Facility" },
+  { num: 7, role: "Any MM, no urgent care (4 towers)", color: "#3fb950", note: "Strengthening" },
+  { num: 8, role: "Any MM, no urgent care (4 towers)", color: "#d29922", note: "Urgent Care" },
+];
+
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let activeSquad = "";
+// assignments[squad] = { positions: {1: "PlayerName", ...}, mm: [...], ce: [...], goon: [...], standby: [...], hover: [...], crystal: [...], notes: "" }
+let assignments = {};
+
+function getStorageKey() { return "bp_assignments_v1"; }
+function loadAssignments() {
+  try { assignments = JSON.parse(localStorage.getItem(getStorageKey())) || {}; } catch(e) { assignments = {}; }
+}
+function saveAssignments() {
+  localStorage.setItem(getStorageKey(), JSON.stringify(assignments));
+}
+function getSquadData(sq) {
+  if (!assignments[sq]) {
+    assignments[sq] = {
+      positions: {}, mm: ["","","","","",""], ce: ["",""], goon: ["","","",""],
+      standby: ["","","","",""], hover: ["",""], crystal: ["",""], notes: ""
+    };
+  }
+  return assignments[sq];
+}
+
+// ── SQUAD SELECTOR ────────────────────────────────────────────────────────────
+function buildSquadSelector() {
+  const container = document.getElementById("squadSelector");
+  SQUADS.forEach(sq => {
+    const btn = document.createElement("button");
+    btn.className = "sq-sel-btn";
+    btn.textContent = SQUAD_LABELS[sq];
+    btn.onclick = () => selectSquad(sq);
+    btn.dataset.squad = sq;
+    container.appendChild(btn);
+  });
+}
+
+function selectSquad(sq) {
+  activeSquad = sq;
+  document.querySelectorAll(".sq-sel-btn").forEach(b => b.classList.toggle("active", b.dataset.squad === sq));
+  document.getElementById("mapTitle").textContent = "Battle Map \u2014 " + SQUAD_LABELS[sq];
+  renderAll();
+}
+
+// ── GET SQUAD PLAYERS ─────────────────────────────────────────────────────────
+function getSquadPlayers(sq) {
+  return players.filter(p => p.squad === sq).sort((a,b) => b.cp - a.cp);
+}
+
+function playerOptHtml(squadPlayers, selected) {
+  let html = '<option value="">-- Select --</option>';
+  squadPlayers.forEach(p => {
+    const sel = p.name === selected ? " selected" : "";
+    const tag = p.prof === "CE" ? "CE" : "MM";
+    html += `<option value="${esc(p.name)}"${sel}>${esc(p.name)} (${p.cp} ${tag} ${esc(p.unit)})</option>`;
+  });
+  return html;
+}
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+// ── RENDER MAP ────────────────────────────────────────────────────────────────
+function renderMap() {
+  const grid = document.getElementById("diamondGrid");
+  const data = getSquadData(activeSquad);
+  // 4x4 grid layout matching the diamond image
+  // The diamond in the image is a 4x4 rotated square. Map positions:
+  // Row 0:          [empty] [empty] [empty] [4]
+  // Row 1:          [empty] [1]     [8]     [empty]
+  // Row 2:          [3]     [center][center][6]
+  // Row 3:          [empty] [7]     [2]     [empty]
+  // But we also need row for 5 => let me use a better mapping.
+  //
+  // From the image, reading the 4x4 grid (rotated):
+  // The actual positions on the diamond grid are:
+  //        4
+  //     1     8
+  //   3   hub   6
+  //     7     2
+  //        5
+  // This is a 5-row diamond, so let me just use absolute positioning.
+
+  grid.innerHTML = "";
+  grid.style.cssText = "position:relative;width:100%;height:100%;";
+  // Remove the rotation from the inner grid - use absolute positioning instead
+  grid.style.transform = "none";
+  grid.style.display = "block";
+
+  const sqPlayers = getSquadPlayers(activeSquad);
+
+  // Diamond positions as percentages (center-based)
+  const layout = [
+    { num: 4, x: 50, y: 5 },
+    { num: 1, x: 22, y: 22 },
+    { num: 8, x: 78, y: 22 },
+    { num: 3, x: 5,  y: 50 },
+    { num: 6, x: 95, y: 50 },
+    { num: 7, x: 22, y: 78 },
+    { num: 2, x: 78, y: 78 },
+    { num: 5, x: 50, y: 95 },
+  ];
+
+  // Center hub
+  const hub = document.createElement("div");
+  hub.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:28%;height:28%;background:var(--tag);border:1px dashed var(--border);border-radius:8px;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-size:.6rem;color:var(--muted);padding:4px;line-height:1.2;`;
+  hub.textContent = "Discarded Repository / Nexus Hub";
+  grid.appendChild(hub);
+
+  layout.forEach(pos => {
+    const info = POSITIONS.find(p => p.num === pos.num);
+    const assigned = data.positions[pos.num] || "";
+
+    const cell = document.createElement("div");
+    cell.style.cssText = `position:absolute;left:${pos.x}%;top:${pos.y}%;transform:translate(-50%,-50%);
+      width:22%;height:18%;background:var(--bg2);border:2px solid ${assigned ? 'var(--accent)' : 'var(--border)'};
+      border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;padding:4px;cursor:pointer;transition:all .15s;
+      ${assigned ? 'background:color-mix(in srgb, var(--accent) 8%, var(--bg2));' : ''}`;
+
+    cell.innerHTML = `
+      <span style="font-weight:700;font-size:.9rem;color:var(--accent);line-height:1">${pos.num}</span>
+      <span style="font-size:.5rem;color:var(--muted);line-height:1.1;margin-top:1px">${esc(info.role)}</span>
+      ${assigned ? `<span style="font-size:.6rem;font-weight:600;color:var(--text);margin-top:2px">${esc(assigned)}</span>` : ''}
+    `;
+
+    // Click to assign via dropdown
+    cell.onclick = () => {
+      const name = prompt(`Assign player to Position ${pos.num} (${info.role}):\n\nAvailable: ${sqPlayers.map(p=>p.name).join(", ")}\n\nType name or leave blank to clear:`);
+      if (name !== null) {
+        data.positions[pos.num] = name.trim();
+        saveAssignments();
+        renderMap();
+      }
+    };
+
+    // Colored dot for facility type
+    const dot = document.createElement("div");
+    dot.style.cssText = `position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:${info.color};`;
+    cell.appendChild(dot);
+
+    grid.appendChild(cell);
+  });
+
+  // Draw connecting lines (optional visual enhancement)
+  // Skipping for now to keep it clean
+}
+
+// ── RENDER SLOTS ──────────────────────────────────────────────────────────────
+function renderSlots() {
+  const data = getSquadData(activeSquad);
+  const sqPlayers = getSquadPlayers(activeSquad);
+
+  const sections = [
+    { key: "mm", elId: "mmSlots" },
+    { key: "ce", elId: "ceSlots" },
+    { key: "goon", elId: "goonSlots" },
+    { key: "standby", elId: "standbySlots" },
+    { key: "hover", elId: "hoverSlots" },
+    { key: "crystal", elId: "crystalSlots" },
+  ];
+
+  sections.forEach(sec => {
+    const list = document.getElementById(sec.elId);
+    const slots = data[sec.key];
+    list.innerHTML = slots.map((val, i) => `
+      <li class="assign-item">
+        <span class="slot-label">#${i+1}</span>
+        <select class="player-select" onchange="updateSlot('${sec.key}',${i},this.value)">
+          ${playerOptHtml(sqPlayers, val)}
+        </select>
+        <button class="remove-btn" onclick="removeSlot('${sec.key}',${i})" title="Remove slot">&times;</button>
+      </li>
+    `).join("");
+  });
+
+  document.getElementById("squadNotes").value = data.notes || "";
+}
+
+function updateSlot(key, idx, val) {
+  const data = getSquadData(activeSquad);
+  data[key][idx] = val;
+  saveAssignments();
+}
+
+function addSlot(key) {
+  if (!activeSquad) return;
+  const data = getSquadData(activeSquad);
+  data[key].push("");
+  saveAssignments();
+  renderSlots();
+}
+
+function removeSlot(key, idx) {
+  if (!activeSquad) return;
+  const data = getSquadData(activeSquad);
+  data[key].splice(idx, 1);
+  saveAssignments();
+  renderSlots();
+}
+
+// Notes save on blur
+document.getElementById("squadNotes").addEventListener("input", () => {
+  if (!activeSquad) return;
+  const data = getSquadData(activeSquad);
+  data.notes = document.getElementById("squadNotes").value;
+  saveAssignments();
+});
+
+// ── RENDER ALL ────────────────────────────────────────────────────────────────
+function renderAll() {
+  if (!activeSquad) return;
+  renderMap();
+  renderSlots();
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadAssignments();
+buildSquadSelector();
+</script>
+</body>
+</html>
