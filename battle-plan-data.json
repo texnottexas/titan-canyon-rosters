@@ -1,14 +1,14 @@
 {
   "Dog Squad A": {
     "positions": {
-      "1": "Morvessa",
-      "2": "Tex",
+      "1": "Tex",
+      "2": "Sparta",
       "3": "Darkspy",
-      "4": "Magicguy",
+      "4": "VMJ",
       "5": "Samson",
       "6": "BlindGuy",
       "7": "brewdog",
-      "8": "Abdullah"
+      "8": "STiCK"
     },
     "mm": [
       "Tex",
@@ -23,62 +23,117 @@
       ""
     ],
     "goon": [
-      "Sparta",
-      "Peewee",
-      "J",
-      "Mephisto",
       "WOOOOOO",
-      "Dtp20"
+      "Mephisto",
+      "Dtp20",
+      "Madmaxx"
     ],
     "standby": [
-      "Madmaxx",
-      "Biggie",
-      "MF_Bluey",
-      "Smurfx"
+      "Abdullah",
+      "It'sme",
+      "Project",
+      "",
+      ""
     ],
     "hover": [
-      "Jopn17tl",
-      "HourPa"
+      "Pacrtr",
+      "Morvessa"
     ],
     "crystal": [
-      "Gorilla",
-      "Mopar"
+      "MF_Bluey",
+      "Smurfx"
     ],
     "notes": "fk boats"
   },
   "Dog Squad B": {
-    "positions": {
-      "1": "Thor",
-      "2": "Mulan",
-      "3": "Wonka",
-      "4": "Drak",
-      "5": "cardsfan",
-      "6": "Nembo",
-      "7": "Talion",
-      "8": "Pete"
-    },
+    "positions": {},
     "goon": [
-      "CHAUSUI",
-      "Otts",
-      "Lady",
-      "AlexMat",
-      "Demon",
-      "Jerky"
+      "",
+      "",
+      "",
+      ""
     ],
     "standby": [
-      "MONKEY",
-      "Maximum (DOG)",
-      "Aresu",
-      "HELLFIRE",
-      "Shorty"
+      "",
+      "",
+      "",
+      "",
+      ""
     ],
     "hover": [
-      "Bchara",
-      "Motyer"
+      "",
+      ""
     ],
     "crystal": [
-      "DragonMC",
-      "joske"
+      "",
+      ""
+    ],
+    "notes": ""
+  },
+  "MSS Squad A": {
+    "positions": {
+      "1": "MegaBo",
+      "2": "Wolfie",
+      "3": "Heidi",
+      "4": "Ray",
+      "5": "Willow",
+      "6": "Fokker",
+      "7": "AlexB",
+      "8": "DRuSE"
+    },
+    "goon": [
+      "Rex",
+      "Eny",
+      "Hoadi",
+      "Dingus"
+    ],
+    "standby": [
+      "Bane",
+      "MFBluey2",
+      "Mousse",
+      "Madsey"
+    ],
+    "hover": [
+      "Beyo",
+      "Livv"
+    ],
+    "crystal": [
+      "20100",
+      "Smalls"
+    ],
+    "notes": ""
+  },
+  "MSS Squad B": {
+    "positions": {
+      "1": "Pepper",
+      "2": "Smoke",
+      "3": "Mami",
+      "4": "Maximum (MSS)",
+      "5": "STINGER",
+      "6": "Uber888",
+      "7": "Hot-rods",
+      "8": "Repuff"
+    },
+    "goon": [
+      "Helmo",
+      "Harley",
+      "Hm",
+      "PastaB"
+    ],
+    "standby": [
+      "Drewskii",
+      "Steve",
+      "Ara",
+      "",
+      ""
+    ],
+    "hover": [
+      "Caliboyx",
+      "Musashi"
+    ],
+    "crystal": [
+      "Wildcat",
+      "Vik"
     ],
     "notes": ""
   }
