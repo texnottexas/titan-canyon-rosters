@@ -289,8 +289,12 @@
 
     @media (max-width: 640px) {
       main { padding: 1rem 1rem 2rem; }
-      header { padding: .7rem 1rem; }
-      .header-title { font-size: .95rem; }
+      header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
+      .header-title { font-size: .88rem; }
+      .header-sub { font-size: .68rem; }
+      .header-actions { gap: .4rem; flex-wrap: wrap; }
+      .header-actions .hdr-btn { padding: .3rem .6rem; font-size: .72rem; }
+      #themeLabel { display: none; }
       .modal-overlay { padding: .5rem; }
       .modal-box { max-height: 95vh; border-radius: 10px; }
     }
@@ -304,8 +308,8 @@
     <div class="header-sub">Event: Saturday, March 07 &nbsp;&bull;&nbsp; 5 Squads</div>
   </div>
   <div class="header-actions">
-    <a href="battle-plan.html" style="font-size:.8rem;color:var(--muted);text-decoration:none;padding:.35rem .8rem;border:1px solid var(--border);border-radius:7px;transition:all .15s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">&#9876; Battle Plan</a>
     <a href="https://shattereddisk.github.io/rickroll/" target="_blank" rel="noopener noreferrer" class="easter-egg" title="">&#127828;</a>
+    <a href="battle-plan.html" class="hdr-btn">&#9876; Battle Plan</a>
     <button class="hdr-btn hdr-btn-charts" onclick="openChartsModal()">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="8" width="3" height="7" rx="1"/><rect x="6" y="4" width="3" height="11" rx="1"/><rect x="11" y="1" width="3" height="14" rx="1"/></svg>
       Charts
