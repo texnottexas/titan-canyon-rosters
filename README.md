@@ -2,7 +2,7 @@
 
 A roster and battle plan hub for **Server 2864 Titan Canyon** in [Top War](https://rivergame.net/). View squad rosters, compare player stats, and check the latest battle plan assignments — all from one page.
 
-**Live site:** [test.2864tw.com](https://test.2864tw.com)
+**Live site:** [titan.2864tw.com](https://titan.2864tw.com)
 
 ---
 
@@ -37,6 +37,14 @@ An open editor for managing battle plans and the player roster. Admins can:
 
 When saving, editors enter their name — each change is logged to the **Changelog** with a timestamp and author. All changes are saved back to the repository and go live on the site automatically.
 
+### Changelog
+
+A read-only log of every edit made through the admin editor:
+
+- Lists each change with **timestamp**, **editor name**, and a brief action summary
+- Click any entry to open a **detail modal** showing the full breakdown of what changed (player names per position, roster additions/edits/deletions)
+- Entries are capped at 200 to keep the file lean
+
 ---
 
 ## File Structure
@@ -60,3 +68,5 @@ When saving, editors enter their name — each change is logged to the **Changel
 The site is hosted on **GitHub Pages**. Roster and battle plan data are stored as JSON files in the repository. The admin editor writes changes through a **Cloudflare Worker** proxy that commits updates directly to the repo — no traditional backend required.
 
 When an admin saves changes, the updated JSON is committed to the repository and GitHub Pages automatically serves the new data.
+
+Every page includes a **home button** and cross-links in the header for easy navigation between the roster, battle plan, admin editor, and changelog.
