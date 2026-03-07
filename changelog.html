@@ -94,6 +94,9 @@
       .changelog-entry { flex-direction: column; gap: .2rem; }
       .cl-time { min-width: unset; }
     }
+    .site-footer { text-align: center; padding: 1.5rem 2rem; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--border); }
+    .site-footer a { color: var(--accent); text-decoration: none; }
+    .site-footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -123,6 +126,12 @@
   </div>
   <ul class="changelog-list" id="changelogList"></ul>
 </main>
+
+<footer class="site-footer">
+  Brought to you by supporters of the fk boats movement<br>
+  <a href="changelog.html">Changelog</a> &middot;
+  <a href="https://github.com/texnottexas/titan-canyon-rosters" target="_blank" rel="noopener noreferrer">GitHub</a>
+</footer>
 
 <!-- Detail Modal -->
 <div class="detail-modal-bg" id="detailModalBg" onclick="if(event.target===this)closeDetail()">
