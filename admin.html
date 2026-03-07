@@ -224,21 +224,42 @@
     .roster-search:focus { border-color: var(--accent); }
     .roster-table-wrap {
       background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-      overflow: auto; max-height: 420px;
+      overflow: auto; max-height: 520px;
     }
-    .roster-table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+    .roster-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
     .roster-table th {
       position: sticky; top: 0; background: var(--bg2); color: var(--muted);
-      font-size: .65rem; text-transform: uppercase; letter-spacing: .04em;
-      padding: .5rem .6rem; text-align: left; border-bottom: 1px solid var(--border);
+      font-size: .65rem; text-transform: uppercase; letter-spacing: .05em;
+      padding: .55rem .7rem; text-align: left; border-bottom: 1px solid var(--border);
     }
-    .roster-table td { padding: .4rem .6rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
-    .roster-table tr:hover td { background: var(--tag); }
-    .roster-table .move-row td { background: var(--move-bg, rgba(210,153,34,.07)); }
+    .roster-table td { padding: .5rem .7rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .roster-table tbody tr { transition: background .1s; }
+    .roster-table tbody tr:last-child td { border-bottom: none; }
+    .roster-table tbody tr:hover td { background: var(--tag); }
+    .roster-table .move-row td { background: rgba(210,153,34,.07); }
+    .roster-table .move-row { border-left: 2px solid var(--air); }
+    .pname { font-weight: 600; }
+    .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 12px; font-size: .68rem; font-weight: 500; }
+    .b-army { background: rgba(63,185,80,.13); color: var(--army); }
+    .b-navy { background: rgba(56,139,253,.13); color: var(--navy); }
+    .b-air  { background: rgba(210,153,34,.13); color: var(--air); }
+    .b-ce   { background: rgba(227,179,65,.11); color: var(--ce); }
+    .b-mm   { background: rgba(188,140,255,.13); color: var(--mm); }
+    .cp-wrap { display: flex; align-items: center; gap: 6px; }
+    .cp-bar { width: 44px; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+    .cp-fill { height: 100%; background: var(--accent); border-radius: 2px; }
+    .avail { display: flex; gap: 4px; align-items: center; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot.y { background: var(--army); }
+    .dot.n { background: var(--border); }
+    .move-tag {
+      display: inline-block; padding: 1px 5px; border-radius: 4px;
+      font-size: .63rem; background: rgba(210,153,34,.18); color: var(--air); margin-left: 4px; font-weight: 600;
+    }
     .roster-actions { display: flex; gap: 4px; }
     .roster-actions button {
       background: var(--tag); border: 1px solid var(--border); color: var(--muted);
-      border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: .68rem; transition: all .15s;
+      border-radius: 5px; padding: 3px 8px; cursor: pointer; font-size: .68rem; transition: all .15s;
     }
     .roster-actions button:hover { border-color: var(--accent); color: var(--accent); }
     .roster-actions .del-btn:hover { border-color: var(--danger); color: var(--danger); }
@@ -322,7 +343,7 @@
       <div class="roster-table-wrap">
         <table class="roster-table">
           <thead><tr>
-            <th>Name</th><th>Squad</th><th>Alliance</th><th>Unit</th><th>Prof</th><th>CP</th><th>UC</th><th>Notes</th><th>Avail</th><th></th>
+            <th>Name</th><th>Squad</th><th>Unit</th><th>Prof</th><th>March CP</th><th>Avail</th><th>Alliance</th><th></th>
           </tr></thead>
           <tbody id="rosterBody"></tbody>
         </table>
@@ -851,24 +872,43 @@ function removeSlot(key, idx) {
 }
 
 // ── ROSTER MANAGEMENT ─────────────────────────────────────────────────────────
+const TANK = "\u{1F6E1}\uFE0F";
+function unitBadge(u) {
+  if (u === "Army") return `<span class="badge b-army">${TANK} Army</span>`;
+  return u === "Navy"
+    ? `<span class="badge b-navy">&#9875;&#65039; Navy</span>`
+    : `<span class="badge b-air">&#9992;&#65039; Air</span>`;
+}
+function profBadge(p) {
+  return p === "CE" ? `<span class="badge b-ce">&#9876; CE</span>` : `<span class="badge b-mm">&#128295; MM</span>`;
+}
+function moveTag(n) {
+  const m = n && n.match(/Move to (\w+) by/i);
+  return m ? `<span class="move-tag">&#8594; ${esc(m[1])}</span>` : "";
+}
+
 function renderRosterTable() {
   const q = (document.getElementById("rosterSearch").value || "").toLowerCase();
   const body = document.getElementById("rosterBody");
   const filtered = RAW.map((r, i) => [r, i]).filter(([r]) =>
     !q || r[0].toLowerCase().includes(q) || r[11].toLowerCase().includes(q) || r[1].toLowerCase().includes(q)
   );
+  const maxCP = RAW.length ? Math.max(...RAW.map(r => r[8])) : 1;
   body.innerHTML = filtered.map(([r, i]) => {
     const isMove = /move to/i.test(r[1]);
+    const nameHtml = `<span class="pname">${esc(r[0])}</span>${isMove ? moveTag(r[1]) : ""}`;
+    const cp = r[8];
+    const cpHtml = `<div class="cp-wrap"><span style="min-width:2rem;font-weight:600">${esc(cp)}</span><div class="cp-bar"><div class="cp-fill" style="width:${Math.round((cp/maxCP)*100)}%"></div></div></div>`;
+    const dots = [{v:r[2],l:"-6"},{v:r[3],l:"-2"},{v:r[4],l:"+2"},{v:r[5],l:"+10"}]
+      .map(s => `<div title="Sat ${s.l}" class="dot ${s.v==="y"?"y":"n"}"></div>`).join("");
     return `<tr class="${isMove ? "move-row" : ""}">
-      <td><strong>${esc(r[0])}</strong></td>
-      <td>${esc(r[11])}</td>
-      <td>${esc(r[6])}</td>
-      <td>${esc(r[7])}</td>
-      <td>${esc(r[9])}</td>
-      <td>${esc(r[8])}</td>
-      <td>${esc(r[10])}</td>
-      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis" title="${esc(r[1])}">${esc(r[1]) || "&mdash;"}</td>
-      <td>${r[2]==="y"?"-6 ":""}${r[3]==="y"?"-2 ":""}${r[4]==="y"?"+2 ":""}${r[5]==="y"?"+10":""}</td>
+      <td>${nameHtml}</td>
+      <td style="font-size:.78rem;color:var(--muted)">${esc(r[11])}</td>
+      <td>${unitBadge(r[7])}</td>
+      <td>${profBadge(r[9])}</td>
+      <td>${cpHtml}</td>
+      <td><div class="avail">${dots}</div></td>
+      <td><span style="font-size:.74rem;color:var(--muted)">${esc(r[6])}</span></td>
       <td class="roster-actions">
         <button onclick="openPlayerModal(${i})">Edit</button>
         <button class="del-btn" onclick="deletePlayer(${i})">Del</button>
