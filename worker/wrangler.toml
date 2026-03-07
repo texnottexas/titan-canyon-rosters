@@ -4,7 +4,7 @@ compatibility_date = "2024-01-01"
 
 [vars]
 REPO = "texnottexas/titan-canyon-rosters"
-ALLOWED_ORIGIN = "https://test.2864tw.com"
+ALLOWED_ORIGIN = "https://titan.2864tw.com"
 
 # Secrets (set via CLI, NOT here):
 #   wrangler secret put ADMIN_PASSWORD
