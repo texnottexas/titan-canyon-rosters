@@ -1,14 +1,14 @@
 {
   "Dog Squad A": {
     "positions": {
-      "1": "Tex",
-      "2": "Sparta",
+      "1": "Morvessa",
+      "2": "Tex",
       "3": "Darkspy",
-      "4": "VMJ",
+      "4": "Magicguy",
       "5": "Samson",
       "6": "BlindGuy",
       "7": "brewdog",
-      "8": "STiCK"
+      "8": "Abdullah"
     },
     "mm": [
       "Tex",
@@ -23,25 +23,26 @@
       ""
     ],
     "goon": [
-      "WOOOOOO",
+      "Sparta",
+      "Peewee",
+      "J",
       "Mephisto",
-      "Dtp20",
-      "Madmaxx"
+      "WOOOOOO",
+      "Dtp20"
     ],
     "standby": [
-      "Abdullah",
-      "It'sme",
-      "Project",
-      "",
-      ""
-    ],
-    "hover": [
-      "Pacrtr",
-      "Morvessa"
-    ],
-    "crystal": [
+      "Madmaxx",
+      "Biggie",
       "MF_Bluey",
       "Smurfx"
+    ],
+    "hover": [
+      "Jopn17tl",
+      "HourPa"
+    ],
+    "crystal": [
+      "Gorilla",
+      "Mopar"
     ],
     "notes": "fk boats"
   },
