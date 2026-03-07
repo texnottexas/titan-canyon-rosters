@@ -133,6 +133,9 @@
       main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
     }
+    .site-footer { text-align: center; padding: 1.5rem 2rem; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--border); }
+    .site-footer a { color: var(--accent); text-decoration: none; }
+    .site-footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -160,6 +163,12 @@
   </div>
   <div id="content"></div>
 </main>
+
+<footer class="site-footer">
+  Brought to you by supporters of the fk boats movement<br>
+  <a href="changelog.html">Changelog</a> &middot;
+  <a href="https://github.com/texnottexas/titan-canyon-rosters" target="_blank" rel="noopener noreferrer">GitHub</a>
+</footer>
 
 <script>
 const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
