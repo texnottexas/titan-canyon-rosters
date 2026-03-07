@@ -287,11 +287,27 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
+    @keyframes footer-shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
     .site-footer {
-      text-align: center; padding: 1.5rem 2rem; font-size: .75rem; color: var(--muted);
+      text-align: center; padding: 1.5rem 2rem; font-size: .75rem;
       border-top: 1px solid var(--border);
     }
-    .site-footer a { color: var(--accent); text-decoration: none; }
+    .site-footer .footer-text {
+      display: inline-block;
+      background: linear-gradient(90deg, var(--muted) 0%, var(--accent) 25%, var(--muted) 50%, var(--accent) 75%, var(--muted) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: footer-shimmer 6s linear infinite;
+    }
+    .site-footer a {
+      color: var(--accent); text-decoration: none;
+      -webkit-text-fill-color: var(--accent);
+    }
     .site-footer a:hover { text-decoration: underline; }
 
     @media (max-width: 640px) {
@@ -440,7 +456,7 @@
 </main>
 
 <footer class="site-footer">
-  Brought to you by supporters of the fk boats movement &mdash;
+  <span class="footer-text">Brought to you by supporters of the fk boats movement</span> &mdash;
   <a href="https://github.com/texnottexas/titan-canyon-rosters" target="_blank" rel="noopener noreferrer">GitHub</a>
 </footer>
 
