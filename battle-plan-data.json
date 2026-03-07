@@ -46,7 +46,16 @@
     "notes": "fk boats"
   },
   "Dog Squad B": {
-    "positions": {},
+    "positions": {
+      "1": "Thor",
+      "2": "Mulan",
+      "3": "Wonka",
+      "4": "Drak",
+      "5": "cardsfan",
+      "6": "Talion",
+      "7": "Pete",
+      "8": "Nembo"
+    },
     "goon": [
       "",
       "",
