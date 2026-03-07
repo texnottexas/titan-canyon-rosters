@@ -1,47 +1,5 @@
 [
   [
-    "Sloth",
-    "",
-    "n",
-    "n",
-    "n",
-    "y",
-    "DOG",
-    "Army",
-    59,
-    "CE",
-    "",
-    "Dog Squad A"
-  ],
-  [
-    "Aurora",
-    "",
-    "n",
-    "y",
-    "n",
-    "n",
-    "DOG",
-    "Army",
-    26,
-    "MM",
-    "4",
-    "Dog Squad B"
-  ],
-  [
-    "Dark",
-    "Move to PRU by Thu +10",
-    "y",
-    "n",
-    "n",
-    "n",
-    "DOG",
-    "Navy",
-    26,
-    "CE",
-    "",
-    "PRU Squad A"
-  ],
-  [
     "20100",
     "Move to MSS by Thu +10",
     "y",
@@ -182,6 +140,20 @@
     "MSS Squad A"
   ],
   [
+    "Aurora",
+    "",
+    "n",
+    "y",
+    "n",
+    "n",
+    "DOG",
+    "Army",
+    26,
+    "MM",
+    "4",
+    "Dog Squad B"
+  ],
+  [
     "Babym",
     "",
     "n",
@@ -222,6 +194,20 @@
     "CE",
     "",
     "MSS Squad A"
+  ],
+  [
+    "Bchara",
+    "",
+    "n",
+    "y",
+    "n",
+    "n",
+    "DOG",
+    "Army",
+    49,
+    "CE",
+    "",
+    "Dog Squad B"
   ],
   [
     "Beyo",
@@ -362,6 +348,20 @@
     "CE",
     "",
     "Dog Squad B"
+  ],
+  [
+    "Dark",
+    "Move to PRU by Thu +10",
+    "y",
+    "n",
+    "n",
+    "n",
+    "DOG",
+    "Navy",
+    26,
+    "CE",
+    "",
+    "PRU Squad A"
   ],
   [
     "Darkspy",
@@ -544,6 +544,20 @@
     "MM",
     "3",
     "MSS Squad A"
+  ],
+  [
+    "Gary",
+    "",
+    "n",
+    "n",
+    "n",
+    "y",
+    "MSS",
+    "Army",
+    100,
+    "CE",
+    "",
+    "MSS Squad B"
   ],
   [
     "GM",
@@ -924,20 +938,6 @@
     "Dog Squad B"
   ],
   [
-    "Maximum (MSS)",
-    "",
-    "n",
-    "n",
-    "n",
-    "y",
-    "MSS",
-    "Army",
-    30,
-    "MM",
-    "4",
-    "MSS Squad B"
-  ],
-  [
     "Maximum (DOG)",
     "",
     "n",
@@ -950,6 +950,20 @@
     "CE",
     "",
     "Dog Squad B"
+  ],
+  [
+    "Maximum (MSS)",
+    "",
+    "n",
+    "n",
+    "n",
+    "y",
+    "MSS",
+    "Army",
+    30,
+    "MM",
+    "4",
+    "MSS Squad B"
   ],
   [
     "MegaBo",
@@ -1090,6 +1104,20 @@
     "CE",
     "",
     "Dog Squad A"
+  ],
+  [
+    "Motyer",
+    "",
+    "n",
+    "y",
+    "n",
+    "n",
+    "DOG",
+    "Navy",
+    46,
+    "CE",
+    "",
+    "Dog Squad B"
   ],
   [
     "Mousse",
@@ -1412,6 +1440,20 @@
     "MM",
     "2",
     "Dog Squad B"
+  ],
+  [
+    "Sloth",
+    "",
+    "n",
+    "n",
+    "n",
+    "y",
+    "DOG",
+    "Army",
+    59,
+    "CE",
+    "",
+    "Dog Squad A"
   ],
   [
     "Smalls",
