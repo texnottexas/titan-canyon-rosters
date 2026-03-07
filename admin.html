@@ -580,20 +580,31 @@ async function doSavePlan(editorName) {
 function buildPlanDetails() {
   const lines = [];
   lines.push("Active tab: " + (SQUAD_SHORT[activeSquad] || activeSquad));
-  // Summarize each squad that has data
+  lines.push("");
   SQUADS.forEach(sq => {
     const data = planData[sq];
     if (!data) return;
-    const parts = [];
-    const posNames = POSITIONS.map(p => data.positions?.[p.num]).filter(Boolean);
-    if (posNames.length) parts.push(posNames.length + " positions filled");
+    const hasContent = POSITIONS.some(p => data.positions?.[p.num]) ||
+      SECTIONS.some(s => (data[s.key] || []).some(Boolean));
+    if (!hasContent) return;
+    lines.push("── " + (SQUAD_SHORT[sq] || sq) + " ──");
+    // Positions with names
+    const posList = POSITIONS.map(p => ({ num: p.num, name: data.positions?.[p.num] })).filter(p => p.name);
+    if (posList.length) {
+      lines.push("Positions:");
+      posList.forEach(p => lines.push("  #" + p.num + " " + p.name));
+    }
+    // Sections with names
     SECTIONS.forEach(s => {
       const filled = (data[s.key] || []).filter(Boolean);
-      if (filled.length) parts.push(s.title.split(" (")[0] + ": " + filled.length);
+      if (!filled.length) return;
+      lines.push(s.title.split(" (")[0] + ":");
+      filled.forEach(name => lines.push("  • " + name));
     });
-    if (parts.length) lines.push((SQUAD_SHORT[sq] || sq) + " — " + parts.join(", "));
+    if (data.notes) lines.push("Notes: " + data.notes.slice(0, 120));
+    lines.push("");
   });
-  return lines.join("\n");
+  return lines.join("\n").trim();
 }
 
 async function appendChangelog(editorName, action, details) {
