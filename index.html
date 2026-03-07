@@ -287,6 +287,13 @@
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
+    .site-footer {
+      text-align: center; padding: 1.5rem 2rem; font-size: .75rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+    .site-footer a { color: var(--accent); text-decoration: none; }
+    .site-footer a:hover { text-decoration: underline; }
+
     @media (max-width: 640px) {
       main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
@@ -431,6 +438,11 @@
   </div>
 
 </main>
+
+<footer class="site-footer">
+  Brought to you by supporters of the fk boats movement &mdash;
+  <a href="https://github.com/texnottexas/titan-canyon-rosters" target="_blank" rel="noopener noreferrer">GitHub</a>
+</footer>
 
 <!-- Charts Modal -->
 <div id="chartsModal" class="modal-overlay" onclick="handleModalClick(event)">
