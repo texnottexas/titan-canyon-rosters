@@ -44,5 +44,33 @@
       "Smurfx"
     ],
     "notes": "fk boats"
+  },
+  "Dog Squad B": {
+    "positions": {
+      "1": "Otts",
+      "2": "Thor"
+    },
+    "goon": [
+      "",
+      "",
+      "",
+      ""
+    ],
+    "standby": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "hover": [
+      "",
+      ""
+    ],
+    "crystal": [
+      "",
+      ""
+    ],
+    "notes": ""
   }
 }
