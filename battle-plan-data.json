@@ -47,29 +47,37 @@
   },
   "Dog Squad B": {
     "positions": {
-      "1": "Otts",
-      "2": "Thor"
+      "1": "Thor",
+      "2": "Mulan",
+      "3": "Wonka",
+      "4": "Drak",
+      "5": "cardsfan",
+      "6": "Nembo",
+      "7": "Talion",
+      "8": "Pete"
     },
     "goon": [
-      "",
-      "",
-      "",
-      ""
+      "CHAUSUI",
+      "Otts",
+      "Lady",
+      "AlexMat",
+      "Demon",
+      "Jerky"
     ],
     "standby": [
       "MONKEY",
-      "",
-      "",
-      "",
-      ""
+      "Maximum (DOG)",
+      "Aresu",
+      "HELLFIRE",
+      "Shorty"
     ],
     "hover": [
-      "",
-      ""
+      "Bchara",
+      "Motyer"
     ],
     "crystal": [
-      "",
-      ""
+      "DragonMC",
+      "joske"
     ],
     "notes": ""
   }
