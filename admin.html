@@ -464,6 +464,7 @@ let planData = {};
 let activeSquad = "";
 let dirty = false;
 let pendingSaveType = ""; // "plan" or "roster"
+let pendingDetail = "";   // detail string for changelog
 
 function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
@@ -546,7 +547,7 @@ async function doSavePlan(editorName) {
       const result = await res.json();
       throw new Error(result.error || "Save failed");
     }
-    await appendChangelog(editorName, "Updated battle plan");
+    await appendChangelog(editorName, "Updated battle plan", buildPlanDetails());
     dirty = false;
     setStatus("Published! GitHub Pages will update in ~1 min.", "saved");
   } catch (e) {
@@ -555,7 +556,23 @@ async function doSavePlan(editorName) {
   btn.disabled = false;
 }
 
-async function appendChangelog(editorName, action) {
+function buildPlanDetails() {
+  const lines = [];
+  lines.push("Squad: " + (SQUAD_SHORT[activeSquad] || activeSquad));
+  const data = getSquadData(activeSquad);
+  // Summarize positions
+  const posNames = POSITIONS.map(p => data.positions[p.num]).filter(Boolean);
+  if (posNames.length) lines.push("Positions filled: " + posNames.join(", "));
+  // Summarize sections
+  SECTIONS.forEach(s => {
+    const filled = (data[s.key] || []).filter(Boolean);
+    if (filled.length) lines.push(s.title + ": " + filled.join(", "));
+  });
+  if (data.notes) lines.push("Notes: " + data.notes.slice(0, 120));
+  return lines.join("\n");
+}
+
+async function appendChangelog(editorName, action, details) {
   try {
     // Load current changelog
     let changelog = [];
@@ -564,7 +581,9 @@ async function appendChangelog(editorName, action) {
       if (res.ok) changelog = await res.json();
     } catch {}
     // Append new entry
-    changelog.unshift({ timestamp: new Date().toISOString(), editor: editorName, action });
+    const entry = { timestamp: new Date().toISOString(), editor: editorName, action };
+    if (details) entry.details = details;
+    changelog.unshift(entry);
     // Keep last 200 entries
     if (changelog.length > 200) changelog = changelog.slice(0, 200);
     // Save
@@ -916,7 +935,8 @@ function savePlayer() {
     document.getElementById("pmSquad").value,
   ];
   const idx = parseInt(document.getElementById("pmIdx").value);
-  if (idx >= 0 && RAW[idx]) {
+  const isEdit = idx >= 0 && RAW[idx];
+  if (isEdit) {
     RAW[idx] = row;
   } else {
     RAW.push(row);
@@ -925,13 +945,16 @@ function savePlayer() {
   rebuildPlayers();
   closePlayerModal();
   renderRosterTable();
+  pendingDetail = (isEdit ? "Edited" : "Added") + " player: " + name + " (" + row[11] + ", " + row[9] + ", " + row[8] + " CP)";
   saveRosterToWorker();
   // Re-render battle plan selects with updated player list
   if (activeSquad) renderEditor();
 }
 
 function deletePlayer(idx) {
-  if (!confirm(`Delete ${RAW[idx][0]}?`)) return;
+  const delName = RAW[idx][0];
+  if (!confirm(`Delete ${delName}?`)) return;
+  pendingDetail = "Deleted player: " + delName;
   RAW.splice(idx, 1);
   rebuildPlayers();
   renderRosterTable();
@@ -960,7 +983,7 @@ async function doSaveRoster(editorName) {
       const result = await res.json();
       throw new Error(result.error || "Roster save failed");
     }
-    await appendChangelog(editorName, "Updated roster");
+    await appendChangelog(editorName, "Updated roster", pendingDetail);
     setStatus("Roster saved! Main page will update in ~1 min.", "saved");
   } catch (e) {
     setStatus("Roster error: " + e.message, "error");
