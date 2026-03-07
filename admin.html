@@ -579,17 +579,20 @@ async function doSavePlan(editorName) {
 
 function buildPlanDetails() {
   const lines = [];
-  lines.push("Squad: " + (SQUAD_SHORT[activeSquad] || activeSquad));
-  const data = getSquadData(activeSquad);
-  // Summarize positions
-  const posNames = POSITIONS.map(p => data.positions[p.num]).filter(Boolean);
-  if (posNames.length) lines.push("Positions filled: " + posNames.join(", "));
-  // Summarize sections
-  SECTIONS.forEach(s => {
-    const filled = (data[s.key] || []).filter(Boolean);
-    if (filled.length) lines.push(s.title + ": " + filled.join(", "));
+  lines.push("Active tab: " + (SQUAD_SHORT[activeSquad] || activeSquad));
+  // Summarize each squad that has data
+  SQUADS.forEach(sq => {
+    const data = planData[sq];
+    if (!data) return;
+    const parts = [];
+    const posNames = POSITIONS.map(p => data.positions?.[p.num]).filter(Boolean);
+    if (posNames.length) parts.push(posNames.length + " positions filled");
+    SECTIONS.forEach(s => {
+      const filled = (data[s.key] || []).filter(Boolean);
+      if (filled.length) parts.push(s.title.split(" (")[0] + ": " + filled.length);
+    });
+    if (parts.length) lines.push((SQUAD_SHORT[sq] || sq) + " — " + parts.join(", "));
   });
-  if (data.notes) lines.push("Notes: " + data.notes.slice(0, 120));
   return lines.join("\n");
 }
 
