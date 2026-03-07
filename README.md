@@ -28,14 +28,14 @@ A visual battle map showing the current Titan Canyon assignments for each squad:
 
 ### Admin Editor
 
-A password-protected editor for managing battle plans and the player roster. Admins can:
+An open editor for managing battle plans and the player roster. Admins can:
 
 - **Assign players to map positions** by clicking nodes on the diamond grid or using the sidebar dropdowns — only eligible professions appear (CE for positions 1–2, MM for 3–8)
 - **Fill support roles** (Goon, Standby, Hover, Crystal) with add/remove slot controls
 - **Add, edit, or remove players** from the server roster — changes sync to the live roster page
 - Players already assigned to a position are automatically hidden from other dropdowns to prevent duplicates
 
-All changes are saved back to the repository and go live on the site automatically.
+When saving, editors enter their name — each change is logged to the **Changelog** with a timestamp and author. All changes are saved back to the repository and go live on the site automatically.
 
 ---
 
@@ -45,10 +45,12 @@ All changes are saved back to the repository and go live on the site automatical
 |---|---|
 | `index.html` | Main roster page |
 | `battle-plan.html` | Battle plan viewer |
-| `admin.html` | Admin editor (password-protected) |
+| `admin.html` | Admin editor |
+| `changelog.html` | Edit history / changelog viewer |
 | `roster-data.json` | Player roster data |
 | `battle-plan-data.json` | Battle plan assignments per squad |
-| `worker/` | Cloudflare Worker that handles authenticated saves |
+| `changelog-data.json` | Changelog entries (who edited what, when) |
+| `worker/` | Cloudflare Worker that handles saves |
 | `CNAME` | Custom domain config for GitHub Pages |
 
 ---

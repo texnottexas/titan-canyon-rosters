@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog – Server 2864</title>
+  <style>
+    :root[data-theme="dark"] {
+      --bg: #0d1117; --bg2: #161b22; --card: #1c2128; --border: #30363d;
+      --text: #e6edf3; --muted: #8b949e; --accent: #79c0ff;
+      --tag: #21262d; --shadow: rgba(0,0,0,.45);
+    }
+    :root[data-theme="light"] {
+      --bg: #f6f8fa; --bg2: #ffffff; --card: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --muted: #656d76; --accent: #1f75d4;
+      --tag: #eaeef2; --shadow: rgba(140,149,159,.2);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header {
+      background: var(--bg2); border-bottom: 1px solid var(--border);
+      padding: .85rem 2rem; display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 0 var(--border);
+    }
+    .header-left { display: flex; align-items: center; gap: 1.2rem; }
+    .header-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .header-sub { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+    .nav-link {
+      font-size: .8rem; color: var(--muted); text-decoration: none; padding: .35rem .8rem;
+      border: 1px solid var(--border); border-radius: 7px; transition: all .15s;
+    }
+    .nav-link:hover { border-color: var(--accent); color: var(--accent); }
+    .hdr-btn {
+      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: .38rem .9rem; cursor: pointer; font-size: .8rem;
+      display: flex; align-items: center; gap: .4rem; transition: all .15s; white-space: nowrap;
+    }
+    .hdr-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    main { max-width: 800px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
+
+    .changelog-header { margin-bottom: 1.5rem; }
+    .changelog-header h2 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: .3rem; }
+    .changelog-header p { font-size: .82rem; color: var(--muted); }
+
+    .changelog-list { list-style: none; }
+    .changelog-entry {
+      display: flex; gap: 1rem; align-items: baseline; padding: .6rem .8rem;
+      border-bottom: 1px solid var(--border); font-size: .82rem;
+    }
+    .changelog-entry:hover { background: var(--tag); }
+    .cl-time { color: var(--muted); font-size: .72rem; white-space: nowrap; min-width: 140px; font-family: monospace; }
+    .cl-editor { color: var(--accent); font-weight: 600; min-width: 100px; }
+    .cl-action { color: var(--text); }
+    .empty-msg { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 3rem; }
+
+    @media (max-width: 640px) {
+      main { padding: 1rem 1rem 2rem; }
+      header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
+      .changelog-entry { flex-direction: column; gap: .2rem; }
+      .cl-time { min-width: unset; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div>
+      <div class="header-title">Changelog</div>
+      <div class="header-sub">Server 2864 &ndash; Edit History</div>
+    </div>
+    <a href="admin.html" class="nav-link">&larr; Admin Editor</a>
+    <a href="battle-plan.html" class="nav-link">Battle Plan</a>
+  </div>
+  <div>
+    <button class="hdr-btn" onclick="toggleTheme()">
+      <span id="themeIcon">&#9728;&#65039;</span>
+      <span id="themeLabel">Light Mode</span>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="changelog-header">
+    <h2>Recent Changes</h2>
+    <p>A log of who made edits and when.</p>
+  </div>
+  <ul class="changelog-list" id="changelogList"></ul>
+</main>
+
+<script>
+function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function toggleTheme() {
+  const d = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", d ? "light" : "dark");
+  document.getElementById("themeIcon").textContent = d ? "\uD83C\uDF19" : "\u2600\uFE0F";
+  document.getElementById("themeLabel").textContent = d ? "Dark Mode" : "Light Mode";
+}
+
+function formatTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
+    " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+}
+
+async function loadChangelog() {
+  const list = document.getElementById("changelogList");
+  try {
+    const res = await fetch("changelog-data.json?t=" + Date.now());
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (!data.length) {
+      list.innerHTML = '<li class="empty-msg">No changes recorded yet.</li>';
+      return;
+    }
+    list.innerHTML = data.map(e => `
+      <li class="changelog-entry">
+        <span class="cl-time">${esc(formatTime(e.timestamp))}</span>
+        <span class="cl-editor">${esc(e.editor)}</span>
+        <span class="cl-action">${esc(e.action)}</span>
+      </li>
+    `).join("");
+  } catch {
+    list.innerHTML = '<li class="empty-msg">No changes recorded yet.</li>';
+  }
+}
+
+loadChangelog();
+</script>
+</body>
+</html>

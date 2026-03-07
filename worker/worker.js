@@ -1,8 +1,7 @@
 /**
- * Cloudflare Worker — Admin Save Proxy
+ * Cloudflare Worker — Save Proxy
  *
  * Env secrets (set via `wrangler secret put`):
- *   ADMIN_PASSWORD  — shared password editors use
  *   GITHUB_PAT      — fine-grained PAT with contents:write on the repo
  *
  * Env vars (set in wrangler.toml):
@@ -10,7 +9,7 @@
  *   ALLOWED_ORIGIN  — e.g. "https://test.2864tw.com"
  */
 
-const ALLOWED_PATHS = ["battle-plan-data.json", "roster-data.json"];
+const ALLOWED_PATHS = ["battle-plan-data.json", "roster-data.json", "changelog-data.json"];
 
 export default {
   async fetch(request, env) {
@@ -47,25 +46,17 @@ export default {
       }
     }
 
-    // POST = save data (requires password)
+    // POST = save data
     if (request.method === "POST") {
       let body;
       try { body = await request.json(); } catch {
         return jsonResponse({ error: "Invalid JSON" }, 400, corsHeaders);
       }
 
-      const { password, data, ping } = body;
+      const { data } = body;
       const filePath = body.path || "battle-plan-data.json";
       if (!ALLOWED_PATHS.includes(filePath)) {
         return jsonResponse({ error: "Invalid path" }, 400, corsHeaders);
-      }
-      if (!password || password !== env.ADMIN_PASSWORD) {
-        return jsonResponse({ error: "Invalid password" }, 401, corsHeaders);
-      }
-
-      // Password-only validation (no save)
-      if (ping) {
-        return jsonResponse({ ok: true }, 200, corsHeaders);
       }
 
       if (!data || typeof data !== "object") {
@@ -84,7 +75,8 @@ export default {
           sha = file.sha;
         }
 
-        const commitMsg = filePath === "roster-data.json" ? "Update roster data" : "Update battle plan data";
+        const commitMsgs = { "roster-data.json": "Update roster data", "changelog-data.json": "Update changelog", "battle-plan-data.json": "Update battle plan data" };
+        const commitMsg = commitMsgs[filePath] || "Update data";
         const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
         const putBody = { message: commitMsg, content };
         if (sha) putBody.sha = sha;

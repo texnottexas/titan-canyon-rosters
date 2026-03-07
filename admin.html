@@ -52,32 +52,33 @@
 
     main { max-width: 1440px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
 
-    /* Auth gate */
-    .auth-gate {
-      max-width: 480px; margin: 4rem auto; background: var(--card); border: 1px solid var(--border);
-      border-radius: 14px; padding: 2.5rem 2rem; text-align: center;
-      box-shadow: 0 16px 48px var(--shadow);
+    /* Name prompt modal */
+    .name-modal-bg {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+      z-index: 300; align-items: center; justify-content: center;
     }
-    .auth-gate h2 { font-size: 1.1rem; margin-bottom: .4rem; }
-    .auth-gate p { font-size: .82rem; color: var(--muted); margin-bottom: 1.2rem; line-height: 1.5; }
-    .auth-gate input {
+    .name-modal-bg.open { display: flex; }
+    .name-modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; width: 380px; max-width: 95vw;
+      box-shadow: 0 20px 60px var(--shadow); text-align: center;
+    }
+    .name-modal h3 { font-size: .95rem; font-weight: 700; margin-bottom: .6rem; color: var(--accent); }
+    .name-modal p { font-size: .8rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.4; }
+    .name-modal input {
       width: 100%; background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 8px; padding: .65rem 1rem; color: var(--text); font-size: .85rem;
-      outline: none; font-family: monospace;
+      border-radius: 8px; padding: .6rem 1rem; color: var(--text); font-size: .85rem; outline: none;
     }
-    .auth-gate input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
-    .auth-gate .auth-btn {
-      margin-top: 1rem; background: var(--accent); border: none; color: #fff; border-radius: 8px;
-      padding: .6rem 2rem; cursor: pointer; font-size: .85rem; font-weight: 600; transition: all .15s;
+    .name-modal input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+    .name-modal-actions { display: flex; gap: .6rem; justify-content: center; margin-top: 1rem; }
+    .name-modal-actions button {
+      padding: .45rem 1.2rem; border-radius: 8px; font-size: .82rem; font-weight: 600;
+      cursor: pointer; transition: all .15s;
     }
-    .auth-gate .auth-btn:hover { filter: brightness(1.15); }
-    .auth-err { font-size: .78rem; color: var(--danger); margin-top: .6rem; display: none; }
-    .auth-hint { font-size: .72rem; color: var(--muted); margin-top: 1rem; line-height: 1.5; }
-    .auth-hint a { color: var(--accent); }
-
-    /* Editor content */
-    .editor-content { display: none; }
-    .editor-content.visible { display: block; }
+    .nm-cancel { background: var(--tag); border: 1px solid var(--border); color: var(--muted); }
+    .nm-cancel:hover { border-color: var(--accent); color: var(--accent); }
+    .nm-confirm { background: var(--accent); border: 1px solid var(--accent); color: #fff; }
+    .nm-confirm:hover { filter: brightness(1.15); }
 
     .squad-tabs {
       display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.5rem;
@@ -290,28 +291,20 @@
       <div class="header-sub">Admin &ndash; Server 2864</div>
     </div>
     <a href="battle-plan.html" class="nav-link">View Plan &rarr;</a>
+    <a href="changelog.html" class="nav-link">Changelog</a>
   </div>
   <div class="header-actions">
     <button class="hdr-btn" onclick="toggleTheme()">
       <span id="themeIcon">&#9728;&#65039;</span>
       <span id="themeLabel">Light Mode</span>
     </button>
-    <button class="save-btn" id="saveBtn" onclick="saveToGitHub()" style="display:none">Save &amp; Publish</button>
+    <button class="save-btn" id="saveBtn" onclick="promptSave()">Save &amp; Publish</button>
   </div>
 </header>
 
 <main>
-  <!-- Auth Gate -->
-  <div id="authGate" class="auth-gate">
-    <h2>Admin Access</h2>
-    <p>Enter the shared editor password to edit and publish battle plans.</p>
-    <input type="password" id="passwordInput" placeholder="Password" autocomplete="off">
-    <div class="auth-err" id="authErr">Invalid password.</div>
-    <button class="auth-btn" onclick="authenticate()">Sign In</button>
-  </div>
-
   <!-- Editor -->
-  <div id="editor" class="editor-content">
+  <div id="editor">
     <div class="squad-tabs" id="squadTabs">
       <span class="squad-tabs-label">Squad</span>
     </div>
@@ -402,7 +395,20 @@
   </div>
 </div>
 
-<div class="status-bar hidden" id="statusBar">
+<!-- Name Prompt Modal -->
+<div class="name-modal-bg" id="nameModalBg" onclick="if(event.target===this)closeNameModal()">
+  <div class="name-modal">
+    <h3>Publish Changes</h3>
+    <p>Enter your name so we can track who made this update.</p>
+    <input type="text" id="editorNameInput" placeholder="Your name" autocomplete="off">
+    <div class="name-modal-actions">
+      <button class="nm-cancel" onclick="closeNameModal()">Cancel</button>
+      <button class="nm-confirm" onclick="confirmSave()">Publish</button>
+    </div>
+  </div>
+</div>
+
+<div class="status-bar" id="statusBar">
   <span class="status-text" id="statusText"></span>
 </div>
 
@@ -454,10 +460,10 @@ const SECTIONS = [
 ];
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let password = "";
 let planData = {};
 let activeSquad = "";
 let dirty = false;
+let pendingSaveType = ""; // "plan" or "roster"
 
 function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
@@ -468,43 +474,12 @@ function toggleTheme() {
   document.getElementById("themeLabel").textContent = d ? "Dark Mode" : "Light Mode";
 }
 
-// ── AUTH ───────────────────────────────────────────────────────────────────────
-async function authenticate() {
-  const pw = document.getElementById("passwordInput").value.trim();
-  if (!pw) return;
-  try {
-    // Validate password with a lightweight POST to the worker
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password: pw, ping: true })
-    });
-    if (!res.ok) {
-      const result = await res.json();
-      throw new Error(result.error || "Invalid password");
-    }
-    password = pw;
-    sessionStorage.setItem("bp_password", pw);
-    document.getElementById("authGate").style.display = "none";
-    document.getElementById("editor").classList.add("visible");
-    document.getElementById("saveBtn").style.display = "";
-    document.getElementById("statusBar").classList.remove("hidden");
-    await Promise.all([loadData(), loadRoster()]);
-    buildTabs();
-    selectSquad(SQUADS[0]);
-    renderRosterTable();
-  } catch (e) {
-    document.getElementById("authErr").style.display = "block";
-    document.getElementById("authErr").textContent = e.message || "Authentication failed.";
-  }
-}
-
-document.getElementById("passwordInput").addEventListener("keydown", e => { if (e.key === "Enter") authenticate(); });
-
-// Check for stored password on load
-(async function checkSession() {
-  const pw = sessionStorage.getItem("bp_password");
-  if (pw) { document.getElementById("passwordInput").value = pw; await authenticate(); }
+// ── INIT (no auth gate — load editor immediately) ────────────────────────────
+(async function init() {
+  await Promise.all([loadData(), loadRoster()]);
+  buildTabs();
+  selectSquad(SQUADS[0]);
+  renderRosterTable();
 })();
 
 // ── WORKER API ────────────────────────────────────────────────────────────────
@@ -525,44 +500,80 @@ async function loadData() {
   }
 }
 
-async function saveToGitHub() {
+// ── NAME PROMPT & SAVE ────────────────────────────────────────────────────────
+function promptSave() {
+  pendingSaveType = "plan";
+  const nameInput = document.getElementById("editorNameInput");
+  nameInput.value = localStorage.getItem("editor_name") || "";
+  document.getElementById("nameModalBg").classList.add("open");
+  nameInput.focus();
+}
+
+function closeNameModal() {
+  document.getElementById("nameModalBg").classList.remove("open");
+}
+
+async function confirmSave() {
+  const name = document.getElementById("editorNameInput").value.trim();
+  if (!name) { alert("Please enter your name."); return; }
+  localStorage.setItem("editor_name", name);
+  closeNameModal();
+
+  if (pendingSaveType === "roster") {
+    await doSaveRoster(name);
+  } else {
+    await doSavePlan(name);
+  }
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("nameModalBg").classList.contains("open")) confirmSave();
+});
+
+async function doSavePlan(editorName) {
   const btn = document.getElementById("saveBtn");
   btn.disabled = true;
   setStatus("Saving & publishing...", "saving");
-
-  // Collect notes from textarea before saving
   collectNotes();
 
   try {
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, data: planData })
+      body: JSON.stringify({ data: planData })
     });
-
     if (!res.ok) {
       const result = await res.json();
-      if (res.status === 401) {
-        password = "";
-        sessionStorage.removeItem("bp_password");
-        document.getElementById("editor").classList.remove("visible");
-        document.getElementById("authGate").style.display = "";
-        document.getElementById("saveBtn").style.display = "none";
-        document.getElementById("statusBar").classList.add("hidden");
-        document.getElementById("authErr").style.display = "block";
-        document.getElementById("authErr").textContent = "Password incorrect. Please sign in again.";
-        btn.disabled = false;
-        return;
-      }
       throw new Error(result.error || "Save failed");
     }
-
+    await appendChangelog(editorName, "Updated battle plan");
     dirty = false;
     setStatus("Published! GitHub Pages will update in ~1 min.", "saved");
   } catch (e) {
     setStatus("Error: " + e.message, "error");
   }
   btn.disabled = false;
+}
+
+async function appendChangelog(editorName, action) {
+  try {
+    // Load current changelog
+    let changelog = [];
+    try {
+      const res = await fetch("changelog-data.json?t=" + Date.now());
+      if (res.ok) changelog = await res.json();
+    } catch {}
+    // Append new entry
+    changelog.unshift({ timestamp: new Date().toISOString(), editor: editorName, action });
+    // Keep last 200 entries
+    if (changelog.length > 200) changelog = changelog.slice(0, 200);
+    // Save
+    await fetch(WORKER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ data: changelog, path: "changelog-data.json" })
+    });
+  } catch {}
 }
 
 function setStatus(msg, cls) {
@@ -928,18 +939,28 @@ function deletePlayer(idx) {
   if (activeSquad) renderEditor();
 }
 
-async function saveRosterToWorker() {
+function saveRosterToWorker() {
+  // Prompt for editor name before saving roster
+  pendingSaveType = "roster";
+  const nameInput = document.getElementById("editorNameInput");
+  nameInput.value = localStorage.getItem("editor_name") || "";
+  document.getElementById("nameModalBg").classList.add("open");
+  nameInput.focus();
+}
+
+async function doSaveRoster(editorName) {
   setStatus("Saving roster...", "saving");
   try {
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password, data: RAW, path: "roster-data.json" })
+      body: JSON.stringify({ data: RAW, path: "roster-data.json" })
     });
     if (!res.ok) {
       const result = await res.json();
       throw new Error(result.error || "Roster save failed");
     }
+    await appendChangelog(editorName, "Updated roster");
     setStatus("Roster saved! Main page will update in ~1 min.", "saved");
   } catch (e) {
     setStatus("Roster error: " + e.message, "error");
