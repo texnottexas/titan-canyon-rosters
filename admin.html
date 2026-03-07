@@ -483,6 +483,7 @@ const SECTIONS = [
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let planData = {};
+let planSnapshot = {};     // deep copy taken after each load/save for diffing
 let activeSquad = "";
 let dirty = false;
 let pendingSaveType = ""; // "plan" or "roster"
@@ -521,6 +522,7 @@ async function loadData() {
     setStatus("Failed to load: " + e.message, "error");
     planData = {};
   }
+  planSnapshot = JSON.parse(JSON.stringify(planData));
 }
 
 // ── NAME PROMPT & SAVE ────────────────────────────────────────────────────────
@@ -580,31 +582,41 @@ async function doSavePlan(editorName) {
 
 function buildPlanDetails() {
   const lines = [];
-  lines.push("Active tab: " + (SQUAD_SHORT[activeSquad] || activeSquad));
-  lines.push("");
+  const old = planSnapshot;
   SQUADS.forEach(sq => {
-    const data = planData[sq];
-    if (!data) return;
-    const hasContent = POSITIONS.some(p => data.positions?.[p.num]) ||
-      SECTIONS.some(s => (data[s.key] || []).some(Boolean));
-    if (!hasContent) return;
-    lines.push("── " + (SQUAD_SHORT[sq] || sq) + " ──");
-    // Positions with names
-    const posList = POSITIONS.map(p => ({ num: p.num, name: data.positions?.[p.num] })).filter(p => p.name);
-    if (posList.length) {
-      lines.push("Positions:");
-      posList.forEach(p => lines.push("  #" + p.num + " " + p.name));
-    }
-    // Sections with names
-    SECTIONS.forEach(s => {
-      const filled = (data[s.key] || []).filter(Boolean);
-      if (!filled.length) return;
-      lines.push(s.title.split(" (")[0] + ":");
-      filled.forEach(name => lines.push("  • " + name));
+    const cur = planData[sq] || {};
+    const prev = old[sq] || {};
+    const sqLines = [];
+    // Diff positions
+    POSITIONS.forEach(p => {
+      const was = prev.positions?.[p.num] || "";
+      const now = cur.positions?.[p.num] || "";
+      if (was !== now) {
+        if (was && now) sqLines.push("#" + p.num + ": " + was + " → " + now);
+        else if (now) sqLines.push("#" + p.num + ": + " + now);
+        else sqLines.push("#" + p.num + ": − " + was);
+      }
     });
-    if (data.notes) lines.push("Notes: " + data.notes.slice(0, 120));
-    lines.push("");
+    // Diff sections
+    SECTIONS.forEach(s => {
+      const wasSet = new Set((prev[s.key] || []).filter(Boolean));
+      const nowSet = new Set((cur[s.key] || []).filter(Boolean));
+      const label = s.title.split(" (")[0];
+      nowSet.forEach(n => { if (!wasSet.has(n)) sqLines.push(label + ": + " + n); });
+      wasSet.forEach(n => { if (!nowSet.has(n)) sqLines.push(label + ": − " + n); });
+    });
+    // Diff notes
+    const oldNotes = (prev.notes || "").trim();
+    const newNotes = (cur.notes || "").trim();
+    if (oldNotes !== newNotes && newNotes) sqLines.push("Notes updated");
+    if (sqLines.length) {
+      lines.push("── " + (SQUAD_SHORT[sq] || sq) + " ──");
+      lines.push(...sqLines);
+      lines.push("");
+    }
   });
+  if (!lines.length) lines.push("No detected changes (full re-save)");
+  planSnapshot = JSON.parse(JSON.stringify(planData));
   return lines.join("\n").trim();
 }
 

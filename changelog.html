@@ -77,6 +77,10 @@
       white-space: pre-wrap; word-break: break-word;
     }
     .detail-no-details { color: var(--muted); font-style: italic; font-size: .8rem; }
+    .cl-add { color: #3fb950; }
+    .cl-remove { color: #f85149; }
+    .cl-change { color: #d29922; }
+    .cl-heading { color: var(--accent); font-weight: 600; }
     .detail-close {
       display: block; margin: 1rem auto 0; background: var(--tag); border: 1px solid var(--border);
       color: var(--muted); border-radius: 8px; padding: .4rem 1.5rem; cursor: pointer;
@@ -148,6 +152,17 @@ function formatTime(iso) {
     " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
+function colorizeDetails(text) {
+  return text.split("\n").map(line => {
+    const h = esc(line);
+    if (/^──/.test(line)) return '<span class="cl-heading">' + h + '</span>';
+    if (/: \+ /.test(line) || /^Added /.test(line)) return '<span class="cl-add">' + h + '</span>';
+    if (/: − /.test(line) || /^Deleted /.test(line)) return '<span class="cl-remove">' + h + '</span>';
+    if (/→/.test(line) || /^Edited /.test(line)) return '<span class="cl-change">' + h + '</span>';
+    return h;
+  }).join("\n");
+}
+
 function openDetail(idx) {
   const e = changelogData[idx];
   if (!e) return;
@@ -158,7 +173,7 @@ function openDetail(idx) {
   const body = document.getElementById("detailBody");
   if (e.details) {
     body.className = "detail-body";
-    body.textContent = e.details;
+    body.innerHTML = colorizeDetails(e.details);
   } else {
     body.className = "detail-no-details";
     body.textContent = "No additional details recorded for this change.";
