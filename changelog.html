@@ -48,12 +48,41 @@
     .changelog-entry {
       display: flex; gap: 1rem; align-items: baseline; padding: .6rem .8rem;
       border-bottom: 1px solid var(--border); font-size: .82rem;
+      cursor: pointer; transition: background .1s;
     }
     .changelog-entry:hover { background: var(--tag); }
     .cl-time { color: var(--muted); font-size: .72rem; white-space: nowrap; min-width: 140px; font-family: monospace; }
     .cl-editor { color: var(--accent); font-weight: 600; min-width: 100px; }
-    .cl-action { color: var(--text); }
-    .empty-msg { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 3rem; }
+    .cl-action { color: var(--text); flex: 1; }
+    .cl-arrow { color: var(--muted); font-size: .7rem; margin-left: auto; flex-shrink: 0; }
+    .empty-msg { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 3rem; cursor: default; }
+
+    /* Detail modal */
+    .detail-modal-bg {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
+      z-index: 300; align-items: center; justify-content: center;
+    }
+    .detail-modal-bg.open { display: flex; }
+    .detail-modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 1.5rem; width: 520px; max-width: 95vw; max-height: 80vh; overflow-y: auto;
+      box-shadow: 0 20px 60px var(--shadow);
+    }
+    .detail-modal h3 { font-size: .95rem; font-weight: 700; color: var(--accent); margin-bottom: .8rem; }
+    .detail-meta { font-size: .78rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
+    .detail-meta strong { color: var(--text); }
+    .detail-body {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+      padding: .8rem 1rem; font-size: .8rem; color: var(--text); line-height: 1.6;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .detail-no-details { color: var(--muted); font-style: italic; font-size: .8rem; }
+    .detail-close {
+      display: block; margin: 1rem auto 0; background: var(--tag); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 8px; padding: .4rem 1.5rem; cursor: pointer;
+      font-size: .8rem; transition: all .15s;
+    }
+    .detail-close:hover { border-color: var(--accent); color: var(--accent); }
 
     @media (max-width: 640px) {
       main { padding: 1rem 1rem 2rem; }
@@ -85,12 +114,24 @@
 <main>
   <div class="changelog-header">
     <h2>Recent Changes</h2>
-    <p>A log of who made edits and when.</p>
+    <p>A log of who made edits and when. Click any entry to see details.</p>
   </div>
   <ul class="changelog-list" id="changelogList"></ul>
 </main>
 
+<!-- Detail Modal -->
+<div class="detail-modal-bg" id="detailModalBg" onclick="if(event.target===this)closeDetail()">
+  <div class="detail-modal">
+    <h3 id="detailTitle">Change Details</h3>
+    <div class="detail-meta" id="detailMeta"></div>
+    <div id="detailBody"></div>
+    <button class="detail-close" onclick="closeDetail()">Close</button>
+  </div>
+</div>
+
 <script>
+let changelogData = [];
+
 function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 function toggleTheme() {
@@ -106,21 +147,46 @@ function formatTime(iso) {
     " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
 }
 
+function openDetail(idx) {
+  const e = changelogData[idx];
+  if (!e) return;
+  document.getElementById("detailTitle").textContent = e.action;
+  document.getElementById("detailMeta").innerHTML =
+    "<strong>Editor:</strong> " + esc(e.editor) + "<br>" +
+    "<strong>Time:</strong> " + esc(formatTime(e.timestamp));
+  const body = document.getElementById("detailBody");
+  if (e.details) {
+    body.className = "detail-body";
+    body.textContent = e.details;
+  } else {
+    body.className = "detail-no-details";
+    body.textContent = "No additional details recorded for this change.";
+  }
+  document.getElementById("detailModalBg").classList.add("open");
+}
+
+function closeDetail() {
+  document.getElementById("detailModalBg").classList.remove("open");
+}
+
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
+
 async function loadChangelog() {
   const list = document.getElementById("changelogList");
   try {
     const res = await fetch("changelog-data.json?t=" + Date.now());
     if (!res.ok) throw new Error();
-    const data = await res.json();
-    if (!data.length) {
+    changelogData = await res.json();
+    if (!changelogData.length) {
       list.innerHTML = '<li class="empty-msg">No changes recorded yet.</li>';
       return;
     }
-    list.innerHTML = data.map(e => `
-      <li class="changelog-entry">
+    list.innerHTML = changelogData.map((e, i) => `
+      <li class="changelog-entry" onclick="openDetail(${i})">
         <span class="cl-time">${esc(formatTime(e.timestamp))}</span>
         <span class="cl-editor">${esc(e.editor)}</span>
         <span class="cl-action">${esc(e.action)}</span>
+        <span class="cl-arrow">&#9654;</span>
       </li>
     `).join("");
   } catch {
