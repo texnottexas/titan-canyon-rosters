@@ -147,5 +147,32 @@
       "Vik"
     ],
     "notes": ""
+  },
+  "PRU Squad A": {
+    "positions": {
+      "1": "AjMaL",
+      "2": "Dark"
+    },
+    "goon": [
+      "Faxe",
+      "",
+      ""
+    ],
+    "standby": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    "hover": [
+      "",
+      ""
+    ],
+    "crystal": [
+      "",
+      ""
+    ],
+    "notes": ""
   }
 }
