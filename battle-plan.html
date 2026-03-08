@@ -135,14 +135,18 @@
       main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
     }
+    .ref-map-wrap {
+      margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);
+      text-align: center;
+    }
     .ref-map-thumb {
-      display: block; margin: .8rem auto 0; max-width: 180px; width: 100%;
+      display: block; margin: 0 auto; max-width: 260px; width: 100%;
       border-radius: 6px; border: 1px solid var(--border); cursor: pointer;
-      opacity: .7; transition: opacity .15s;
+      opacity: .75; transition: opacity .15s;
     }
     .ref-map-thumb:hover { opacity: 1; }
     .ref-map-label {
-      text-align: center; font-size: .6rem; color: var(--muted); margin-top: .3rem;
+      font-size: .6rem; color: var(--muted); margin-top: .4rem;
       cursor: pointer;
     }
     .ref-modal-overlay {
@@ -267,8 +271,10 @@ function render() {
       <div class="panel">
         <h3>Battle Map &mdash; ${esc(SQUAD_SHORT[activeSquad])}</h3>
         <div class="diamond-grid" id="mapGrid"></div>
-        <img src="https://i.ibb.co/HTM5MTLn/TC-Reference-Map.png" alt="Formation Reference" loading="lazy" class="ref-map-thumb" onclick="document.getElementById('refModal').classList.add('open')" />
-        <div class="ref-map-label" onclick="document.getElementById('refModal').classList.add('open')">Formation Reference (click to expand)</div>
+        <div class="ref-map-wrap">
+          <img src="https://i.ibb.co/HTM5MTLn/TC-Reference-Map.png" alt="Formation Reference" loading="lazy" class="ref-map-thumb" onclick="document.getElementById('refModal').classList.add('open')" />
+          <div class="ref-map-label" onclick="document.getElementById('refModal').classList.add('open')">Formation Reference (click to expand)</div>
+        </div>
       </div>
       <div class="panel">
         <h3>Roster Assignments</h3>
