@@ -495,6 +495,7 @@ let planData = {};
 let planSnapshot = {};     // deep copy taken after each load/save for diffing
 let activeSquad = "";
 let dirty = false;
+let dirtySquads = new Set(); // tracks which squads were actually edited
 let pendingSaveType = ""; // "plan" or "roster"
 let pendingDetail = "";   // detail string for changelog
 
@@ -571,17 +572,38 @@ async function doSavePlan(editorName) {
   collectNotes();
 
   try {
+    // Re-fetch latest data to avoid overwriting other squads
+    let latestData = {};
+    try {
+      const freshRes = await fetch(WORKER_URL);
+      if (freshRes.ok) {
+        const freshResult = await freshRes.json();
+        latestData = freshResult.data || {};
+      }
+    } catch {}
+
+    // Merge: only overwrite squads that were actually edited
+    const mergedData = JSON.parse(JSON.stringify(latestData));
+    dirtySquads.forEach(sq => {
+      if (planData[sq]) mergedData[sq] = JSON.parse(JSON.stringify(planData[sq]));
+    });
+
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: planData })
+      body: JSON.stringify({ data: mergedData })
     });
     if (!res.ok) {
       const result = await res.json();
       throw new Error(result.error || "Save failed");
     }
-    await appendChangelog(editorName, "Updated battle plan", buildPlanDetails());
+
+    // Update local state with merged data
+    planData = mergedData;
+    const details = buildPlanDetails();
+    await appendChangelog(editorName, "Updated battle plan", details || "No detected changes (full re-save)");
     dirty = false;
+    dirtySquads.clear();
     setStatus("Published! GitHub Pages will update in ~1 min.", "saved");
   } catch (e) {
     setStatus("Error: " + e.message, "error");
@@ -639,7 +661,7 @@ async function appendChangelog(editorName, action, details) {
     } catch {}
     // Append new entry
     const entry = { timestamp: new Date().toISOString(), editor: editorName, action };
-    if (details) entry.details = details;
+    entry.details = details || "No additional details recorded";
     changelog.unshift(entry);
     // Keep last 200 entries
     if (changelog.length > 200) changelog = changelog.slice(0, 200);
@@ -726,7 +748,7 @@ function collectNotes() {
   if (ta) { getSquadData(activeSquad).notes = ta.value; }
 }
 
-function markDirty() { dirty = true; setStatus("Unsaved changes", ""); }
+function markDirty() { dirty = true; if (activeSquad) dirtySquads.add(activeSquad); setStatus("Unsaved changes", ""); }
 
 function renderEditor() {
   const data = getSquadData(activeSquad);
