@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="no-referrer" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src data: https://i.ibb.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none';" />
   <title>Battle Plan – Server 2864</title>
   <style>
     :root[data-theme="dark"] {
@@ -74,81 +74,32 @@
 
     .panel {
       background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;
-      overflow: visible;
     }
     .panel h3 {
       font-size: .72rem; font-weight: 600; color: var(--muted);
       text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem;
     }
 
-    /* ── Diamond Map ─────────────────────────────────────────── */
-    .diamond-wrap {
-      display: flex; justify-content: center; align-items: center;
-      padding: 5rem 1rem;
+    /* Diamond Map */
+    .diamond-grid { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1; }
+    .map-node {
+      position: absolute; transform: translate(-50%,-50%);
+      width: 22%; height: 18%; background: var(--bg2); border: 2px solid var(--border);
+      border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 4px; transition: all .15s;
     }
-    .diamond-map {
-      --ds: 380px;
-      width: var(--ds); height: var(--ds);
-      transform: rotate(45deg);
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      grid-template-rows: repeat(5, 1fr);
-      gap: 2px;
-      border: 3.5px solid var(--text);
-      background: var(--border);
+    .map-node.filled { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg2)); }
+    .map-node .num { font-weight: 700; font-size: .9rem; color: var(--accent); line-height: 1; }
+    .map-node .role { font-size: .5rem; color: var(--muted); line-height: 1.1; margin-top: 1px; }
+    .map-node .player { font-size: .6rem; font-weight: 600; color: var(--text); margin-top: 2px; }
+    .map-hub {
+      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+      width: 28%; height: 28%; background: var(--tag); border: 1px dashed var(--border); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      font-size: .6rem; color: var(--muted); padding: 4px; line-height: 1.2;
     }
-    .d-cell {
-      position: relative; display: flex; align-items: center; justify-content: center;
-      overflow: hidden;
-    }
-    .d-inner {
-      transform: rotate(-45deg);
-      display: flex; flex-direction: column; align-items: center;
-      text-align: center; gap: 1px; width: 130%;
-    }
-    .d-pos { transition: filter .15s; }
-    .d-pos:hover { filter: brightness(1.2); }
-    .d-num {
-      font-weight: 800; font-size: .95rem; color: #fff; line-height: 1;
-      text-shadow: 0 1px 4px rgba(0,0,0,.6);
-    }
-    .d-role {
-      font-size: .44rem; color: rgba(255,255,255,.85); line-height: 1.15;
-      max-width: 72px; text-shadow: 0 1px 2px rgba(0,0,0,.5);
-    }
-    .d-player {
-      font-size: .58rem; font-weight: 700; color: #fff;
-      text-shadow: 0 1px 3px rgba(0,0,0,.6); margin-top: 1px;
-      max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    }
-    .d-facs { display: flex; gap: 2px; margin-top: 2px; flex-wrap: wrap; justify-content: center; max-width: 64px; }
-    .d-no-fac { font-size: .38rem; color: rgba(255,255,255,.5); margin-top: 1px; }
-    .fac {
-      width: 9px; height: 9px; border-radius: 2px; display: inline-block;
-      border: 1px solid rgba(255,255,255,.35);
-    }
-    .fac-str { background: #e6a817; }
-    .fac-weak { background: #e05252; }
-    .fac-uc { background: #2ea043; }
-    .d-hub { background: #111; }
-    .d-hub-text {
-      font-size: .5rem; color: rgba(255,255,255,.7); line-height: 1.25;
-      text-shadow: 0 1px 2px rgba(0,0,0,.5); max-width: 72px;
-    }
-    .d-trans {
-      background: repeating-linear-gradient(
-        45deg, var(--bg2) 0px, var(--bg2) 3px,
-        color-mix(in srgb, var(--muted) 25%, transparent) 3px,
-        color-mix(in srgb, var(--muted) 25%, transparent) 5px
-      );
-    }
-    .map-legend {
-      display: flex; gap: 1.2rem; justify-content: center; padding-top: .6rem;
-      font-size: .72rem; color: var(--muted);
-    }
-    .legend-item { display: flex; align-items: center; gap: .35rem; }
 
-    /* ── Roster Sections ─────────────────────────────────────── */
+    /* Roster sections */
     .assign-section { margin-bottom: 1rem; }
     .assign-section:last-child { margin-bottom: 0; }
     .assign-title {
@@ -164,12 +115,6 @@
     .slot-label { color: var(--muted); font-size: .68rem; min-width: 1.4rem; font-weight: 600; }
     .slot-player { font-weight: 600; }
     .slot-empty { color: var(--muted); font-style: italic; font-size: .75rem; }
-    .pos-color-dot {
-      width: 8px; height: 8px; border-radius: 2px; display: inline-block;
-      flex-shrink: 0; border: 1px solid rgba(255,255,255,.2);
-    }
-    .pos-fac-badges { display: flex; gap: 2px; margin-left: auto; flex-shrink: 0; }
-    .pos-fac-badges .fac { width: 8px; height: 8px; border-radius: 2px; }
 
     /* Notes */
     .notes-card {
@@ -189,12 +134,18 @@
     @media (max-width: 640px) {
       main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
-      .diamond-map { --ds: 270px; }
-      .d-num { font-size: .75rem; }
-      .d-role { font-size: .38rem; max-width: 55px; }
-      .d-player { font-size: .48rem; max-width: 55px; }
-      .fac { width: 8px; height: 8px; }
-      .diamond-wrap { padding: 3.5rem .5rem; }
+    }
+    .ref-map-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.25rem; margin-bottom: 2rem;
+    }
+    .ref-map-card h3 {
+      font-size: .72rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .06em; margin-bottom: .8rem;
+    }
+    .ref-map-card img {
+      width: 100%; max-width: 600px; display: block; margin: 0 auto;
+      border-radius: 8px; border: 1px solid var(--border);
     }
     .site-footer { text-align: center; padding: 1.5rem 2rem; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--border); }
     .site-footer a { color: var(--accent); text-decoration: none; }
@@ -238,27 +189,25 @@ const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squ
 const SQUAD_SHORT = {"Dog Squad A":"Dog A (+10)","Dog Squad B":"Dog B (-2)","MSS Squad A":"MSS A (+2)","MSS Squad B":"MSS B (+10)","PRU Squad A":"PRU A (-6)"};
 
 const POSITIONS = [
-  { num: 1, role: "Bigger CE",             facilities: [],                                          color: "#3d6b7e", row: 2, col: 2 },
-  { num: 2, role: "Medium-strong CE",      facilities: [],                                          color: "#9a6234", row: 4, col: 4 },
-  { num: 3, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#2e7d32", row: 3, col: 1 },
-  { num: 4, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#26737b", row: 1, col: 3 },
-  { num: 5, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#7b4527", row: 5, col: 3 },
-  { num: 6, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#4caf50", row: 3, col: 5 },
-  { num: 7, role: "Any MM (4 towers)",     facilities: ["str","str","weak","weak"],                  color: "#b8a800", row: 4, col: 2 },
-  { num: 8, role: "Any MM (4 towers)",     facilities: ["str","str","weak","weak"],                  color: "#6a3c96", row: 2, col: 4 },
+  { num: 1, role: "Bigger CE", color: "#3fb950", x: 22, y: 22 },
+  { num: 2, role: "Medium-strong CE", color: "#3fb950", x: 78, y: 78 },
+  { num: 3, role: "MM + Urgent Care", color: "#d29922", x: 5, y: 50 },
+  { num: 4, role: "MM + Urgent Care", color: "#d29922", x: 50, y: 5 },
+  { num: 5, role: "MM + Urgent Care", color: "#d29922", x: 50, y: 95 },
+  { num: 6, role: "MM + Urgent Care", color: "#d29922", x: 95, y: 50 },
+  { num: 7, role: "Any MM, no urgent care (4 towers)", color: "#3fb950", x: 22, y: 78 },
+  { num: 8, role: "Any MM, no urgent care (4 towers)", color: "#d29922", x: 78, y: 22 },
 ];
 
-const FAC_NAMES = { str: "Strengthening", weak: "Weakening", uc: "Urgent Care" };
-
 const POS_GROUPS = [
-  { title: "CE Positions (Map #1\u20132)", nums: [1, 2] },
-  { title: "MM Positions (Map #3\u20138)", nums: [3, 4, 5, 6, 7, 8] },
+  { title: "CE Positions (Map #1–2)", nums: [1, 2] },
+  { title: "MM Positions (Map #3–8)", nums: [3, 4, 5, 6, 7, 8] },
 ];
 
 const SECTIONS = [
   { key: "goon", title: "CE Goon Squad", note: "Go on offense / run around freely" },
   { key: "standby", title: "Standby (Fill as Needed)" },
-  { key: "hover", title: "Hover Captains", note: "Make sure people get to hover station every round / notify when it\u2019s bounty time" },
+  { key: "hover", title: "Hover Captains", note: "Make sure people get to hover station every round / notify when it's bounty time" },
   { key: "crystal", title: "Crystal Lab Captains", note: "Track open labs, share labs that need help" },
 ];
 
@@ -305,20 +254,17 @@ function render() {
     <div class="plan-layout">
       <div class="panel">
         <h3>Battle Map &mdash; ${esc(SQUAD_SHORT[activeSquad])}</h3>
-        <div class="diamond-wrap">
-          <div class="diamond-map" id="mapGrid"></div>
-        </div>
-        <div class="map-legend">
-          <div class="legend-item"><span class="fac fac-str"></span> Strengthening</div>
-          <div class="legend-item"><span class="fac fac-weak"></span> Weakening</div>
-          <div class="legend-item"><span class="fac fac-uc"></span> Urgent Care</div>
-        </div>
+        <div class="diamond-grid" id="mapGrid"></div>
       </div>
       <div class="panel">
         <h3>Roster Assignments</h3>
-        ${renderPositionSections(data)}
         ${SECTIONS.map(s => renderSection(s, data)).join("")}
+        ${renderPositionSections(data)}
       </div>
+    </div>
+    <div class="ref-map-card">
+      <h3>Formation Reference Map</h3>
+      <img src="https://i.ibb.co/HTM5MTLn/TC-Reference-Map.png" alt="Diamond Formation Reference Map" loading="lazy" />
     </div>
     ${data.notes ? `<div class="notes-card"><h3>Squad Notes</h3><div class="notes-body">${esc(data.notes)}</div></div>` : ""}
   `;
@@ -334,56 +280,28 @@ function hasAnyData(d) {
   return false;
 }
 
-function facHtml(f) {
-  return `<span class="fac fac-${f}" title="${esc(FAC_NAMES[f])}"></span>`;
-}
-
 function renderMap(data) {
   const grid = document.getElementById("mapGrid");
   if (!grid) return;
 
-  /* Position cells */
+  const hub = document.createElement("div");
+  hub.className = "map-hub";
+  hub.textContent = "Discarded Repository / Nexus Hub";
+  grid.appendChild(hub);
+
   POSITIONS.forEach(pos => {
     const assigned = data.positions && data.positions[pos.num] || "";
-    const cell = document.createElement("div");
-    cell.className = "d-cell d-pos";
-    cell.style.gridRow = pos.row;
-    cell.style.gridColumn = pos.col;
-    cell.style.background = pos.color;
-
-    const inner = document.createElement("div");
-    inner.className = "d-inner";
-    const facBlock = pos.facilities.length
-      ? `<div class="d-facs">${pos.facilities.map(facHtml).join("")}</div>`
-      : `<span class="d-no-fac">No facilities</span>`;
-    inner.innerHTML =
-      `<span class="d-num">${pos.num}</span>` +
-      `<span class="d-role">${esc(pos.role)}</span>` +
-      facBlock +
-      (assigned ? `<span class="d-player">${esc(assigned)}</span>` : "");
-    cell.appendChild(inner);
-    grid.appendChild(cell);
+    const node = document.createElement("div");
+    node.className = "map-node" + (assigned ? " filled" : "");
+    node.style.left = pos.x + "%";
+    node.style.top = pos.y + "%";
+    node.innerHTML = `
+      <span class="num">${pos.num}</span>
+      <span class="role">${esc(pos.role)}</span>
+      ${assigned ? `<span class="player">${esc(assigned)}</span>` : ""}
+    `;
+    grid.appendChild(node);
   });
-
-  /* Transition cells (hatched) */
-  [[2,3],[3,2],[3,4],[4,3]].forEach(([r,c]) => {
-    const cell = document.createElement("div");
-    cell.className = "d-cell d-trans";
-    cell.style.gridRow = r;
-    cell.style.gridColumn = c;
-    grid.appendChild(cell);
-  });
-
-  /* Hub (center) */
-  const hub = document.createElement("div");
-  hub.className = "d-cell d-hub";
-  hub.style.gridRow = 3;
-  hub.style.gridColumn = 3;
-  const hubInner = document.createElement("div");
-  hubInner.className = "d-inner";
-  hubInner.innerHTML = `<span class="d-hub-text">Discarded<br>Repository<br>&mdash;or&mdash;<br>Nexus Hub</span>`;
-  hub.appendChild(hubInner);
-  grid.appendChild(hub);
 }
 
 function renderPositionSections(data) {
@@ -398,10 +316,8 @@ function renderPositionSections(data) {
         <ul class="assign-list">
           ${posInfo.filter(p => data.positions[p.num]).map(p => `
             <li class="assign-item">
-              <span class="pos-color-dot" style="background:${p.color}"></span>
               <span class="slot-label">#${p.num}</span>
               <span class="slot-player">${esc(data.positions[p.num])}</span>
-              ${p.facilities.length ? `<div class="pos-fac-badges">${p.facilities.map(f => `<span class="fac fac-${f}" title="${esc(FAC_NAMES[f])}"></span>`).join("")}</div>` : ""}
             </li>
           `).join("")}
         </ul>
