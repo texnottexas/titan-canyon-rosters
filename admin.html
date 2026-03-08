@@ -104,47 +104,87 @@
 
     .panel {
       background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem;
+      overflow: visible;
     }
     .panel h3 {
       font-size: .72rem; font-weight: 600; color: var(--muted);
       text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem;
     }
 
-    /* Diamond Map */
-    .diamond-grid { position: relative; width: 100%; max-width: 420px; margin: 0 auto; aspect-ratio: 1; }
-    .map-node {
-      position: absolute; transform: translate(-50%,-50%);
-      width: 22%; height: 18%; background: var(--bg2); border: 2px solid var(--border);
-      border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 4px; transition: all .15s; cursor: pointer;
+    /* ── Diamond Map ─────────────────────────────────────────── */
+    .diamond-wrap {
+      display: flex; justify-content: center; align-items: center;
+      padding: 5rem 1rem;
     }
-    .map-node:hover { border-color: var(--accent); }
-    .map-node.filled { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, var(--bg2)); }
-    .map-node .num { font-weight: 700; font-size: .9rem; color: var(--accent); line-height: 1; }
-    .map-node .role { font-size: .5rem; color: var(--muted); line-height: 1.1; margin-top: 1px; }
-    .map-node .player { font-size: .6rem; font-weight: 600; color: var(--text); margin-top: 2px; }
-    .map-node .fdot { position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; }
-    .map-hub {
-      position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
-      width: 28%; height: 28%; background: var(--tag); border: 1px dashed var(--border); border-radius: 8px;
-      display: flex; align-items: center; justify-content: center; text-align: center;
-      font-size: .6rem; color: var(--muted); padding: 4px; line-height: 1.2;
+    .diamond-map {
+      --ds: 380px;
+      width: var(--ds); height: var(--ds);
+      transform: rotate(45deg);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(5, 1fr);
+      gap: 2px;
+      border: 3.5px solid var(--text);
+      background: var(--border);
     }
-    .map-select-overlay {
-      position: absolute; transform: translate(-50%,-50%); width: 28%; z-index: 10;
+    .d-cell {
+      position: relative; display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
     }
-    .map-select-overlay select {
-      width: 100%; background: var(--bg2); border: 2px solid var(--accent);
-      border-radius: 6px; color: var(--text); padding: .35rem .3rem; font-size: .68rem;
-      outline: none; cursor: pointer;
+    .d-inner {
+      transform: rotate(-45deg);
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; gap: 1px; width: 130%;
+    }
+    .d-pos { transition: filter .15s; cursor: pointer; }
+    .d-pos:hover { filter: brightness(1.2); }
+    .d-pos.selected { outline: 2px solid #fff; outline-offset: -2px; filter: brightness(1.3); }
+    .d-num {
+      font-weight: 800; font-size: .95rem; color: #fff; line-height: 1;
+      text-shadow: 0 1px 4px rgba(0,0,0,.6);
+    }
+    .d-role {
+      font-size: .44rem; color: rgba(255,255,255,.85); line-height: 1.15;
+      max-width: 72px; text-shadow: 0 1px 2px rgba(0,0,0,.5);
+    }
+    .d-player {
+      font-size: .58rem; font-weight: 700; color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,.6); margin-top: 1px;
+      max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .d-facs { display: flex; gap: 3px; margin-top: 2px; }
+    .fac {
+      width: 11px; height: 11px; border-radius: 3px; display: inline-block;
+      border: 1px solid rgba(255,255,255,.4);
+    }
+    .fac-str { background: #e6a817; }
+    .fac-weak { background: #e05252; }
+    .fac-uc { background: #2ea043; }
+    .d-hub { background: #111; }
+    .d-hub-text {
+      font-size: .5rem; color: rgba(255,255,255,.7); line-height: 1.25;
+      text-shadow: 0 1px 2px rgba(0,0,0,.5); max-width: 72px;
+    }
+    .d-trans {
+      background: repeating-linear-gradient(
+        45deg, var(--bg2) 0px, var(--bg2) 3px,
+        color-mix(in srgb, var(--muted) 25%, transparent) 3px,
+        color-mix(in srgb, var(--muted) 25%, transparent) 5px
+      );
     }
     .assign-item.highlight { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg2)); }
     .pos-role-label { font-size: .62rem; color: var(--muted); flex-shrink: 0; }
-    .map-legend {
-      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: .7rem; color: var(--muted);
+    .pos-color-dot {
+      width: 8px; height: 8px; border-radius: 2px; display: inline-block;
+      flex-shrink: 0; border: 1px solid rgba(255,255,255,.2);
     }
-    .legend-item { display: flex; align-items: center; gap: .3rem; }
-    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); }
+    .pos-fac-badges { display: flex; gap: 2px; margin-left: auto; flex-shrink: 0; }
+    .pos-fac-badges .fac { width: 8px; height: 8px; border-radius: 2px; }
+    .map-legend {
+      display: flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center;
+      padding-top: .6rem; font-size: .72rem; color: var(--muted);
+    }
+    .legend-item { display: flex; align-items: center; gap: .35rem; }
 
     /* Assignment editor */
     .assign-section { margin-bottom: 1.1rem; }
@@ -302,6 +342,12 @@
     @media (max-width: 640px) {
       main { padding: 1rem 1rem 2rem; }
       header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
+      .diamond-map { --ds: 270px; }
+      .d-num { font-size: .75rem; }
+      .d-role { font-size: .38rem; max-width: 55px; }
+      .d-player { font-size: .48rem; max-width: 55px; }
+      .fac { width: 8px; height: 8px; }
+      .diamond-wrap { padding: 3.5rem .5rem; }
     }
     .site-footer { text-align: center; padding: 1.5rem 2rem; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--border); }
     .site-footer a { color: var(--accent); text-decoration: none; }
@@ -470,15 +516,17 @@ const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squ
 const SQUAD_SHORT = {"Dog Squad A":"Dog A (+10)","Dog Squad B":"Dog B (-2)","MSS Squad A":"MSS A (+2)","MSS Squad B":"MSS B (+10)","PRU Squad A":"PRU A (-6)"};
 
 const POSITIONS = [
-  { num:1, role:"Bigger CE", color:"#3fb950", x:22, y:22 },
-  { num:2, role:"Medium-strong CE", color:"#3fb950", x:78, y:78 },
-  { num:3, role:"MM + Urgent Care", color:"#d29922", x:5, y:50 },
-  { num:4, role:"MM + Urgent Care", color:"#d29922", x:50, y:5 },
-  { num:5, role:"MM + Urgent Care", color:"#d29922", x:50, y:95 },
-  { num:6, role:"MM + Urgent Care", color:"#d29922", x:95, y:50 },
-  { num:7, role:"Any MM, no urgent care (4 towers)", color:"#3fb950", x:22, y:78 },
-  { num:8, role:"Any MM, no urgent care (4 towers)", color:"#d29922", x:78, y:22 },
+  { num:1, role:"Bigger CE",             facilities:["str","uc"],        color:"#3d6b7e", row:2, col:2 },
+  { num:2, role:"Medium-strong CE",      facilities:["str","weak","uc"], color:"#9a6234", row:4, col:4 },
+  { num:3, role:"MM with Urgent Care",   facilities:["str","weak","uc"], color:"#2e7d32", row:3, col:1 },
+  { num:4, role:"MM with Urgent Care",   facilities:["str","weak","uc"], color:"#26737b", row:1, col:3 },
+  { num:5, role:"MM with Urgent Care",   facilities:["str","weak","uc"], color:"#7b4527", row:5, col:3 },
+  { num:6, role:"MM with Urgent Care",   facilities:["str","weak","uc"], color:"#4caf50", row:3, col:5 },
+  { num:7, role:"Any MM (4 towers)",     facilities:["str","weak"],      color:"#b8a800", row:4, col:2 },
+  { num:8, role:"Any MM (4 towers)",     facilities:["str","weak"],      color:"#6a3c96", row:2, col:4 },
 ];
+
+const FAC_NAMES = { str: "Strengthening", weak: "Weakening", uc: "Urgent Care" };
 
 const POS_GROUPS = [
   { title:"CE Positions (Map #1–2)", nums:[1,2], prof:"CE" },
@@ -761,10 +809,13 @@ function renderEditor() {
     <div class="plan-layout">
       <div class="panel">
         <h3>Battle Map &mdash; ${esc(SQUAD_SHORT[activeSquad])}</h3>
-        <div class="diamond-grid" id="mapGrid"></div>
+        <div class="diamond-wrap">
+          <div class="diamond-map" id="mapGrid"></div>
+        </div>
         <div class="map-legend">
-          <div class="legend-item"><div class="legend-swatch" style="background:#3fb950"></div> Strengthening</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#d29922"></div> Urgent Care</div>
+          <div class="legend-item"><span class="fac fac-str"></span> Strengthening</div>
+          <div class="legend-item"><span class="fac fac-weak"></span> Weakening</div>
+          <div class="legend-item"><span class="fac fac-uc"></span> Urgent Care</div>
         </div>
       </div>
       <div class="panel">
@@ -797,60 +848,65 @@ function renderEditor() {
 
 function posProf(num) { return num <= 2 ? "CE" : "MM"; }
 
+function facHtml(f) {
+  return `<span class="fac fac-${f}" title="${esc(FAC_NAMES[f])}"></span>`;
+}
+
 function renderMap(data, sqPlayers) {
   const grid = document.getElementById("mapGrid");
   grid.innerHTML = "";
 
-  const hub = document.createElement("div");
-  hub.className = "map-hub";
-  hub.textContent = "Discarded Repository / Nexus Hub";
-  grid.appendChild(hub);
-
+  /* Position cells */
   POSITIONS.forEach(pos => {
     const assigned = data.positions[pos.num] || "";
-    const node = document.createElement("div");
-    node.className = "map-node" + (assigned ? " filled" : "");
-    node.style.left = pos.x + "%";
-    node.style.top = pos.y + "%";
-    node.innerHTML = `
-      <span class="num">${pos.num}</span>
-      <span class="role">${esc(pos.role)}</span>
-      ${assigned ? `<span class="player">${esc(assigned)}</span>` : ""}
-    `;
-    node.onclick = (e) => {
+    const cell = document.createElement("div");
+    cell.className = "d-cell d-pos";
+    cell.style.gridRow = pos.row;
+    cell.style.gridColumn = pos.col;
+    cell.style.background = pos.color;
+
+    const inner = document.createElement("div");
+    inner.className = "d-inner";
+    inner.innerHTML =
+      `<span class="d-num">${pos.num}</span>` +
+      `<span class="d-role">${esc(pos.role)}</span>` +
+      `<div class="d-facs">${pos.facilities.map(facHtml).join("")}</div>` +
+      (assigned ? `<span class="d-player">${esc(assigned)}</span>` : "");
+    cell.appendChild(inner);
+
+    cell.onclick = (e) => {
       e.stopPropagation();
-      // Remove any existing map select overlay
-      document.querySelectorAll(".map-select-overlay").forEach(el => el.remove());
-      // Create floating select
-      const wrap = document.createElement("div");
-      wrap.className = "map-select-overlay";
-      wrap.style.left = pos.x + "%";
-      wrap.style.top = pos.y + "%";
-      const sel = document.createElement("select");
-      sel.innerHTML = playerOptHtml(sqPlayers, assigned, posProf(pos.num), getUsedNames(data, "pos", pos.num));
-      sel.onchange = () => {
-        data.positions[pos.num] = sel.value;
-        markDirty();
-        wrap.remove();
-        renderMap(data, sqPlayers);
-        renderAllSlots(data, sqPlayers);
-      };
-      sel.onblur = () => wrap.remove();
-      wrap.appendChild(sel);
-      grid.appendChild(wrap);
-      sel.focus();
-      // Highlight corresponding roster row
       highlightPosRow(pos.num);
+      /* Scroll to the matching roster select and briefly pulse it */
+      const row = document.getElementById("pos_row_" + pos.num);
+      if (row) {
+        const sel = row.querySelector("select");
+        if (sel) { sel.focus(); sel.click(); }
+      }
     };
-    grid.appendChild(node);
+
+    grid.appendChild(cell);
   });
 
-  // Close overlay on outside click
-  grid.onclick = (e) => {
-    if (e.target === grid) {
-      document.querySelectorAll(".map-select-overlay").forEach(el => el.remove());
-    }
-  };
+  /* Transition cells (hatched) */
+  [[2,3],[3,2],[3,4],[4,3]].forEach(([r,c]) => {
+    const cell = document.createElement("div");
+    cell.className = "d-cell d-trans";
+    cell.style.gridRow = r;
+    cell.style.gridColumn = c;
+    grid.appendChild(cell);
+  });
+
+  /* Hub (center) */
+  const hub = document.createElement("div");
+  hub.className = "d-cell d-hub";
+  hub.style.gridRow = 3;
+  hub.style.gridColumn = 3;
+  const hubInner = document.createElement("div");
+  hubInner.className = "d-inner";
+  hubInner.innerHTML = `<span class="d-hub-text">Discarded<br>Repository<br>&mdash;or&mdash;<br>Nexus Hub</span>`;
+  hub.appendChild(hubInner);
+  grid.appendChild(hub);
 }
 
 function highlightPosRow(num) {
@@ -871,11 +927,13 @@ function renderPositionSlots(data, sqPlayers) {
       const used = getUsedNames(data, "pos", pos.num);
       return `
       <li class="assign-item" id="pos_row_${pos.num}">
+        <span class="pos-color-dot" style="background:${pos.color}"></span>
         <span class="slot-label">#${pos.num}</span>
         <span class="pos-role-label">${esc(pos.role)}</span>
         <select class="player-select" onchange="updatePosition(${pos.num},this.value)">
           ${playerOptHtml(sqPlayers, data.positions[pos.num] || "", g.prof, used)}
         </select>
+        <div class="pos-fac-badges">${pos.facilities.map(f => `<span class="fac fac-${f}" title="${esc(FAC_NAMES[f])}"></span>`).join("")}</div>
       </li>`;
     }).join("");
   });
