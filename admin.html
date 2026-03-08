@@ -140,11 +140,6 @@
     }
     .assign-item.highlight { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--bg2)); }
     .pos-role-label { font-size: .62rem; color: var(--muted); flex-shrink: 0; }
-    .map-legend {
-      display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; font-size: .7rem; color: var(--muted);
-    }
-    .legend-item { display: flex; align-items: center; gap: .3rem; }
-    .legend-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); }
 
     /* Assignment editor */
     .assign-section { margin-bottom: 1.1rem; }
@@ -762,10 +757,6 @@ function renderEditor() {
       <div class="panel">
         <h3>Battle Map &mdash; ${esc(SQUAD_SHORT[activeSquad])}</h3>
         <div class="diamond-grid" id="mapGrid"></div>
-        <div class="map-legend">
-          <div class="legend-item"><div class="legend-swatch" style="background:#3fb950"></div> Strengthening</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#d29922"></div> Urgent Care</div>
-        </div>
       </div>
       <div class="panel">
         <h3>Roster Assignments</h3>
