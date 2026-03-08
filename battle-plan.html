@@ -365,7 +365,10 @@ function renderSection(sec, data) {
 async function loadData() {
   try {
     const res = await fetch("battle-plan-data.json?t=" + Date.now());
-    if (res.ok) planData = await res.json();
+    if (res.ok) {
+      const parsed = await res.json();
+      planData = (parsed && typeof parsed === "object" && !Array.isArray(parsed)) ? parsed : {};
+    }
   } catch (e) { console.warn("Could not load plan data", e); }
 }
 
