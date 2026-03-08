@@ -365,7 +365,7 @@
     <h3 id="pmTitle">Add Player</h3>
     <input type="hidden" id="pmIdx" value="-1">
     <div class="pm-row">
-      <div class="pm-field"><label>Name</label><input id="pmName"></div>
+      <div class="pm-field"><label>Name</label><input id="pmName" maxlength="30"></div>
       <div class="pm-field"><label>Squad</label>
         <select id="pmSquad">
           <option value="Dog Squad A">Dog Squad A</option>
@@ -400,10 +400,10 @@
         </select>
       </div>
       <div class="pm-field"><label>March CP</label><input id="pmCP" type="number" min="0"></div>
-      <div class="pm-field"><label>UC Level</label><input id="pmUC" placeholder="0-5 or blank"></div>
+      <div class="pm-field"><label>UC Level</label><input id="pmUC" placeholder="0-5 or blank" maxlength="5"></div>
     </div>
     <div class="pm-row">
-      <div class="pm-field" style="flex:2"><label>Notes (e.g. "Move to PRU by Thu +10")</label><input id="pmNotes"></div>
+      <div class="pm-field" style="flex:2"><label>Notes (e.g. "Move to PRU by Thu +10")</label><input id="pmNotes" maxlength="200"></div>
     </div>
     <div class="pm-row">
       <div class="pm-field">
@@ -428,7 +428,7 @@
   <div class="name-modal">
     <h3>Publish Changes</h3>
     <p>Enter your name so we can track who made this update.</p>
-    <input type="text" id="editorNameInput" placeholder="Your name" autocomplete="off">
+    <input type="text" id="editorNameInput" placeholder="Your name" autocomplete="off" maxlength="50">
     <div class="name-modal-actions">
       <button class="nm-cancel" onclick="closeNameModal()">Cancel</button>
       <button class="nm-confirm" onclick="confirmSave()">Publish</button>
@@ -456,7 +456,10 @@ function rebuildPlayers() {
 async function loadRoster() {
   try {
     const res = await fetch("roster-data.json?t=" + Date.now());
-    if (res.ok) RAW = await res.json();
+    if (res.ok) {
+      const parsed = await res.json();
+      RAW = Array.isArray(parsed) ? parsed : [];
+    }
   } catch {}
   rebuildPlayers();
 }
@@ -520,7 +523,7 @@ async function loadData() {
     const res = await fetch(WORKER_URL);
     if (res.ok) {
       const result = await res.json();
-      planData = result.data || {};
+      planData = (result && typeof result.data === "object" && !Array.isArray(result.data)) ? result.data : {};
     } else {
       planData = {};
     }
@@ -546,7 +549,7 @@ function closeNameModal() {
 }
 
 async function confirmSave() {
-  const name = document.getElementById("editorNameInput").value.trim();
+  const name = document.getElementById("editorNameInput").value.trim().slice(0, 50);
   if (!name) { alert("Please enter your name."); return; }
   localStorage.setItem("editor_name", name);
   closeNameModal();
@@ -777,7 +780,7 @@ function renderEditor() {
     </div>
     <div class="notes-card">
       <h3>Squad Notes &amp; Instructions</h3>
-      <textarea id="squadNotes" placeholder="Add battle plan notes, reminders, or instructions...">${esc(data.notes || "")}</textarea>
+      <textarea id="squadNotes" placeholder="Add battle plan notes, reminders, or instructions..." maxlength="1000">${esc(data.notes || "")}</textarea>
     </div>
   `;
 
