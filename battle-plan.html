@@ -121,10 +121,11 @@
       text-shadow: 0 1px 3px rgba(0,0,0,.6); margin-top: 1px;
       max-width: 72px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    .d-facs { display: flex; gap: 3px; margin-top: 2px; }
+    .d-facs { display: flex; gap: 2px; margin-top: 2px; flex-wrap: wrap; justify-content: center; max-width: 64px; }
+    .d-no-fac { font-size: .38rem; color: rgba(255,255,255,.5); margin-top: 1px; }
     .fac {
-      width: 11px; height: 11px; border-radius: 3px; display: inline-block;
-      border: 1px solid rgba(255,255,255,.4);
+      width: 9px; height: 9px; border-radius: 2px; display: inline-block;
+      border: 1px solid rgba(255,255,255,.35);
     }
     .fac-str { background: #e6a817; }
     .fac-weak { background: #e05252; }
@@ -237,14 +238,14 @@ const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squ
 const SQUAD_SHORT = {"Dog Squad A":"Dog A (+10)","Dog Squad B":"Dog B (-2)","MSS Squad A":"MSS A (+2)","MSS Squad B":"MSS B (+10)","PRU Squad A":"PRU A (-6)"};
 
 const POSITIONS = [
-  { num: 1, role: "Bigger CE",             facilities: ["str","uc"],          color: "#3d6b7e", row: 2, col: 2 },
-  { num: 2, role: "Medium-strong CE",      facilities: ["str","weak","uc"],   color: "#9a6234", row: 4, col: 4 },
-  { num: 3, role: "MM with Urgent Care",   facilities: ["str","weak","uc"],   color: "#2e7d32", row: 3, col: 1 },
-  { num: 4, role: "MM with Urgent Care",   facilities: ["str","weak","uc"],   color: "#26737b", row: 1, col: 3 },
-  { num: 5, role: "MM with Urgent Care",   facilities: ["str","weak","uc"],   color: "#7b4527", row: 5, col: 3 },
-  { num: 6, role: "MM with Urgent Care",   facilities: ["str","weak","uc"],   color: "#4caf50", row: 3, col: 5 },
-  { num: 7, role: "Any MM (4 towers)",     facilities: ["str","weak"],        color: "#b8a800", row: 4, col: 2 },
-  { num: 8, role: "Any MM (4 towers)",     facilities: ["str","weak"],        color: "#6a3c96", row: 2, col: 4 },
+  { num: 1, role: "Bigger CE",             facilities: [],                                          color: "#3d6b7e", row: 2, col: 2 },
+  { num: 2, role: "Medium-strong CE",      facilities: [],                                          color: "#9a6234", row: 4, col: 4 },
+  { num: 3, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#2e7d32", row: 3, col: 1 },
+  { num: 4, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#26737b", row: 1, col: 3 },
+  { num: 5, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#7b4527", row: 5, col: 3 },
+  { num: 6, role: "MM with Urgent Care",   facilities: ["str","str","weak","weak","uc"],             color: "#4caf50", row: 3, col: 5 },
+  { num: 7, role: "Any MM (4 towers)",     facilities: ["str","str","weak","weak"],                  color: "#b8a800", row: 4, col: 2 },
+  { num: 8, role: "Any MM (4 towers)",     facilities: ["str","str","weak","weak"],                  color: "#6a3c96", row: 2, col: 4 },
 ];
 
 const FAC_NAMES = { str: "Strengthening", weak: "Weakening", uc: "Urgent Care" };
@@ -352,10 +353,13 @@ function renderMap(data) {
 
     const inner = document.createElement("div");
     inner.className = "d-inner";
+    const facBlock = pos.facilities.length
+      ? `<div class="d-facs">${pos.facilities.map(facHtml).join("")}</div>`
+      : `<span class="d-no-fac">No facilities</span>`;
     inner.innerHTML =
       `<span class="d-num">${pos.num}</span>` +
       `<span class="d-role">${esc(pos.role)}</span>` +
-      `<div class="d-facs">${pos.facilities.map(facHtml).join("")}</div>` +
+      facBlock +
       (assigned ? `<span class="d-player">${esc(assigned)}</span>` : "");
     cell.appendChild(inner);
     grid.appendChild(cell);
@@ -397,7 +401,7 @@ function renderPositionSections(data) {
               <span class="pos-color-dot" style="background:${p.color}"></span>
               <span class="slot-label">#${p.num}</span>
               <span class="slot-player">${esc(data.positions[p.num])}</span>
-              <div class="pos-fac-badges">${p.facilities.map(f => `<span class="fac fac-${f}" title="${esc(FAC_NAMES[f])}"></span>`).join("")}</div>
+              ${p.facilities.length ? `<div class="pos-fac-badges">${p.facilities.map(f => `<span class="fac fac-${f}" title="${esc(FAC_NAMES[f])}"></span>`).join("")}</div>` : ""}
             </li>
           `).join("")}
         </ul>
