@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="no-referrer" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://battle-plan-proxy.27tb8s6fct.workers.dev; img-src data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self' https://battle-plan-proxy.27tb8s6fct.workers.dev; img-src data: https://i.ibb.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none';" />
   <title>Admin – Battle Plan Editor</title>
   <style>
     :root[data-theme="dark"] {
@@ -130,6 +130,18 @@
       display: flex; align-items: center; justify-content: center; text-align: center;
       font-size: .6rem; color: var(--muted); padding: 4px; line-height: 1.2;
     }
+
+    /* Reference Map */
+    .ref-map-wrap { margin-top: 1.2rem; padding-top: 1rem; border-top: 1px solid var(--border); text-align: center; }
+    .ref-map-thumb { max-width: 420px; width: 100%; border-radius: 8px; cursor: pointer; transition: opacity .15s; }
+    .ref-map-thumb:hover { opacity: .85; }
+    .ref-map-label { font-size: .7rem; color: var(--muted); margin-top: .4rem; cursor: pointer; }
+    .ref-modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.85);
+      z-index: 9999; align-items: center; justify-content: center; cursor: zoom-out;
+    }
+    .ref-modal-overlay.open { display: flex; }
+    .ref-modal-overlay img { max-width: 95vw; max-height: 95vh; border-radius: 8px; }
     .map-select-overlay {
       position: absolute; transform: translate(-50%,-50%); width: 28%; z-index: 10;
     }
@@ -351,6 +363,9 @@
       </div>
     </div>
   </div>
+<div class="ref-modal-overlay" id="refModal" onclick="this.classList.remove('open')">
+  <img src="https://i.ibb.co/HTM5MTLn/TC-Reference-Map.png" alt="Formation Reference Map" />
+</div>
 </main>
 
 <footer class="site-footer">
@@ -564,6 +579,7 @@ async function confirmSave() {
 
 document.addEventListener("keydown", e => {
   if (e.key === "Enter" && document.getElementById("nameModalBg").classList.contains("open")) confirmSave();
+  if (e.key === "Escape") document.getElementById("refModal").classList.remove("open");
 });
 
 async function doSavePlan(editorName) {
@@ -761,6 +777,10 @@ function renderEditor() {
       <div class="panel">
         <h3>Battle Map &mdash; ${esc(SQUAD_SHORT[activeSquad])}</h3>
         <div class="diamond-grid" id="mapGrid"></div>
+        <div class="ref-map-wrap">
+          <img src="https://i.ibb.co/HTM5MTLn/TC-Reference-Map.png" alt="Formation Reference" loading="lazy" class="ref-map-thumb" onclick="document.getElementById('refModal').classList.add('open')" />
+          <div class="ref-map-label" onclick="document.getElementById('refModal').classList.add('open')">Formation Reference (click to expand)</div>
+        </div>
       </div>
       <div class="panel">
         <h3>Roster Assignments</h3>
