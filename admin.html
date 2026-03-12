@@ -373,6 +373,7 @@
           <option value="MSS Squad A">MSS Squad A</option>
           <option value="MSS Squad B">MSS Squad B</option>
           <option value="PRU Squad A">PRU Squad A</option>
+          <option value="Cat Squad A">Cat Squad A</option>
         </select>
       </div>
     </div>
@@ -464,8 +465,8 @@ async function loadRoster() {
   rebuildPlayers();
 }
 
-const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
-const SQUAD_SHORT = {"Dog Squad A":"Dog A (+10)","Dog Squad B":"Dog B (-2)","MSS Squad A":"MSS A (+2)","MSS Squad B":"MSS B (+10)","PRU Squad A":"PRU A (-6)"};
+const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A","Cat Squad A"];
+const SQUAD_SHORT = {"Dog Squad A":"Dog A (+10)","Dog Squad B":"Dog B (-2)","MSS Squad A":"MSS A (+2)","MSS Squad B":"MSS B (+10)","PRU Squad A":"PRU A (-6)","Cat Squad A":"Cat A (-2)"};
 
 const POSITIONS = [
   { num:1, role:"Bigger CE", color:"#3fb950", x:22, y:22 },
