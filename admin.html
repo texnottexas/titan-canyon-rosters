@@ -500,7 +500,7 @@ let dirtySquads = new Set(); // tracks which squads were actually edited
 let pendingSaveType = ""; // "plan" or "roster"
 let pendingDetail = "";   // detail string for changelog
 
-function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
 
 function toggleTheme() {
   const d = document.documentElement.getAttribute("data-theme") === "dark";
@@ -1013,11 +1013,11 @@ function closePlayerModal() {
 }
 
 function savePlayer() {
-  const name = document.getElementById("pmName").value.trim();
+  const name = document.getElementById("pmName").value.trim().slice(0, 30);
   if (!name) { alert("Name is required"); return; }
   const row = [
     name,
-    document.getElementById("pmNotes").value.trim(),
+    document.getElementById("pmNotes").value.trim().slice(0, 200),
     document.getElementById("pmS6").checked ? "y" : "n",
     document.getElementById("pmS2n").checked ? "y" : "n",
     document.getElementById("pmS2p").checked ? "y" : "n",
@@ -1026,7 +1026,7 @@ function savePlayer() {
     document.getElementById("pmUnit").value,
     parseInt(document.getElementById("pmCP").value) || 0,
     document.getElementById("pmProf").value,
-    document.getElementById("pmUC").value.trim(),
+    document.getElementById("pmUC").value.trim().slice(0, 5),
     document.getElementById("pmSquad").value,
   ];
   const idx = parseInt(document.getElementById("pmIdx").value);
