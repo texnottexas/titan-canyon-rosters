@@ -1,5 +1,33 @@
 [
   [
+    "🍍Sloth",
+    "",
+    "n",
+    "n",
+    "n",
+    "y",
+    "DOG",
+    "Army",
+    59,
+    "CE",
+    "",
+    "Dog Squad A"
+  ],
+  [
+    "👑Aurora",
+    "",
+    "y",
+    "y",
+    "n",
+    "n",
+    "DOG",
+    "Army",
+    26,
+    "MM",
+    "4",
+    "Dog Squad B"
+  ],
+  [
     "Abdullah",
     "",
     "n",
@@ -378,20 +406,6 @@
     "Dog Squad A"
   ],
   [
-    "Elbalala",
-    "Move to PRU by Thu +10",
-    "y",
-    "y",
-    "n",
-    "n",
-    "Cat+",
-    "Navy",
-    40,
-    "MM",
-    "1",
-    "PRU Squad A"
-  ],
-  [
     "Elb🖖",
     "",
     "n",
@@ -404,6 +418,20 @@
     "MM",
     "3",
     "MSS Squad A"
+  ],
+  [
+    "Elbalala",
+    "Move to PRU by Thu +10",
+    "y",
+    "y",
+    "n",
+    "n",
+    "Cat+",
+    "Navy",
+    40,
+    "MM",
+    "1",
+    "PRU Squad A"
   ],
   [
     "Eltonv",
@@ -460,6 +488,20 @@
     "MM",
     "3",
     "MSS Squad A"
+  ],
+  [
+    "Gary",
+    "",
+    "n",
+    "n",
+    "n",
+    "y",
+    "MSS",
+    "Army",
+    113,
+    "CE",
+    "",
+    "MSS Squad B"
   ],
   [
     "GM",
@@ -1162,20 +1204,6 @@
     "Dog Squad B"
   ],
   [
-    "Priit🦁",
-    "Move to Cat by Thu +10",
-    "n",
-    "y",
-    "n",
-    "n",
-    "MSS",
-    "Army",
-    36,
-    "MM",
-    "4",
-    "Cat Squad A"
-  ],
-  [
     "Pr🍑ject",
     "",
     "n",
@@ -1188,6 +1216,20 @@
     "CE",
     "",
     "Dog Squad A"
+  ],
+  [
+    "Priit🦁",
+    "Move to Cat by Thu +10",
+    "n",
+    "y",
+    "n",
+    "n",
+    "MSS",
+    "Army",
+    36,
+    "MM",
+    "4",
+    "Cat Squad A"
   ],
   [
     "Quaggy",
@@ -1622,33 +1664,5 @@
     "MM",
     "1",
     "MSS Squad A"
-  ],
-  [
-    "🍍Sloth",
-    "",
-    "n",
-    "n",
-    "n",
-    "y",
-    "DOG",
-    "Army",
-    59,
-    "CE",
-    "",
-    "Dog Squad A"
-  ],
-  [
-    "👑Aurora",
-    "",
-    "y",
-    "y",
-    "n",
-    "n",
-    "DOG",
-    "Army",
-    26,
-    "MM",
-    "4",
-    "Dog Squad B"
   ]
 ]
