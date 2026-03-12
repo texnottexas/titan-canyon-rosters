@@ -820,7 +820,7 @@ function getSortedFiltered() {
     list.sort((a,b)=>{
       const va=a[sortCol], vb=b[sortCol];
       if (sortCol==="cp") return sortAsc ? va-vb : vb-va;
-      const sa = String(va).replace(/^[^\p{L}\p{N}]+/u,""), sb = String(vb).replace(/^[^\p{L}\p{N}]+/u,"");
+      const sa = String(va).replace(/^[^\w]+/,""), sb = String(vb).replace(/^[^\w]+/,"");
       return sortAsc ? sa.localeCompare(sb) : sb.localeCompare(sa);
     });
   }
