@@ -133,6 +133,7 @@
     .sqbtn[data-squad="MSS Squad A"].active { background: #8957e5; border-color: #8957e5; color: #fff; }
     .sqbtn[data-squad="MSS Squad B"].active { background: #bc4c00; border-color: #bc4c00; color: #fff; }
     .sqbtn[data-squad="PRU Squad A"].active { background: #d29922; border-color: #d29922; color: #0d1117; }
+    .sqbtn[data-squad="Cat Squad A"].active { background: #f47067; border-color: #f47067; color: #fff; }
     .sqbtn[data-move="1"].active { background: var(--move-border); border-color: var(--move-border); color: #0d1117; }
     .squad-filters-sep { width: 1px; background: var(--border); align-self: stretch; margin: 0 .15rem; flex-shrink: 0; }
 
@@ -354,7 +355,7 @@
 <header>
   <div>
     <div class="header-title">&#9876; Server 2864 &ndash; Titan Canyon Rosters</div>
-    <div class="header-sub">Event: Saturday, March 07 &nbsp;&bull;&nbsp; 5 Squads</div>
+    <div class="header-sub">Event: Saturday, March 14 &nbsp;&bull;&nbsp; 6 Squads</div>
   </div>
   <div class="header-actions">
     <a href="https://shattereddisk.github.io/rickroll/" target="_blank" rel="noopener noreferrer" class="easter-egg" title="">&#127828;</a>
@@ -376,7 +377,7 @@
   <!-- Stats -->
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-num" id="sTot">0</div><div class="stat-lbl">Players</div></div>
-    <div class="stat-card"><div class="stat-num" id="sSquadCount">5</div><div class="stat-lbl">Squads</div></div>
+    <div class="stat-card"><div class="stat-num" id="sSquadCount">6</div><div class="stat-lbl">Squads</div></div>
     <div class="stat-card"><div class="stat-num" id="sCE">0</div><div class="stat-lbl">Combat Elite</div></div>
     <div class="stat-card"><div class="stat-num" id="sMM">0</div><div class="stat-lbl">Mech Master</div></div>
     <div class="stat-card"><div class="stat-num" id="sAvgCP">0</div><div class="stat-lbl">Avg March CP</div></div>
@@ -403,6 +404,9 @@
     </button>
     <button class="sqbtn" data-squad="PRU Squad A" onclick="tabFilter(this)">
       <span class="sqbtn-name">&#9876; PRU A &nbsp;&minus;6</span>
+    </button>
+    <button class="sqbtn" data-squad="Cat Squad A" onclick="tabFilter(this)">
+      <span class="sqbtn-name">&#128049; Cat A &nbsp;&minus;2</span>
     </button>
     <div class="squad-filters-sep"></div>
     <button class="sqbtn" data-move="1" onclick="moveFilter(this)">
@@ -431,6 +435,7 @@
             <option value="MSS Squad A">MSS Squad A (+2)</option>
             <option value="MSS Squad B">MSS Squad B (+10)</option>
             <option value="PRU Squad A">PRU Squad A (-6)</option>
+            <option value="Cat Squad A">Cat Squad A (-2)</option>
           </select>
         </div>
       </div>
@@ -521,6 +526,9 @@
         <button class="sqbtn" data-squad="PRU Squad A" onclick="modalSquadFilter(this)">
           <span class="sqbtn-name">&#9876; PRU A &nbsp;&minus;6</span>
         </button>
+        <button class="sqbtn" data-squad="Cat Squad A" onclick="modalSquadFilter(this)">
+          <span class="sqbtn-name">&#128049; Cat A &nbsp;&minus;2</span>
+        </button>
       </div>
       <!-- Charts -->
       <div class="modal-charts-grid">
@@ -570,132 +578,124 @@ let players = [];
 
 // Fallback hardcoded data (used if fetch fails)
 const RAW_FALLBACK = [
-  ["Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],
-  ["Aurora","","n","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"],
-  ["Dark","Move to PRU by Thu +10","y","n","n","n","DOG","Navy",26,"CE","","PRU Squad A"],
-  ["20100","Move to MSS by Thu +10","y","n","y","n","DOG","Army",22,"MM","3","MSS Squad A"],
-  ["a1capo","","n","y","n","n","DOG","Army",29,"CE","","Dog Squad B"],
   ["Abdullah","","n","y","y","y","DOG","Navy",25,"MM","3","Dog Squad A"],
-  ["AjMaL","Move to PRU by Thu +10","y","y","y","n","DOG","Army",24,"CE","","PRU Squad A"],
-  ["AlexB","","n","n","y","n","MSS","Navy",28,"MM","2","MSS Squad A"],
-  ["AlexMat","","n","y","n","n","DOG","Navy",85,"CE","","Dog Squad B"],
-  ["Ara","","n","n","n","y","MSS","Navy",53,"CE","","MSS Squad B"],
+  ["Action","","n","y","n","n","DOG","Army",74,"MM","5","Dog Squad B"],
+  ["Ajmal","Move to PRU by Thu +10","y","y","y","n","DOG","Army",24,"CE","","PRU Squad A"],
+  ["AlexB","","n","n","y","n","MSS","Navy",28,"MM","3","MSS Squad A"],
+  ["AlexMat","","n","y","n","n","DOG","Navy",86,"CE","","Dog Squad B"],
+  ["Ara👹","","n","n","n","y","MSS","Navy",54,"CE","","MSS Squad B"],
   ["Aresu","","n","y","n","n","DOG","Army",72,"CE","","Dog Squad B"],
   ["aristos","Move to PRU by Thu +10","y","y","n","n","DOG","Army",38,"MM","3","PRU Squad A"],
   ["ARR","","n","n","y","n","MSS","Army",26,"CE","","MSS Squad A"],
-  ["Babym","","n","n","y","n","MSS","Army",66,"MM","4","MSS Squad A"],
-  ["BAL","","n","y","n","n","DOG","Army",41,"CE","","Dog Squad B"],
-  ["Bane","","n","n","y","y","MSS","Army",65,"CE","","MSS Squad A"],
-  ["Bchara","","n","y","n","n","DOG","Army",49,"CE","","Dog Squad B"],
+  ["BaNe","","n","n","y","n","MSS","Army",65,"CE","","MSS Squad A"],
+  ["Bchara⚡","","n","y","n","n","DOG","Army",47,"CE","","Dog Squad B"],
   ["Beyo","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
-  ["Bianco","","n","n","y","n","MSS","Army",13,"CE","","MSS Squad A"],
-  ["Biggie","","n","n","n","y","DOG","Army",102,"CE","","Dog Squad A"],
+  ["Biggie","","n","n","n","y","DOG","Army",107,"CE","","Dog Squad A"],
   ["BlindGuy","","n","n","y","y","DOG","Army",40,"MM","4","Dog Squad A"],
-  ["BMW5","","n","n","y","n","MSS","Army",65,"CE","","MSS Squad A"],
-  ["brewdog","","n","n","n","y","DOG","Navy",66,"MM","3","Dog Squad A"],
-  ["Calabro","","n","y","n","n","DOG","Air Force",47,"CE","","Dog Squad B"],
+  ["BMW5","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
+  ["brewdog","","n","y","y","n","DOG","Navy",66,"MM","3","Dog Squad B"],
+  ["BruceFFS","","n","n","y","y","DOG","Army",40,"MM","5","Dog Squad A"],
+  ["Calabro","","n","y","n","n","DOG","Air Force",43,"CE","","Dog Squad B"],
   ["Caliboyx","","n","n","n","y","MSS","Navy",38,"CE","","MSS Squad B"],
   ["cardsfan","","n","y","n","n","DOG","Army",67,"MM","5","Dog Squad B"],
-  ["CHAUSUI","","n","y","n","n","DOG","Army",115,"CE","","Dog Squad B"],
   ["Darkspy","","n","n","n","y","DOG","Navy",70,"MM","3","Dog Squad A"],
-  ["Demon","","n","y","n","n","DOG","Air Force",79,"CE","","Dog Squad B"],
+  ["Demon","","n","y","n","n","DOG","Air Force",80,"CE","","Dog Squad B"],
   ["Dingus","","n","n","y","n","MSS","Army",73,"CE","","MSS Squad A"],
-  ["DNA","","n","n","y","n","MSS","Army",56,"MM","5","MSS Squad A"],
   ["DragonMC","","n","y","n","n","DOG","Army",50,"CE","","Dog Squad B"],
-  ["Drak","","n","y","n","n","DOG","Navy",68,"MM","5","Dog Squad B"],
-  ["Drewskii","","n","n","y","y","MSS","Air Force",73,"CE","","MSS Squad B"],
-  ["DRuSE","","n","n","y","n","MSS","Navy",21,"MM","1","MSS Squad A"],
-  ["Dtp20","","n","y","n","y","DOG","Air Force",110,"CE","","Dog Squad A"],
-  ["Elb","Move to PRU by Thu +10","y","n","n","n","MSS","Navy",56,"MM","3","PRU Squad A"],
-  ["Eny","","n","n","y","n","MSS","Navy",135,"CE","","MSS Squad A"],
-  ["Faxe","Move to PRU by Thu +10","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],
+  ["Drewskii","","n","n","n","y","DOG","Air Force",75,"CE","","Dog Squad A"],
+  ["DrNo","","n","n","y","n","MSS","Army",30,"MM","4","MSS Squad A"],
+  ["Dtp20","","n","n","y","y","DOG","Air Force",107,"CE","","Dog Squad A"],
+  ["Elbalala","Move to PRU by Thu +10","y","y","n","n","Cat+","Navy",40,"MM","1","PRU Squad A"],
+  ["Elb🖖","","n","y","y","n","MSS","Navy",56,"MM","3","MSS Squad A"],
+  ["Eltonv","Move to Cat by Thu +10","y","y","y","n","MSS","Army",26,"MM","2","Cat Squad A"],
+  ["Eny🖖","","n","y","n","n","DOG","Navy",135,"CE","","Dog Squad A"],
+  ["Faxepandaboss","Move to PRU by Thu +10","y","n","n","n","DOG","Army",114,"CE","","PRU Squad A"],
   ["Fokker","","n","y","y","n","MSS","Navy",32,"MM","3","MSS Squad A"],
   ["GM","","n","y","n","n","DOG","Air Force",39,"CE","","Dog Squad B"],
   ["Gorilla","","n","n","n","y","DOG","Navy",50,"CE","","Dog Squad A"],
-  ["Harley","","n","n","n","y","MSS","Army",90,"CE","","MSS Squad B"],
-  ["Heidi","","n","n","y","n","MSS","Navy",60,"MM","5","MSS Squad A"],
+  ["Gui73🦁","Move to Cat by Thu +10","n","y","y","n","MSS","Army",29,"MM","2","Cat Squad A"],
+  ["Heidi","","y","n","y","n","MSS","Navy",61,"MM","5","MSS Squad A"],
   ["HELLFIRE","","n","y","n","n","DOG","Navy",62,"CE","","Dog Squad B"],
-  ["Helmo","","n","n","n","y","MSS","Navy",101,"CE","","MSS Squad B"],
-  ["Hm","","n","n","n","y","MSS","Navy",85,"CE","","MSS Squad B"],
-  ["Hoadi","","y","y","y","n","MSS","Air Force",93,"CE","","MSS Squad A"],
-  ["Hot-rods","","n","n","y","y","MSS","Army",28,"MM","2","MSS Squad B"],
-  ["HourPa","Move to Dog by Thu +10","n","n","n","y","MSS","Army",53,"CE","","Dog Squad A"],
+  ["Helmo","","n","n","n","y","DOG","Navy",101,"CE","","Dog Squad A"],
+  ["Hot-rods","","n","n","y","y","MSS","Army",28,"CE","","MSS Squad B"],
+  ["HotRod","","n","n","n","y","DOG","Army",15,"MM","4","Dog Squad A"],
+  ["HourPa😈","","n","n","n","y","DOG","Army",55,"CE","","Dog Squad A"],
   ["Iceman","","n","n","y","n","MSS","Army",34,"CE","","MSS Squad A"],
-  ["It'sme","","n","n","n","y","DOG","Army",26,"MM","3","Dog Squad A"],
+  ["It’sme","","n","n","n","y","DOG","Army",26,"MM","3","Dog Squad A"],
   ["J","","n","y","n","y","DOG","Air Force",150,"CE","","Dog Squad A"],
-  ["Jerky","","n","y","n","n","DOG","Air Force",72,"CE","","Dog Squad B"],
-  ["Jopn17tl","","n","y","n","y","DOG","Navy",79,"CE","","Dog Squad A"],
+  ["Jerky","","n","y","n","n","DOG","Air Force",74,"CE","","Dog Squad B"],
+  ["Jopn17tl","","n","n","n","y","DOG","Navy",79,"CE","","Dog Squad A"],
   ["joske","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],
-  ["KiloBo","Move to PRU by Thu +10","y","y","y","n","MSS","Army",50,"MM","5","PRU Squad A"],
-  ["KingSnek","Move to MSS by Thu +10","n","n","y","n","Cat+","Army",120,"CE","","MSS Squad A"],
-  ["kom","","n","y","n","n","DOG","Army",35,"CE","","Dog Squad B"],
-  ["Lady","","n","y","n","n","DOG","Army",100,"CE","","Dog Squad B"],
-  ["LittleV","Move to PRU by Thu +10","y","n","n","y","Cat+","Army",11,"MM","0","PRU Squad A"],
-  ["Livv","Move to MSS by Thu +10","n","y","y","y","DOG","Air Force",57,"CE","","MSS Squad A"],
-  ["Madmaxx","","n","n","n","y","DOG","Navy",106,"CE","","Dog Squad A"],
+  ["KiloBo","Move to PRU by Thu +10","y","n","n","n","MSS","Army",50,"MM","5","PRU Squad A"],
+  ["KingSnek","","n","n","y","n","Cat+","Army",120,"CE","","MSS Squad A"],
+  ["kom","Move to Cat by Thu +10","n","y","n","n","DOG","Army",36,"CE","","Cat Squad A"],
+  ["Lady🐞","","n","y","n","n","DOG","Army",101,"CE","","Dog Squad B"],
+  ["Madmaxx","","n","y","n","n","DOG","Navy",107,"CE","","Dog Squad B"],
   ["Madsey","","n","n","y","n","MSS","Army",64,"CE","","MSS Squad A"],
   ["Magicguy","","n","n","n","y","DOG","Army",33,"MM","3","Dog Squad A"],
-  ["Mami","","n","n","n","y","MSS","Army",70,"MM","5","MSS Squad B"],
-  ["Mando","","n","y","y","n","DOG","Navy",34,"MM","4","Dog Squad B"],
-  ["Maximum (MSS)","","n","n","n","y","MSS","Army",30,"MM","4","MSS Squad B"],
-  ["Maximum (DOG)","","n","y","n","n","DOG","Navy",80,"CE","","Dog Squad B"],
-  ["MegaBo","","y","y","y","n","MSS","Air Force",80,"CE","","MSS Squad A"],
-  ["meliodas","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",55,"MM","5","MSS Squad A"],
-  ["Melo84","","n","y","n","n","DOG","Army",22,"CE","","Dog Squad B"],
-  ["Mephisto","","n","n","n","y","DOG","Air Force",119,"CE","","Dog Squad A"],
-  ["MF_Bluey","","n","n","n","y","DOG","Army",100,"CE","","Dog Squad A"],
-  ["MFBluey2","","n","n","y","n","MSS","Army",66,"CE","","MSS Squad A"],
-  ["MicroBo","Move to PRU by Thu +10","y","y","y","n","Cat+","Army",25,"MM","4","PRU Squad A"],
-  ["MONKEY","","n","y","n","n","DOG","Army",56,"CE","","Dog Squad B"],
-  ["Mopar","","n","n","n","y","DOG","Air Force",57,"CE","","Dog Squad A"],
-  ["Morvessa","Move to Dog by Thu +10","n","n","n","y","MSS","Navy",93,"CE","","Dog Squad A"],
+  ["Mami_❤️","","n","n","n","y","MSS","Army",70,"MM","5","MSS Squad B"],
+  ["Mando","Move to Cat by Thu +10","n","y","y","n","DOG","Navy",34,"MM","4","Cat Squad A"],
+  ["Maximum","","n","n","n","y","DOG","Navy",80,"CE","","Dog Squad A"],
+  ["Maximum","","n","n","y","n","MSS","Army",30,"MM","4","MSS Squad A"],
+  ["Maynard","","n","n","n","y","DOG","Army",45,"CE","","Dog Squad A"],
+  ["MegaBo","","y","n","y","n","MSS","Air Force",83,"CE","","MSS Squad A"],
+  ["meliodas","","n","y","y","n","DOG","Air Force",55,"MM","5","Dog Squad B"],
+  ["Melo84","Move to Cat by Thu +10","n","y","n","n","DOG","Army",22,"CE","","Cat Squad A"],
+  ["Mephisto","","n","y","n","y","DOG","Air Force",119,"CE","","Dog Squad A"],
+  ["MF_Bluey","","n","y","n","n","DOG","Army",100,"CE","","Dog Squad B"],
+  ["MicroBo","","n","y","n","n","Cat+","Army",25,"MM","4","Cat Squad A"],
+  ["MONKEY 🐒","","n","y","n","n","DOG","Army",55,"MM","4","Dog Squad B"],
+  ["Mopar🐿","","n","n","n","y","DOG","Air Force",57,"CE","","Dog Squad A"],
+  ["Morvessa","","n","n","n","y","DOG","Navy",93,"CE","","Dog Squad A"],
   ["Motyer","","n","y","n","n","DOG","Navy",46,"CE","","Dog Squad B"],
-  ["Mousse","","n","n","y","n","MSS","Army",58,"CE","","MSS Squad A"],
-  ["Mulan","","n","y","n","n","DOG","Air Force",68,"CE","","Dog Squad B"],
+  ["Mousse","","n","n","y","n","MSS","Army",34,"CE","","MSS Squad A"],
+  ["Mulan⚡","","n","y","n","n","DOG","Air Force",70,"CE","","Dog Squad B"],
   ["Musashi","","n","n","n","y","MSS","Air Force",49,"CE","","MSS Squad B"],
-  ["Nembo","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],
-  ["OEL13","","n","y","y","y","DOG","Navy",25,"CE","","Dog Squad B"],
-  ["Otts","","n","y","n","n","DOG","Navy",101,"CE","","Dog Squad B"],
+  ["Nembo😈","","n","y","n","n","DOG","Army",38,"MM","4","Dog Squad B"],
+  ["Obelix","","n","n","y","n","MSS","Army",39,"MM","4","MSS Squad A"],
+  ["OEL13","","n","y","n","n","DOG","Navy",25,"CE","","Dog Squad B"],
+  ["Otts","","n","y","n","n","DOG","Navy",91,"CE","","Dog Squad B"],
   ["Pacrtr","","n","n","n","y","DOG","Air Force",55,"CE","","Dog Squad A"],
-  ["PastaB","","n","n","n","y","MSS","Army",89,"CE","","MSS Squad B"],
-  ["Patrolfc","Move to MSS by Thu +10","n","y","y","n","DOG","Army",63,"CE","","MSS Squad A"],
-  ["Peewee","","y","y","y","y","DOG","Air Force",170,"CE","","Dog Squad A"],
-  ["Pepper","","n","n","n","y","MSS","Navy",66,"CE","","MSS Squad B"],
-  ["Pete","","n","y","n","n","DOG","Army",38,"MM","3","Dog Squad B"],
-  ["Project","","n","n","n","y","DOG","Army",42,"CE","","Dog Squad A"],
-  ["Quaggy","Move to MSS by Thu +10","n","n","y","n","DOG","Navy",73,"CE","","MSS Squad A"],
-  ["Raqqas","","n","y","n","n","DOG","Army",39,"CE","","Dog Squad B"],
+  ["PastaB","","n","n","n","y","MSS","Army",88,"CE","","MSS Squad B"],
+  ["Patrolfc","","n","y","y","n","MSS","Army",63,"CE","","MSS Squad A"],
+  ["Peewee","","n","y","y","y","DOG","Air Force",180,"CE","","Dog Squad A"],
+  ["Pepper","","n","n","n","y","MSS","Navy",67,"CE","","MSS Squad B"],
+  ["Pete","","n","y","n","n","DOG","Army",39,"MM","3","Dog Squad B"],
+  ["Priit🦁","Move to Cat by Thu +10","n","y","n","n","MSS","Army",36,"MM","4","Cat Squad A"],
+  ["Pr🍑ject","","n","n","n","y","DOG","Army",42,"CE","","Dog Squad A"],
+  ["Quaggy","Move to MSS by Thu +10","n","n","y","n","DOG","Navy",72,"CE","","MSS Squad A"],
+  ["R06m98","Move to DOG by Thu +10","n","y","n","n","MSS","Army",185,"CE","","Dog Squad B"],
+  ["Raqqas","","n","y","n","n","DOG","Army",40,"CE","","Dog Squad B"],
   ["Ray","","n","n","y","n","MSS","Army",21,"MM","5","MSS Squad A"],
-  ["Repuff","","n","n","n","y","MSS","Navy",47,"MM","2","MSS Squad B"],
-  ["Rex","Move to MSS by Thu +10","n","y","y","n","DOG","Air Force",80,"CE","","MSS Squad A"],
-  ["ROM","","n","n","y","n","MSS","Army",30,"CE","","MSS Squad A"],
-  ["Roma","Move to PRU by Thu +10","y","n","y","n","MSS","Navy",28,"CE","","PRU Squad A"],
-  ["Samson","","n","y","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
-  ["Shaz","Move to PRU by Thu +10","y","n","n","n","MSS","Air Force",94,"CE","","PRU Squad A"],
-  ["Shorty","","n","y","n","n","DOG","Army",56,"MM","2","Dog Squad B"],
-  ["Smalls","Move to MSS by Thu +10","n","y","y","y","DOG","Army",37,"MM","2","MSS Squad A"],
+  ["Rex","","n","y","y","n","DOG","Air Force",88,"CE","","Dog Squad B"],
+  ["ROM","","n","n","y","n","MSS","Army",31,"CE","","MSS Squad A"],
+  ["Roma","Move to PRU by Thu +10","y","y","y","n","MSS","Navy",29,"CE","","PRU Squad A"],
+  ["RUTHLESS (iGeorged)","","n","n","n","y","MSS","Navy",76,"CE","","MSS Squad B"],
+  ["Samson","","n","y","n","y","DOG","Army",56,"MM","5","Dog Squad A"],
+  ["Seva💋","","n","n","n","y","DOG","Army",15,"MM","3","Dog Squad A"],
+  ["Smalls","","n","y","y","y","DOG","Army",37,"MM","2","Dog Squad A"],
   ["Smoke","","n","n","n","y","MSS","Army",62,"CE","","MSS Squad B"],
-  ["Smurfx","","n","n","n","y","DOG","Navy",80,"CE","","Dog Squad A"],
-  ["Sparta","","n","n","y","y","DOG","Navy",175,"CE","","Dog Squad A"],
+  ["Smurfx","","n","n","n","y","DOG","Navy",81,"CE","","Dog Squad A"],
+  ["Sparta🥕","","n","y","y","y","DOG","Navy",177,"CE","","Dog Squad A"],
   ["Steve","","n","n","n","y","MSS","Air Force",40,"CE","","MSS Squad B"],
-  ["STiCK","","n","n","n","y","DOG","Air Force",50,"MM","5","Dog Squad A"],
-  ["STINGER","","n","n","n","y","MSS","Navy",33,"MM","4","MSS Squad B"],
-  ["Talion","","n","y","n","n","DOG","Air Force",32,"MM","4","Dog Squad B"],
-  ["Termi","","n","y","n","n","DOG","Navy",41,"CE","","Dog Squad B"],
-  ["Tex","","n","n","y","y","DOG","Army",189,"CE","","Dog Squad A"],
-  ["Thor","","n","y","n","n","DOG","Air Force",103,"CE","","Dog Squad B"],
-  ["TigerMan","","n","y","n","n","DOG","Army",46,"MM","0","Dog Squad B"],
-  ["Uber888","","n","n","n","y","MSS","Army",23,"MM","4","MSS Squad B"],
-  ["Venom","Move to PRU by Thu +10","y","n","n","y","MSS","Army",39,"CE","","PRU Squad A"],
+  ["STiCK","","n","n","n","y","MSS","Air Force",49,"MM","5","MSS Squad B"],
+  ["Sweet 🌷","","n","n","n","y","MSS","Army",23,"CE","","MSS Squad B"],
+  ["Talion","","n","y","n","n","DOG","Air Force",33,"MM","4","Dog Squad B"],
+  ["tatie","","n","n","n","y","MSS","Army",29,"MM","5","MSS Squad B"],
+  ["Tex","","n","n","n","y","DOG","Army",190,"CE","","Dog Squad A"],
+  ["TheJolly","","n","n","y","y","DOG","Army",28,"MM","3","Dog Squad A"],
+  ["Thor⚡","","n","y","n","n","DOG","Air Force",104,"CE","","Dog Squad B"],
   ["Vik","","n","n","n","y","MSS","Army",22,"MM","3","MSS Squad B"],
-  ["VMJ","","n","n","n","y","DOG","Army",65,"MM","5","Dog Squad A"],
-  ["Vytautas","","n","n","y","n","MSS","Navy",59,"MM","1","MSS Squad A"],
-  ["Wildcat","","n","n","n","y","MSS","Army",35,"MM","5","MSS Squad B"],
-  ["Willow","","n","n","y","n","MSS","Army",53,"MM","4","MSS Squad A"],
+  ["VMJ","","n","n","n","y","MSS","Army",66,"MM","5","MSS Squad B"],
+  ["Widdy","","n","y","y","n","DOG","Army",73,"MM","5","Dog Squad B"],
+  ["Wildcat","","n","n","n","y","MSS","Army",36,"MM","5","MSS Squad B"],
+  ["Willow","","n","y","y","n","MSS","Army",53,"MM","5","MSS Squad A"],
   ["WitcheR","","n","n","y","n","MSS","Army",20,"CE","","MSS Squad A"],
-  ["Wolfie","Move to MSS by Thu +10","n","y","y","n","DOG","Army",67,"CE","","MSS Squad A"],
-  ["Wonka","","n","y","n","n","DOG","Air Force",79,"MM","5","Dog Squad B"],
-  ["WOOOOOO","","n","n","n","y","DOG","Navy",113,"CE","","Dog Squad A"],
+  ["Wolfie","Move to PRU by Thu +10","y","n","n","n","DOG","Army",67,"CE","","PRU Squad A"],
+  ["Wonka","","n","y","n","n","DOG","Air Force",80,"MM","5","Dog Squad B"],
+  ["Y0da","","n","n","y","n","MSS","Navy",22,"MM","1","MSS Squad A"],
+  ["🍍Sloth","","n","n","n","y","DOG","Army",59,"CE","","Dog Squad A"],
+  ["👑Aurora","","y","y","n","n","DOG","Army",26,"MM","4","Dog Squad B"]
 ];
 
 function mapRawToPlayers(raw) {
@@ -707,14 +707,15 @@ function mapRawToPlayers(raw) {
   }));
 }
 
-const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A"];
-const SQUAD_SHORT = ["Dog A","Dog B","MSS A","MSS B","PRU A"];
+const SQUADS = ["Dog Squad A","Dog Squad B","MSS Squad A","MSS Squad B","PRU Squad A","Cat Squad A"];
+const SQUAD_SHORT = ["Dog A","Dog B","MSS A","MSS B","PRU A","Cat A"];
 const SQUAD_LABELS = {
   "Dog Squad A": "Dog Squad A \u2014 Saturday +10",
   "Dog Squad B": "Dog Squad B \u2014 Saturday \u22122",
   "MSS Squad A": "MSS Squad A \u2014 Saturday +2",
   "MSS Squad B": "MSS Squad B \u2014 Saturday +10",
   "PRU Squad A": "PRU Squad A \u2014 Saturday \u22126",
+  "Cat Squad A": "Cat Squad A \u2014 Saturday \u22122",
 };
 let MAX_CP = 0;
 
@@ -740,7 +741,7 @@ function toggleTheme() {
 // ── STATS ─────────────────────────────────────────────────────────────────────
 function updateStats(list) {
   document.getElementById("sTot").textContent = list.length;
-  document.getElementById("sSquadCount").textContent = (list.length === players.length) ? 5 : new Set(list.map(p=>p.squad)).size;
+  document.getElementById("sSquadCount").textContent = (list.length === players.length) ? SQUADS.length : new Set(list.map(p=>p.squad)).size;
   document.getElementById("sCE").textContent = list.filter(p=>p.prof==="CE").length;
   document.getElementById("sMM").textContent = list.filter(p=>p.prof==="MM").length;
   document.getElementById("sAvgCP").textContent = list.length ? Math.round(list.reduce((s,p)=>s+p.cp,0)/list.length) : 0;
