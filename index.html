@@ -460,6 +460,17 @@
           </select>
         </div>
       </div>
+      <div class="search-group">
+        <label for="sAlliance">Alliance</label>
+        <div class="s-select-wrap">
+          <select id="sAlliance" class="s-select" onchange="applyFilters()">
+            <option value="">All Alliances</option>
+            <option value="DOG">DOG</option>
+            <option value="MSS">MSS</option>
+            <option value="Cat+">Cat+</option>
+          </select>
+        </div>
+      </div>
       <button class="clear-btn" onclick="clearFilters()">&#10005; Clear</button>
     </div>
   </div>
@@ -810,12 +821,14 @@ function getSortedFiltered() {
   const squad = document.getElementById("sSquad").value;
   const unit  = document.getElementById("sUnit").value;
   const prof  = document.getElementById("sProf").value;
+  const ally  = document.getElementById("sAlliance").value;
   if (name)  list = list.filter(p=>p.name.toLowerCase().includes(name));
   if (squad) list = list.filter(p=>p.squad.startsWith(squad));
   else if (tabSquad) list = list.filter(p=>p.squad.startsWith(tabSquad));
   if (tabMove) list = list.filter(p=>p.isMove);
   if (unit)  list = list.filter(p=>p.unit===unit);
   if (prof)  list = list.filter(p=>p.prof===prof);
+  if (ally)  list = list.filter(p=>p.alliance===ally);
   if (sortCol) {
     list.sort((a,b)=>{
       const va=a[sortCol], vb=b[sortCol];
@@ -836,7 +849,7 @@ function applyFilters() {
   document.getElementById("rosterTitle").textContent = tabMove ? "Needs to Move" : (activeSquad ? SQUAD_LABELS[activeSquad] || activeSquad : "Full Roster");
 }
 function clearFilters() {
-  ["sName","sSquad","sUnit","sProf"].forEach(id=>{ document.getElementById(id).value=""; });
+  ["sName","sSquad","sUnit","sProf","sAlliance"].forEach(id=>{ document.getElementById(id).value=""; });
   tabMove = false;
   applyFilters();
 }
