@@ -345,10 +345,10 @@
       .header-actions { gap: .4rem; flex-wrap: wrap; }
       .header-actions .hdr-btn { padding: .3rem .6rem; font-size: .72rem; }
       #themeLabel { display: none; }
-      .stats-grid { grid-template-columns: repeat(3, 1fr); gap: .4rem; margin-bottom: .75rem; }
-      .stat-card { padding: .45rem .5rem; border-radius: 7px; }
-      .stat-num { font-size: 1.1rem; }
-      .stat-lbl { font-size: .58rem; margin-top: 2px; }
+      .stats-grid { grid-template-columns: repeat(3, 1fr); gap: .3rem; margin-bottom: .5rem; }
+      .stat-card { padding: .3rem .4rem; border-radius: 6px; }
+      .stat-num { font-size: .9rem; }
+      .stat-lbl { font-size: .5rem; margin-top: 1px; }
       .squad-filters { gap: .3rem; padding: .5rem .6rem; margin-bottom: .75rem; border-radius: 7px; }
       .squad-filters-label { font-size: .6rem; margin-right: .1rem; }
       .sqbtn { padding: .25rem .55rem; font-size: .68rem; border-radius: 6px; }
@@ -367,6 +367,7 @@
   </div>
   <div class="header-actions">
     <a href="https://shattereddisk.github.io/rickroll/" target="_blank" rel="noopener noreferrer" class="easter-egg" title="">&#127828;</a>
+    <a href="https://2864tw.com" class="hdr-btn" title="Back to Main Site" style="padding:.38rem .6rem;display:inline-flex;align-items:center"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 10H5"/><path d="M10 5l-5 5 5 5"/></svg></a>
     <a href="index.html" class="hdr-btn" title="Home" style="padding:.38rem .6rem;display:inline-flex;align-items:center"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L10 3.5l7 7"/><path d="M5 9v7a1 1 0 001 1h3v-4h2v4h3a1 1 0 001-1V9"/></svg></a>
     <a href="battle-plan.html" class="hdr-btn">&#9876; Battle Plan</a>
     <button class="hdr-btn hdr-btn-charts" onclick="openChartsModal()">
@@ -841,7 +842,7 @@ function getSortedFiltered() {
     list.sort((a,b)=>{
       const va=a[sortCol], vb=b[sortCol];
       if (sortCol==="cp") return sortAsc ? va-vb : vb-va;
-      const sa = String(va).replace(/^[^\w]+/,""), sb = String(vb).replace(/^[^\w]+/,"");
+      const sa = String(va).replace(/^[^\p{L}\p{N}]+/u,""), sb = String(vb).replace(/^[^\p{L}\p{N}]+/u,"");
       return sortAsc ? sa.localeCompare(sb) : sb.localeCompare(sa);
     });
   }
