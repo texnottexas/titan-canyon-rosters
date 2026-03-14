@@ -39,7 +39,7 @@ export default {
         );
         if (!res.ok) return jsonResponse({ error: "Failed to fetch data" }, 502, corsHeaders);
         const file = await res.json();
-        const content = JSON.parse(atob(file.content));
+        const content = JSON.parse(decodeURIComponent(escape(atob(file.content))));
         return jsonResponse({ data: content, sha: file.sha }, 200, corsHeaders);
       } catch (e) {
         return jsonResponse({ error: "Internal error" }, 500, corsHeaders);
