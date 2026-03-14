@@ -201,6 +201,11 @@
     tbody tr.has-move:hover { filter: brightness(1.07); }
 
     .pname { font-weight: 600; }
+    .td-num { color: var(--muted); font-size: .75rem; }
+    .td-squad { font-size: .8rem; color: var(--muted); }
+    .td-uc { color: var(--muted); text-align: center; font-size: .8rem; }
+    .td-alliance { font-size: .76rem; color: var(--muted); }
+    .cp-num { min-width: 2.1rem; font-weight: 600; display: inline-block; }
     .badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 12px; font-size: .72rem; font-weight: 500; }
     .b-army { background: rgba(63,185,80,.13); color: var(--army); }
     .b-navy { background: rgba(56,139,253,.13); color: var(--navy); }
@@ -431,7 +436,7 @@
     <div class="search-row">
       <div class="search-group">
         <label for="sName">Player Name</label>
-        <input type="text" id="sName" class="s-input" placeholder="Search by name..." oninput="applyFilters()">
+        <input type="text" id="sName" class="s-input" placeholder="Search by name..." oninput="debouncedApply()">
       </div>
       <div class="search-group">
         <label for="sSquad">Assignment</label>
@@ -768,14 +773,8 @@ function updateStats(list) {
 }
 
 // ── UTILS ─────────────────────────────────────────────────────────────────────
-function esc(s) {
-  return String(s == null ? "" : s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+const ESC_MAP = {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"};
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ESC_MAP[c]); }
 
 // ── TABLE ─────────────────────────────────────────────────────────────────────
 let sortCol = "name", sortAsc = true, tabSquad = "", tabMove = false;
@@ -792,7 +791,7 @@ function profBadge(p) {
   return p==="CE" ? `<span class="badge b-ce">&#9876; CE</span>` : `<span class="badge b-mm">&#128295; MM</span>`;
 }
 function cpBar(cp) {
-  return `<div class="cp-wrap"><span style="min-width:2.1rem;font-weight:600">${esc(cp)}</span><div class="cp-bar"><div class="cp-fill" style="width:${Math.round((cp/MAX_CP)*100)}%"></div></div></div>`;
+  return `<div class="cp-wrap"><span class="cp-num">${esc(cp)}</span><div class="cp-bar"><div class="cp-fill" style="width:${Math.round((cp/MAX_CP)*100)}%"></div></div></div>`;
 }
 function availDots(p) {
   return `<div class="avail">${[{v:p.s6,l:"-6"},{v:p.s2n,l:"-2"},{v:p.s2p,l:"+2"},{v:p.s10,l:"+10"}].map(s=>`<div title="Sat ${s.l}" class="dot ${s.v?'y':'n'}"></div>`).join('')}</div>`;
@@ -810,14 +809,14 @@ function buildTable(list) {
       ? `<span class="name-tip" data-tip="${esc(p.notes)}">${esc(p.name)}${moveTag(p.notes)}</span>`
       : esc(p.name);
     return `<tr data-squad="${esc(p.squad)}"${p.isMove?' class="has-move"':''}>
-      <td style="color:var(--muted);font-size:.75rem">${i+1}</td>
+      <td class="td-num">${i+1}</td>
       <td class="pname">${name}</td>
-      <td style="font-size:.8rem;color:var(--muted)">${esc(p.squad)}</td>
+      <td class="td-squad">${esc(p.squad)}</td>
       <td>${unitBadge(p.unit)}</td>
       <td>${profBadge(p.prof)}</td>
       <td>${cpBar(p.cp)}</td>
-      <td style="color:var(--muted);text-align:center;font-size:.8rem">${esc(p.ucLvl||"—")}</td>
-      <td><span style="font-size:.76rem;color:var(--muted)">${esc(p.alliance)}</span></td>
+      <td class="td-uc">${esc(p.ucLvl||"—")}</td>
+      <td class="td-alliance">${esc(p.alliance)}</td>
       <td>${availDots(p)}</td>
     </tr>`;
   }).join('');
@@ -848,6 +847,8 @@ function getSortedFiltered() {
   return list;
 }
 
+let _debounceTimer;
+function debouncedApply() { clearTimeout(_debounceTimer); _debounceTimer = setTimeout(applyFilters, 150); }
 function applyFilters() {
   const list = getSortedFiltered();
   buildTable(list);
@@ -915,11 +916,11 @@ function getChartLabels() {
   return SQUAD_SHORT;
 }
 
-function sqUnitData(u) { return getChartSquads().map(s => getChartList().filter(p=>p.squad===s && p.unit===u).length); }
-function sqProfData(pr){ return getChartSquads().map(s => getChartList().filter(p=>p.squad===s && p.prof===pr).length); }
-function sqAvgCPData() {
-  return getChartSquads().map(s => {
-    const sp = getChartList().filter(p=>p.squad===s);
+function sqUnitData(u, list, squads) { return squads.map(s => list.filter(p=>p.squad===s && p.unit===u).length); }
+function sqProfData(pr, list, squads){ return squads.map(s => list.filter(p=>p.squad===s && p.prof===pr).length); }
+function sqAvgCPData(list, squads) {
+  return squads.map(s => {
+    const sp = list.filter(p=>p.squad===s);
     return sp.length ? Math.round(sp.reduce((a,p)=>a+p.cp,0)/sp.length) : 0;
   });
 }
@@ -932,6 +933,7 @@ function destroyModalCharts() {
 function buildModalCharts() {
   destroyModalCharts();
   const labels = getChartLabels();
+  const squads = getChartSquads();
   const list = getChartList();
 
   // chart 1: unit type by squad
@@ -939,9 +941,9 @@ function buildModalCharts() {
   modalCharts.unit = new Chart(document.getElementById("mCUnit"), {
     type: "bar",
     data: { labels, datasets: [
-      { label:"Army",      data:sqUnitData("Army"),       backgroundColor:UC.Army.bg,         borderColor:UC.Army.b,         borderWidth:1, borderRadius:3 },
-      { label:"Navy",      data:sqUnitData("Navy"),       backgroundColor:UC.Navy.bg,         borderColor:UC.Navy.b,         borderWidth:1, borderRadius:3 },
-      { label:"Air Force", data:sqUnitData("Air Force"),  backgroundColor:UC["Air Force"].bg, borderColor:UC["Air Force"].b, borderWidth:1, borderRadius:3 }
+      { label:"Army",      data:sqUnitData("Army",list,squads),       backgroundColor:UC.Army.bg,         borderColor:UC.Army.b,         borderWidth:1, borderRadius:3 },
+      { label:"Navy",      data:sqUnitData("Navy",list,squads),       backgroundColor:UC.Navy.bg,         borderColor:UC.Navy.b,         borderWidth:1, borderRadius:3 },
+      { label:"Air Force", data:sqUnitData("Air Force",list,squads),  backgroundColor:UC["Air Force"].bg, borderColor:UC["Air Force"].b, borderWidth:1, borderRadius:3 }
     ]},
     options: baseOpts()
   });
@@ -951,8 +953,8 @@ function buildModalCharts() {
   modalCharts.prof = new Chart(document.getElementById("mCProf"), {
     type: "bar",
     data: { labels, datasets: [
-      { label:"Combat Elite", data:sqProfData("CE"), backgroundColor:PC.CE.bg, borderColor:PC.CE.b, borderWidth:1, borderRadius:3 },
-      { label:"Mech Master",  data:sqProfData("MM"), backgroundColor:PC.MM.bg, borderColor:PC.MM.b, borderWidth:1, borderRadius:3 }
+      { label:"Combat Elite", data:sqProfData("CE",list,squads), backgroundColor:PC.CE.bg, borderColor:PC.CE.b, borderWidth:1, borderRadius:3 },
+      { label:"Mech Master",  data:sqProfData("MM",list,squads), backgroundColor:PC.MM.bg, borderColor:PC.MM.b, borderWidth:1, borderRadius:3 }
     ]},
     options: baseOpts()
   });
@@ -981,7 +983,7 @@ function buildModalCharts() {
     type: "bar",
     data: { labels, datasets: [{
       label: "Avg March CP",
-      data: sqAvgCPData(),
+      data: sqAvgCPData(list,squads),
       backgroundColor: "rgba(121,192,255,.6)",
       borderColor: "#79c0ff",
       borderWidth: 1, borderRadius: 4

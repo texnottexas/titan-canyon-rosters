@@ -130,7 +130,7 @@
 
 <footer class="site-footer">
   Brought to you by supporters of the fk boats movement<br>
-  <a href="changelog.html">Changelog</a> &middot;
+  <a href="index.html">Rosters</a> &middot;
   <a href="https://github.com/texnottexas/titan-canyon-rosters" target="_blank" rel="noopener noreferrer">GitHub</a>
 </footer>
 
@@ -147,7 +147,8 @@
 <script>
 let changelogData = [];
 
-function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+const ESC_MAP = {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"};
+function esc(s) { return String(s??"").replace(/[&<>"']/g, c => ESC_MAP[c]); }
 
 function toggleTheme() {
   const d = document.documentElement.getAttribute("data-theme") === "dark";

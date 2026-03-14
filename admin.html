@@ -514,8 +514,10 @@ let dirty = false;
 let dirtySquads = new Set(); // tracks which squads were actually edited
 let pendingSaveType = ""; // "plan" or "roster"
 let pendingDetail = "";   // detail string for changelog
+let pendingRosterChange = null; // stashed roster mutation until user confirms
 
-function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+const ESC_MAP = {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"};
+function esc(s) { return String(s??"").replace(/[&<>"']/g, c => ESC_MAP[c]); }
 
 function toggleTheme() {
   const d = document.documentElement.getAttribute("data-theme") === "dark";
@@ -562,6 +564,7 @@ function promptSave() {
 
 function closeNameModal() {
   document.getElementById("nameModalBg").classList.remove("open");
+  pendingRosterChange = null;
 }
 
 async function confirmSave() {
@@ -896,12 +899,17 @@ function renderPositionSlots(data, sqPlayers) {
   });
 }
 
-function updatePosition(num, val) {
+function rerenderCurrent() {
   const data = getSquadData(activeSquad);
-  data.positions[num] = val;
+  const sp = getSquadPlayers(activeSquad);
+  renderMap(data, sp);
+  renderAllSlots(data, sp);
+}
+
+function updatePosition(num, val) {
+  getSquadData(activeSquad).positions[num] = val;
   markDirty();
-  renderMap(data, getSquadPlayers(activeSquad));
-  renderAllSlots(data, getSquadPlayers(activeSquad));
+  rerenderCurrent();
 }
 
 function renderAllSlots(data, sqPlayers) {
@@ -925,25 +933,23 @@ function renderAllSlots(data, sqPlayers) {
 }
 
 function updateSlot(key, idx, val) {
-  const data = getSquadData(activeSquad);
-  data[key][idx] = val;
+  getSquadData(activeSquad)[key][idx] = val;
   markDirty();
-  renderMap(data, getSquadPlayers(activeSquad));
-  renderAllSlots(data, getSquadPlayers(activeSquad));
+  rerenderCurrent();
 }
 
 function addSlot(key) {
   if (!activeSquad) return;
   getSquadData(activeSquad)[key].push("");
   markDirty();
-  renderAllSlots(getSquadData(activeSquad), getSquadPlayers(activeSquad));
+  rerenderCurrent();
 }
 
 function removeSlot(key, idx) {
   if (!activeSquad) return;
   getSquadData(activeSquad)[key].splice(idx, 1);
   markDirty();
-  renderAllSlots(getSquadData(activeSquad), getSquadPlayers(activeSquad));
+  rerenderCurrent();
 }
 
 // ── ROSTER MANAGEMENT ─────────────────────────────────────────────────────────
@@ -1051,30 +1057,18 @@ function savePlayer() {
   ];
   const idx = parseInt(document.getElementById("pmIdx").value);
   const isEdit = idx >= 0 && RAW[idx];
-  if (isEdit) {
-    RAW[idx] = row;
-  } else {
-    RAW.push(row);
-  }
-  RAW.sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: "base" }));
-  rebuildPlayers();
-  closePlayerModal();
-  renderRosterTable();
   pendingDetail = (isEdit ? "Edited" : "Added") + " player: " + name + " (" + row[11] + ", " + row[9] + ", " + row[8] + " CP)";
+  pendingRosterChange = { type: isEdit ? "edit" : "add", idx, row };
+  closePlayerModal();
   saveRosterToWorker();
-  // Re-render battle plan selects with updated player list
-  if (activeSquad) renderEditor();
 }
 
 function deletePlayer(idx) {
   const delName = RAW[idx][0];
   if (!confirm(`Delete ${delName}?`)) return;
   pendingDetail = "Deleted player: " + delName;
-  RAW.splice(idx, 1);
-  rebuildPlayers();
-  renderRosterTable();
+  pendingRosterChange = { type: "delete", idx };
   saveRosterToWorker();
-  if (activeSquad) renderEditor();
 }
 
 function saveRosterToWorker() {
@@ -1087,6 +1081,18 @@ function saveRosterToWorker() {
 }
 
 async function doSaveRoster(editorName) {
+  // Apply stashed roster mutation now that user confirmed
+  if (pendingRosterChange) {
+    const c = pendingRosterChange;
+    if (c.type === "edit") RAW[c.idx] = c.row;
+    else if (c.type === "add") RAW.push(c.row);
+    else if (c.type === "delete") RAW.splice(c.idx, 1);
+    RAW.sort((a, b) => a[0].localeCompare(b[0], undefined, { sensitivity: "base" }));
+    rebuildPlayers();
+    renderRosterTable();
+    if (activeSquad) renderEditor();
+    pendingRosterChange = null;
+  }
   setStatus("Saving roster...", "saving");
   try {
     const res = await fetch(WORKER_URL, {
