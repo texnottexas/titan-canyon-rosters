@@ -484,7 +484,6 @@ init();
       var combo = document.querySelector('.goog-te-combo');
       if (combo) {
         combo.value = code; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(code); closeLangModal();
-        setTimeout(function() { try { sessionStorage.removeItem('pendingLang'); } catch(e) {} }, 3000);
       }
       if (++attempts > 30) clearInterval(trySet);
     }, 200);
@@ -530,14 +529,13 @@ function googleTranslateElementInit() {
   window._gtLoaded = true;
   new google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'google_translate_element');
   var pendingLang = null;
-  try { pendingLang = sessionStorage.getItem('pendingLang'); } catch(e) {}
+  try { pendingLang = sessionStorage.getItem('pendingLang'); sessionStorage.removeItem('pendingLang'); } catch(e) {}
   if (pendingLang) {
     var attempts = 0;
     var trySet = setInterval(function() {
       var combo = document.querySelector('.goog-te-combo');
       if (combo) {
         combo.value = pendingLang; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(pendingLang);
-        setTimeout(function() { try { sessionStorage.removeItem('pendingLang'); } catch(e) {} }, 3000);
       }
       if (++attempts > 30) clearInterval(trySet);
     }, 250);
