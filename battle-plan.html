@@ -492,6 +492,7 @@ init();
     try { sessionStorage.removeItem('pendingLang'); } catch(e) {}
     document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.titan.2864tw.com;';
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.2864tw.com;';
     closeLangModal(); location.reload();
   }
   function openLangModal() { var m = document.getElementById('langModal'); if (m) m.classList.add('active'); }
