@@ -230,7 +230,8 @@ const SECTIONS = [
 let planData = {};
 let activeSquad = "";
 
-function esc(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;"); }
+const ESC_MAP = {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"};
+function esc(s) { return String(s??"").replace(/[&<>"']/g, c => ESC_MAP[c]); }
 
 function toggleTheme() {
   const d = document.documentElement.getAttribute("data-theme") === "dark";
@@ -306,7 +307,7 @@ function renderMap(data) {
   grid.appendChild(hub);
 
   POSITIONS.forEach(pos => {
-    const assigned = data.positions && data.positions[pos.num] || "";
+    const assigned = data.positions?.[pos.num] || "";
     const node = document.createElement("div");
     node.className = "map-node" + (assigned ? " filled" : "");
     node.style.left = pos.x + "%";
