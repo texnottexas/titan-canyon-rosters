@@ -478,14 +478,19 @@ init();
   };
   function selectLanguage(code) {
     if (code === 'en') { restoreEnglish(); return; }
+    try { sessionStorage.setItem('pendingLang', code); } catch(e) {}
     var attempts = 0;
     var trySet = setInterval(function() {
       var combo = document.querySelector('.goog-te-combo');
-      if (combo) { combo.value = code; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(code); closeLangModal(); }
+      if (combo) {
+        combo.value = code; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(code); closeLangModal();
+        setTimeout(function() { try { sessionStorage.removeItem('pendingLang'); } catch(e) {} }, 3000);
+      }
       if (++attempts > 30) clearInterval(trySet);
     }, 200);
   }
   function restoreEnglish() {
+    try { sessionStorage.removeItem('pendingLang'); } catch(e) {}
     document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.titan.2864tw.com;';
     closeLangModal(); location.reload();
@@ -524,22 +529,36 @@ init();
 function googleTranslateElementInit() {
   window._gtLoaded = true;
   new google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'google_translate_element');
-  try {
-    var dismissed = localStorage.getItem('translate-dismissed');
-    if (!dismissed) {
-      var lang = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
-      if (lang !== 'en') {
-        var attempts = 0;
-        var trySet = setInterval(function() {
-          var combo = document.querySelector('.goog-te-combo');
-          if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(lang); }
-          if (++attempts > 30) clearInterval(trySet);
-        }, 250);
+  var pendingLang = null;
+  try { pendingLang = sessionStorage.getItem('pendingLang'); } catch(e) {}
+  if (pendingLang) {
+    var attempts = 0;
+    var trySet = setInterval(function() {
+      var combo = document.querySelector('.goog-te-combo');
+      if (combo) {
+        combo.value = pendingLang; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(pendingLang);
+        setTimeout(function() { try { sessionStorage.removeItem('pendingLang'); } catch(e) {} }, 3000);
       }
-    }
-  } catch(e) {}
-  var detected = window.detectCurrentLang();
-  if (detected !== 'en') window.updateLangBtn(detected);
+      if (++attempts > 30) clearInterval(trySet);
+    }, 250);
+  } else {
+    try {
+      var dismissed = localStorage.getItem('translate-dismissed');
+      if (!dismissed) {
+        var lang = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
+        if (lang !== 'en') {
+          var attempts2 = 0;
+          var trySet2 = setInterval(function() {
+            var combo = document.querySelector('.goog-te-combo');
+            if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); clearInterval(trySet2); window.updateLangBtn(lang); }
+            if (++attempts2 > 30) clearInterval(trySet2);
+          }, 250);
+        }
+      }
+    } catch(e) {}
+    var detected = window.detectCurrentLang();
+    if (detected !== 'en') window.updateLangBtn(detected);
+  }
 }
 </script>
 <script src="https://translate.googleapis.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
