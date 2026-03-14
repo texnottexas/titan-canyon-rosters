@@ -472,31 +472,36 @@ init();
     for (var i = 0; i < options.length; i++) options[i].classList.toggle('active', options[i].getAttribute('data-lang') === code);
   };
   window.detectCurrentLang = function() {
-    var match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+    var match = document.cookie.match(/googtrans=\/en\/([a-zA-Z-]{2,10})/);
     if (match && match[1]) return match[1];
     return 'en';
   };
+  function applyLangToCombo(code, delay, onSuccess) {
+    var attempts = 0;
+    var poll = setInterval(function() {
+      var combo = document.querySelector('.goog-te-combo');
+      if (combo) {
+        combo.value = code; combo.dispatchEvent(new Event('change')); clearInterval(poll); window.updateLangBtn(code);
+        if (onSuccess) onSuccess();
+      }
+      if (++attempts > 30) clearInterval(poll);
+    }, delay || 200);
+  }
   function selectLanguage(code) {
     if (code === 'en') { restoreEnglish(); return; }
     try { sessionStorage.setItem('pendingLang', code); } catch(e) {}
-    var attempts = 0;
-    var trySet = setInterval(function() {
-      var combo = document.querySelector('.goog-te-combo');
-      if (combo) {
-        combo.value = code; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(code); closeLangModal();
-      }
-      if (++attempts > 30) clearInterval(trySet);
-    }, 200);
+    applyLangToCombo(code, 200, closeLangModal);
   }
   function restoreEnglish() {
     try { sessionStorage.removeItem('pendingLang'); } catch(e) {}
-    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.titan.2864tw.com;';
-    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.2864tw.com;';
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax; Secure';
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.titan.2864tw.com; SameSite=Lax; Secure';
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.2864tw.com; SameSite=Lax; Secure';
     closeLangModal(); location.reload();
   }
-  function openLangModal() { var m = document.getElementById('langModal'); if (m) m.classList.add('active'); }
-  function closeLangModal() { var m = document.getElementById('langModal'); if (m) m.classList.remove('active'); }
+  var langModalEl = document.getElementById('langModal');
+  function openLangModal() { if (langModalEl) langModalEl.classList.add('active'); }
+  function closeLangModal() { if (langModalEl) langModalEl.classList.remove('active'); }
   var grid = document.getElementById('langGrid');
   if (grid) {
     var detected = window.detectCurrentLang();
@@ -517,10 +522,9 @@ init();
   if (langBtn) langBtn.addEventListener('click', openLangModal);
   var langModalClose = document.getElementById('langModalClose');
   if (langModalClose) langModalClose.addEventListener('click', closeLangModal);
-  var langModal = document.getElementById('langModal');
-  if (langModal) langModal.addEventListener('click', function(e) { if (e.target === langModal) closeLangModal(); });
+  if (langModalEl) langModalEl.addEventListener('click', function(e) { if (e.target === langModalEl) closeLangModal(); });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') { var lm = document.getElementById('langModal'); if (lm && lm.classList.contains('active')) { closeLangModal(); e.stopPropagation(); } }
+    if (e.key === 'Escape' && langModalEl && langModalEl.classList.contains('active')) { closeLangModal(); e.stopPropagation(); }
   });
   setTimeout(function() {
     if (!window._gtLoaded) { var btn = document.getElementById('langBtn'); if (btn) { btn.style.opacity = '0.5'; btn.style.cursor = 'default'; btn.title = 'Translation unavailable'; btn.removeEventListener('click', openLangModal); } }
@@ -532,27 +536,13 @@ function googleTranslateElementInit() {
   var pendingLang = null;
   try { pendingLang = sessionStorage.getItem('pendingLang'); sessionStorage.removeItem('pendingLang'); } catch(e) {}
   if (pendingLang) {
-    var attempts = 0;
-    var trySet = setInterval(function() {
-      var combo = document.querySelector('.goog-te-combo');
-      if (combo) {
-        combo.value = pendingLang; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(pendingLang);
-      }
-      if (++attempts > 30) clearInterval(trySet);
-    }, 250);
+    applyLangToCombo(pendingLang, 250);
   } else {
     try {
       var dismissed = localStorage.getItem('translate-dismissed');
       if (!dismissed) {
         var lang = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
-        if (lang !== 'en') {
-          var attempts2 = 0;
-          var trySet2 = setInterval(function() {
-            var combo = document.querySelector('.goog-te-combo');
-            if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); clearInterval(trySet2); window.updateLangBtn(lang); }
-            if (++attempts2 > 30) clearInterval(trySet2);
-          }, 250);
-        }
+        if (lang !== 'en') applyLangToCombo(lang, 250);
       }
     } catch(e) {}
     var detected = window.detectCurrentLang();
