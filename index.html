@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="no-referrer" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'unsafe-inline'; connect-src 'self' https://rickroll-counter.27tb8s6fct.workers.dev; img-src data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none';" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'self' https://cdn.jsdelivr.net https://translate.googleapis.com https://translate.google.com https://www.gstatic.com https://translate-pa.googleapis.com; style-src 'unsafe-inline' https://translate.googleapis.com https://www.gstatic.com; connect-src 'self' https://rickroll-counter.27tb8s6fct.workers.dev https://translate.googleapis.com https://translate-pa.googleapis.com https://translate.google.com; img-src data: https://translate.google.com https://translate.googleapis.com https://www.gstatic.com https://www.google.com https://fonts.gstatic.com; frame-src https://translate.google.com; object-src 'none'; base-uri 'self'; form-action 'none'; font-src https://fonts.gstatic.com;" />
   <title>Server 2864 – Titan Canyon Rosters</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
   <style>
@@ -92,6 +92,43 @@
     }
     .hdr-btn-charts { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); }
     .hdr-btn-charts:hover { background: color-mix(in srgb, var(--accent) 10%, var(--tag)); }
+
+    /* Google Translate overrides */
+    body { top: 0 !important; }
+    body > .skiptranslate { display: none !important; }
+    #google_translate_element { position: absolute; left: -9999px; opacity: 0; pointer-events: none; }
+    .lang-btn {
+      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
+      border-radius: 8px; padding: .38rem .7rem; cursor: pointer; font-size: .8rem;
+      display: flex; align-items: center; gap: .35rem; font-family: inherit;
+      font-weight: 600; letter-spacing: .02em; white-space: nowrap; transition: border-color .2s;
+    }
+    .lang-btn:hover { border-color: var(--accent); color: var(--text); }
+    .lang-modal-overlay {
+      display: none; position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 1rem;
+    }
+    .lang-modal-overlay.active { display: flex; }
+    .lang-modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.25rem; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto;
+      box-shadow: 0 8px 32px var(--shadow);
+    }
+    .lang-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .lang-modal-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+    .lang-modal-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1.2rem; padding: .2rem; line-height: 1; }
+    .lang-modal-close:hover { color: var(--text); }
+    .lang-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+    .lang-option {
+      display: flex; align-items: center; gap: .5rem; padding: .5rem .65rem;
+      border-radius: 8px; border: 1px solid transparent; background: var(--bg);
+      cursor: pointer; font-size: .82rem; color: var(--text); font-family: inherit;
+      transition: border-color .15s, background .15s;
+    }
+    .lang-option:hover { border-color: var(--accent); background: var(--tag); }
+    .lang-option.active { border-color: var(--accent); background: var(--tag); }
+    .lang-option .lang-flag { font-size: 1.1rem; }
+    .lang-option .lang-name { flex: 1; }
 
     /* ── MAIN ── */
     main { max-width: 1440px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
@@ -360,6 +397,7 @@
       .squad-filters-sep { margin: 0 .05rem; }
       .modal-overlay { padding: .5rem; }
       .modal-box { max-height: 95vh; border-radius: 10px; }
+      .lang-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -367,7 +405,7 @@
 
 <header>
   <div>
-    <div class="header-title">&#9876; Server 2864 &ndash; Titan Canyon Rosters</div>
+    <div class="header-title notranslate">&#9876; Server 2864 &ndash; Titan Canyon Rosters</div>
     <div class="header-sub">Event: Saturday, March 14 &nbsp;&bull;&nbsp; 6 Squads</div>
   </div>
   <div class="header-actions">
@@ -378,6 +416,11 @@
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="8" width="3" height="7" rx="1"/><rect x="6" y="4" width="3" height="11" rx="1"/><rect x="11" y="1" width="3" height="14" rx="1"/></svg>
       Charts
     </button>
+    <button class="lang-btn notranslate" id="langBtn" aria-label="Change language">
+      <span id="langFlag">&#127482;&#127480;</span>
+      <span id="langCode">/en</span>
+    </button>
+    <div id="google_translate_element"></div>
     <button class="hdr-btn" id="themeBtn" onclick="toggleTheme()">
       <span id="themeIcon">&#9728;&#65039;</span>
       <span id="themeLabel">Light Mode</span>
@@ -510,6 +553,17 @@
   </div>
 
 </main>
+
+<!-- Language Picker Modal -->
+<div class="lang-modal-overlay" id="langModal">
+  <div class="lang-modal">
+    <div class="lang-modal-header">
+      <span class="lang-modal-title">Select Language</span>
+      <button class="lang-modal-close" id="langModalClose" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="lang-grid" id="langGrid"></div>
+  </div>
+</div>
 
 <footer class="site-footer">
   <span class="footer-text">Brought to you by supporters of the fk boats movement</span><br>
@@ -810,13 +864,13 @@ function buildTable(list) {
       : esc(p.name);
     return `<tr data-squad="${esc(p.squad)}"${p.isMove?' class="has-move"':''}>
       <td class="td-num">${i+1}</td>
-      <td class="pname">${name}</td>
-      <td class="td-squad">${esc(p.squad)}</td>
+      <td class="pname notranslate">${name}</td>
+      <td class="td-squad notranslate">${esc(p.squad)}</td>
       <td>${unitBadge(p.unit)}</td>
       <td>${profBadge(p.prof)}</td>
       <td>${cpBar(p.cp)}</td>
       <td class="td-uc">${esc(p.ucLvl||"—")}</td>
-      <td class="td-alliance">${esc(p.alliance)}</td>
+      <td class="td-alliance notranslate">${esc(p.alliance)}</td>
       <td>${availDots(p)}</td>
     </tr>`;
   }).join('');
@@ -1054,5 +1108,160 @@ document.addEventListener("DOMContentLoaded", async () => {
   applyFilters();
 });
 </script>
+<script>
+// ── LANGUAGE PICKER ──────────────────────────────────────────────────────────
+(function() {
+  var LANGUAGES = [
+    { code: 'en', flag: '\u{1F1FA}\u{1F1F8}', name: 'English' },
+    { code: 'es', flag: '\u{1F1EA}\u{1F1F8}', name: 'Espa\u00f1ol' },
+    { code: 'fr', flag: '\u{1F1EB}\u{1F1F7}', name: 'Fran\u00e7ais' },
+    { code: 'de', flag: '\u{1F1E9}\u{1F1EA}', name: 'Deutsch' },
+    { code: 'pt', flag: '\u{1F1E7}\u{1F1F7}', name: 'Portugu\u00eas' },
+    { code: 'it', flag: '\u{1F1EE}\u{1F1F9}', name: 'Italiano' },
+    { code: 'ru', flag: '\u{1F1F7}\u{1F1FA}', name: '\u0420\u0443\u0441\u0441\u043a\u0438\u0439' },
+    { code: 'ja', flag: '\u{1F1EF}\u{1F1F5}', name: '\u65E5\u672C\u8A9E' },
+    { code: 'ko', flag: '\u{1F1F0}\u{1F1F7}', name: '\uD55C\uAD6D\uC5B4' },
+    { code: 'zh-CN', flag: '\u{1F1E8}\u{1F1F3}', name: '\u4E2D\u6587' },
+    { code: 'ar', flag: '\u{1F1F8}\u{1F1E6}', name: '\u0627\u0644\u0639\u0631\u0628\u064A\u0629' },
+    { code: 'tr', flag: '\u{1F1F9}\u{1F1F7}', name: 'T\u00fcrk\u00e7e' },
+    { code: 'vi', flag: '\u{1F1FB}\u{1F1F3}', name: 'Ti\u1EBFng Vi\u1EC7t' },
+    { code: 'th', flag: '\u{1F1F9}\u{1F1ED}', name: '\u0E44\u0E17\u0E22' },
+    { code: 'hi', flag: '\u{1F1EE}\u{1F1F3}', name: '\u0939\u093F\u0928\u094D\u0926\u0940' },
+    { code: 'pl', flag: '\u{1F1F5}\u{1F1F1}', name: 'Polski' },
+    { code: 'uk', flag: '\u{1F1FA}\u{1F1E6}', name: '\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430' },
+    { code: 'id', flag: '\u{1F1EE}\u{1F1E9}', name: 'Indonesia' }
+  ];
+
+  window._gtLoaded = false;
+
+  function getLangData(code) {
+    var base = code.split('-')[0];
+    for (var i = 0; i < LANGUAGES.length; i++) {
+      if (LANGUAGES[i].code === code || LANGUAGES[i].code === base) return LANGUAGES[i];
+    }
+    return null;
+  }
+
+  window.updateLangBtn = function(code) {
+    var data = getLangData(code);
+    var flagEl = document.getElementById('langFlag');
+    var codeEl = document.getElementById('langCode');
+    if (data && flagEl && codeEl) {
+      flagEl.textContent = data.flag;
+      codeEl.textContent = '/' + data.code;
+    } else if (flagEl && codeEl) {
+      flagEl.textContent = '\u{1F310}';
+      codeEl.textContent = '/' + code;
+    }
+    var options = document.querySelectorAll('.lang-option');
+    for (var i = 0; i < options.length; i++) {
+      options[i].classList.toggle('active', options[i].getAttribute('data-lang') === code);
+    }
+  };
+
+  window.detectCurrentLang = function() {
+    var match = document.cookie.match(/googtrans=\/en\/([^;]+)/);
+    if (match && match[1]) return match[1];
+    return 'en';
+  };
+
+  function selectLanguage(code) {
+    if (code === 'en') { restoreEnglish(); return; }
+    var attempts = 0;
+    var trySet = setInterval(function() {
+      var combo = document.querySelector('.goog-te-combo');
+      if (combo) {
+        combo.value = code;
+        combo.dispatchEvent(new Event('change'));
+        clearInterval(trySet);
+        window.updateLangBtn(code);
+        closeLangModal();
+      }
+      if (++attempts > 30) clearInterval(trySet);
+    }, 200);
+  }
+
+  function restoreEnglish() {
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.titan.2864tw.com;';
+    closeLangModal();
+    location.reload();
+  }
+
+  function openLangModal() { var m = document.getElementById('langModal'); if (m) m.classList.add('active'); }
+  function closeLangModal() { var m = document.getElementById('langModal'); if (m) m.classList.remove('active'); }
+
+  // Build language grid
+  var grid = document.getElementById('langGrid');
+  if (grid) {
+    var detected = window.detectCurrentLang();
+    for (var i = 0; i < LANGUAGES.length; i++) {
+      var l = LANGUAGES[i];
+      var btn = document.createElement('button');
+      btn.className = 'lang-option' + (l.code === detected ? ' active' : '');
+      btn.setAttribute('data-lang', l.code);
+      var flagSpan = document.createElement('span');
+      flagSpan.className = 'lang-flag';
+      flagSpan.textContent = l.flag;
+      var nameSpan = document.createElement('span');
+      nameSpan.className = 'lang-name';
+      nameSpan.textContent = l.name;
+      btn.appendChild(flagSpan);
+      btn.appendChild(nameSpan);
+      btn.addEventListener('click', (function(code) {
+        return function() { selectLanguage(code); };
+      })(l.code));
+      grid.appendChild(btn);
+    }
+    window.updateLangBtn(detected);
+  }
+
+  // Wire up events
+  var langBtn = document.getElementById('langBtn');
+  if (langBtn) langBtn.addEventListener('click', openLangModal);
+  var langModalClose = document.getElementById('langModalClose');
+  if (langModalClose) langModalClose.addEventListener('click', closeLangModal);
+  var langModal = document.getElementById('langModal');
+  if (langModal) {
+    langModal.addEventListener('click', function(e) { if (e.target === langModal) closeLangModal(); });
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      var lm = document.getElementById('langModal');
+      if (lm && lm.classList.contains('active')) { closeLangModal(); e.stopPropagation(); }
+    }
+  });
+
+  // Fallback
+  setTimeout(function() {
+    if (!window._gtLoaded) {
+      var btn = document.getElementById('langBtn');
+      if (btn) { btn.style.opacity = '0.5'; btn.style.cursor = 'default'; btn.title = 'Translation unavailable'; btn.removeEventListener('click', openLangModal); }
+    }
+  }, 15000);
+})();
+
+function googleTranslateElementInit() {
+  window._gtLoaded = true;
+  new google.translate.TranslateElement({ pageLanguage: 'en', autoDisplay: false }, 'google_translate_element');
+  try {
+    var dismissed = localStorage.getItem('translate-dismissed');
+    if (!dismissed) {
+      var lang = (navigator.language || navigator.userLanguage || 'en').split('-')[0];
+      if (lang !== 'en') {
+        var attempts = 0;
+        var trySet = setInterval(function() {
+          var combo = document.querySelector('.goog-te-combo');
+          if (combo) { combo.value = lang; combo.dispatchEvent(new Event('change')); clearInterval(trySet); window.updateLangBtn(lang); }
+          if (++attempts > 30) clearInterval(trySet);
+        }, 250);
+      }
+    }
+  } catch(e) {}
+  var detected = window.detectCurrentLang();
+  if (detected !== 'en') window.updateLangBtn(detected);
+}
+</script>
+<script src="https://translate.googleapis.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 </body>
 </html>
