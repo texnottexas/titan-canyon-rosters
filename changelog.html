@@ -4,224 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="referrer" content="no-referrer" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none';" />
-  <title>Changelog – Server 2864</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'self'; form-action 'none';" />
+  <meta http-equiv="refresh" content="2; url=https://2864tw.com/titan-roster.html" />
+  <link rel="canonical" href="https://2864tw.com/titan-roster.html" />
+  <title>Titan Canyon has moved · Server 2864</title>
   <style>
-    :root[data-theme="dark"] {
-      --bg: #0d1117; --bg2: #161b22; --card: #1c2128; --border: #30363d;
-      --text: #e6edf3; --muted: #8b949e; --accent: #79c0ff;
-      --tag: #21262d; --shadow: rgba(0,0,0,.45);
-    }
-    :root[data-theme="light"] {
-      --bg: #f6f8fa; --bg2: #ffffff; --card: #ffffff; --border: #d0d7de;
-      --text: #1f2328; --muted: #656d76; --accent: #1f75d4;
-      --tag: #eaeef2; --shadow: rgba(140,149,159,.2);
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-    header {
-      background: var(--bg2); border-bottom: 1px solid var(--border);
-      padding: .85rem 2rem; display: flex; align-items: center; justify-content: space-between;
-      position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 0 var(--border);
-    }
-    .header-left { display: flex; align-items: center; gap: 1.2rem; }
-    .header-title { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
-    .header-sub { font-size: .75rem; color: var(--muted); margin-top: 3px; }
-    .nav-link {
-      font-size: .8rem; color: var(--muted); text-decoration: none; padding: .35rem .8rem;
-      border: 1px solid var(--border); border-radius: 7px; transition: all .15s;
-    }
-    .nav-link:hover { border-color: var(--accent); color: var(--accent); }
-    .hdr-btn {
-      background: var(--tag); border: 1px solid var(--border); color: var(--muted);
-      border-radius: 8px; padding: .38rem .9rem; cursor: pointer; font-size: .8rem;
-      display: flex; align-items: center; gap: .4rem; transition: all .15s; white-space: nowrap;
-    }
-    .hdr-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    main { max-width: 800px; margin: 0 auto; padding: 1.5rem 2rem 3rem; }
-
-    .changelog-header { margin-bottom: 1.5rem; }
-    .changelog-header h2 { font-size: 1rem; font-weight: 700; color: var(--accent); margin-bottom: .3rem; }
-    .changelog-header p { font-size: .82rem; color: var(--muted); }
-
-    .changelog-list { list-style: none; }
-    .changelog-entry {
-      display: flex; gap: 1rem; align-items: baseline; padding: .6rem .8rem;
-      border-bottom: 1px solid var(--border); font-size: .82rem;
-      cursor: pointer; transition: background .1s;
-    }
-    .changelog-entry:hover { background: var(--tag); }
-    .cl-time { color: var(--muted); font-size: .72rem; white-space: nowrap; min-width: 140px; font-family: monospace; }
-    .cl-editor { color: var(--accent); font-weight: 600; min-width: 100px; }
-    .cl-action { color: var(--text); flex: 1; }
-    .cl-arrow { color: var(--muted); font-size: .7rem; margin-left: auto; flex-shrink: 0; }
-    .empty-msg { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 3rem; cursor: default; }
-
-    /* Detail modal */
-    .detail-modal-bg {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.6);
-      z-index: 300; align-items: center; justify-content: center;
-    }
-    .detail-modal-bg.open { display: flex; }
-    .detail-modal {
-      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-      padding: 1.5rem; width: 520px; max-width: 95vw; max-height: 80vh; overflow-y: auto;
-      box-shadow: 0 20px 60px var(--shadow);
-    }
-    .detail-modal h3 { font-size: .95rem; font-weight: 700; color: var(--accent); margin-bottom: .8rem; }
-    .detail-meta { font-size: .78rem; color: var(--muted); margin-bottom: 1rem; line-height: 1.6; }
-    .detail-meta strong { color: var(--text); }
-    .detail-body {
-      background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
-      padding: .8rem 1rem; font-size: .8rem; color: var(--text); line-height: 1.6;
-      white-space: pre-wrap; word-break: break-word;
-    }
-    .detail-no-details { color: var(--muted); font-style: italic; font-size: .8rem; }
-    .cl-add { color: #3fb950; }
-    .cl-remove { color: #f85149; }
-    .cl-change { color: #d29922; }
-    .cl-heading { color: var(--accent); font-weight: 600; }
-    .detail-close {
-      display: block; margin: 1rem auto 0; background: var(--tag); border: 1px solid var(--border);
-      color: var(--muted); border-radius: 8px; padding: .4rem 1.5rem; cursor: pointer;
-      font-size: .8rem; transition: all .15s;
-    }
-    .detail-close:hover { border-color: var(--accent); color: var(--accent); }
-
-    @media (max-width: 640px) {
-      main { padding: 1rem 1rem 2rem; }
-      header { padding: .7rem 1rem; flex-wrap: wrap; gap: .5rem; }
-      .changelog-entry { flex-direction: column; gap: .2rem; }
-      .cl-time { min-width: unset; }
-    }
-    .site-footer { text-align: center; padding: 1.5rem 2rem; font-size: .75rem; color: var(--muted); border-top: 1px solid var(--border); }
-    .site-footer a { color: var(--accent); text-decoration: none; }
-    .site-footer a:hover { text-decoration: underline; }
+    :root{--bg:#0d1117;--card:#1c2128;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#79c0ff;--green:#3fb950;}
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;line-height:1.5}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;max-width:460px;width:100%;padding:36px 30px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.45)}
+    .badge{display:inline-block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:4px 12px;margin-bottom:18px}
+    h1{font-size:22px;margin-bottom:10px}
+    p{color:var(--muted);font-size:15px;margin-bottom:22px}
+    a.btn{display:inline-block;background:var(--green);color:#04130a;font-weight:700;text-decoration:none;padding:12px 22px;border-radius:10px;font-size:15px;transition:filter .15s}
+    a.btn:hover{filter:brightness(1.08)}
+    .small{margin-top:18px;font-size:13px;color:var(--muted)}
+    .small a{color:var(--accent);text-decoration:none}
   </style>
 </head>
 <body>
-
-<header>
-  <div class="header-left">
-    <div>
-      <div class="header-title">Changelog</div>
-      <div class="header-sub">Server 2864 &ndash; Edit History</div>
+  <main class="card">
+    <span class="badge">Server 2864 · Titan Canyon</span>
+    <h1>This site has moved</h1>
+    <p>Titan Canyon now lives on the main 2864tw.com hub. Redirecting you to the roster&hellip;</p>
+    <a class="btn" href="https://2864tw.com/titan-roster.html">Go to the roster</a>
+    <div class="small">
+      Bookmark the new pages:
+      <a href="https://2864tw.com/titan-roster.html">Roster</a> ·
+      <a href="https://2864tw.com/titan-battle-plan.html">Battle Plan</a> ·
+      <a href="https://2864tw.com/titan-signup.html">Sign up</a>
     </div>
-    <a href="index.html" class="nav-link" title="Home" style="padding:.35rem .6rem;display:inline-flex;align-items:center"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L10 3.5l7 7"/><path d="M5 9v7a1 1 0 001 1h3v-4h2v4h3a1 1 0 001-1V9"/></svg></a>
-    <a href="battle-plan.html" class="nav-link">Battle Plan</a>
-  </div>
-  <div>
-    <button class="hdr-btn" onclick="toggleTheme()">
-      <span id="themeIcon">&#9728;&#65039;</span>
-      <span id="themeLabel">Light Mode</span>
-    </button>
-  </div>
-</header>
-
-<main>
-  <div class="changelog-header">
-    <h2>Recent Changes</h2>
-    <p>A log of who made edits and when. Click any entry to see details.</p>
-  </div>
-  <ul class="changelog-list" id="changelogList"></ul>
-</main>
-
-<footer class="site-footer">
-  Brought to you by supporters of the fk boats movement<br>
-  <a href="index.html">Rosters</a> &middot;
-  <a href="https://github.com/texnottexas/titan-canyon-rosters" target="_blank" rel="noopener noreferrer">GitHub</a>
-</footer>
-
-<!-- Detail Modal -->
-<div class="detail-modal-bg" id="detailModalBg" onclick="if(event.target===this)closeDetail()">
-  <div class="detail-modal">
-    <h3 id="detailTitle">Change Details</h3>
-    <div class="detail-meta" id="detailMeta"></div>
-    <div id="detailBody"></div>
-    <button class="detail-close" onclick="closeDetail()">Close</button>
-  </div>
-</div>
-
-<script>
-let changelogData = [];
-
-const ESC_MAP = {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"};
-function esc(s) { return String(s??"").replace(/[&<>"']/g, c => ESC_MAP[c]); }
-
-function toggleTheme() {
-  const d = document.documentElement.getAttribute("data-theme") === "dark";
-  document.documentElement.setAttribute("data-theme", d ? "light" : "dark");
-  document.getElementById("themeIcon").textContent = d ? "\uD83C\uDF19" : "\u2600\uFE0F";
-  document.getElementById("themeLabel").textContent = d ? "Dark Mode" : "Light Mode";
-}
-
-function formatTime(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) +
-    " " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-}
-
-function colorizeDetails(text) {
-  return text.split("\n").map(line => {
-    const h = esc(line);
-    if (/^──/.test(line)) return '<span class="cl-heading">' + h + '</span>';
-    if (/: \+ /.test(line) || /^Added /.test(line)) return '<span class="cl-add">' + h + '</span>';
-    if (/: − /.test(line) || /^Deleted /.test(line)) return '<span class="cl-remove">' + h + '</span>';
-    if (/→/.test(line) || /^Edited /.test(line)) return '<span class="cl-change">' + h + '</span>';
-    return h;
-  }).join("\n");
-}
-
-function openDetail(idx) {
-  const e = changelogData[idx];
-  if (!e) return;
-  document.getElementById("detailTitle").textContent = e.action;
-  document.getElementById("detailMeta").innerHTML =
-    "<strong>Editor:</strong> " + esc(e.editor) + "<br>" +
-    "<strong>Time:</strong> " + esc(formatTime(e.timestamp));
-  const body = document.getElementById("detailBody");
-  if (e.details) {
-    body.className = "detail-body";
-    body.innerHTML = colorizeDetails(e.details);
-  } else {
-    body.className = "detail-no-details";
-    body.textContent = "No additional details recorded for this change.";
-  }
-  document.getElementById("detailModalBg").classList.add("open");
-}
-
-function closeDetail() {
-  document.getElementById("detailModalBg").classList.remove("open");
-}
-
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeDetail(); });
-
-async function loadChangelog() {
-  const list = document.getElementById("changelogList");
-  try {
-    const res = await fetch("changelog-data.json?t=" + Date.now());
-    if (!res.ok) throw new Error();
-    changelogData = await res.json();
-    if (!changelogData.length) {
-      list.innerHTML = '<li class="empty-msg">No changes recorded yet.</li>';
-      return;
-    }
-    list.innerHTML = changelogData.map((e, i) => `
-      <li class="changelog-entry" onclick="openDetail(${i})">
-        <span class="cl-time">${esc(formatTime(e.timestamp))}</span>
-        <span class="cl-editor">${esc(e.editor)}</span>
-        <span class="cl-action">${esc(e.action)}</span>
-        <span class="cl-arrow">&#9654;</span>
-      </li>
-    `).join("");
-  } catch {
-    list.innerHTML = '<li class="empty-msg">No changes recorded yet.</li>';
-  }
-}
-
-loadChangelog();
-</script>
+  </main>
 </body>
 </html>
